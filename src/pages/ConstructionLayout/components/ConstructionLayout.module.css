@@ -1,0 +1,334 @@
+.constructionContainer {
+    padding: 20px;
+}
+
+.formSection {
+    margin-bottom: 20px;
+}
+
+.inputGroup {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.inputItem {
+    min-width: 200px;
+}
+
+.buttonGroup {
+    margin-top: 16px;
+}
+
+.dataTable {
+    margin-top: 24px;
+}
+
+.resultSection {
+    margin-top: 32px;
+}
+
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.menuButton {
+  font-size: 20px;
+  margin: 0 16px;
+  padding: 8px;
+  display: none;
+}
+
+.drawerMenu {
+  border-right: none;
+}
+
+.drawerMenu :global(.ant-menu-item) {
+  margin: 0 !important;
+  border-radius: 0 !important;
+}
+
+.menu {
+  line-height: 64px;
+}
+
+.menu :global(.ant-menu-item) {
+  color: #636E72 !important;
+  font-size: 15px;
+  padding: 0 24px !important;
+  margin: 0 4px !important;
+  border-bottom: 2px solid transparent !important;
+}
+
+.menu :global(.ant-menu-item:hover) {
+  color: #4C84FF !important;
+  background: #F0F7FF !important;
+}
+
+.menu :global(.ant-menu-item-selected) {
+  color: #4C84FF !important;
+  background: #F0F7FF !important;
+  font-weight: 500;
+  border-bottom: 2px solid #4C84FF !important;
+}
+
+.menu :global(.ant-menu-item::after) {
+  display: none !important;
+}
+
+.content {
+  flex: 1;
+  padding: 24px;
+  background: #f0f2f5;
+}
+
+.banner {
+  background: linear-gradient(135deg, #1a365d 0%, #2563eb 100%);
+  padding: 48px 24px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  text-align: center;
+  color: white;
+}
+
+.bannerTitle {
+  font-size: 2.5em;
+  margin-bottom: 16px;
+  color: white;
+}
+
+.bannerDescription {
+  font-size: 1.2em;
+  opacity: 0.9;
+}
+
+.mainContent {
+  padding: 0 24px 48px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.mainCard {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.customTabs {
+  padding: 16px 24px 0;
+}
+
+.customTabs :global(.ant-tabs-nav::before) {
+  border-bottom: none;
+}
+
+.customTabs :global(.ant-tabs-tab) {
+  font-size: 16px;
+  padding: 12px 24px;
+}
+
+.customTabs :global(.ant-tabs-tab-active) {
+  background: #f0f7ff;
+  border-radius: 8px 8px 0 0;
+}
+
+.resultCard {
+  margin-top: 24px;
+}
+
+.resultTitle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.resultTime {
+  font-size: 14px;
+  color: #666;
+}
+
+.resultTable {
+  margin-top: 16px;
+}
+
+.tableColumn {
+  text-align: center;
+}
+
+.tableColumn :global(.ant-table-cell) {
+  padding: 16px;
+}
+
+.formGroup {
+  display: grid;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.formItem {
+  margin-bottom: 0;
+}
+
+.submitButton {
+  width: 100%;
+  height: 48px;
+  font-size: 16px;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 移动端适配样式 */
+@media screen and (max-width: 768px) {
+  .content {
+    padding: 12px;
+  }
+
+  .mobileBanner {
+    padding: 32px 16px;
+  }
+
+  .bannerTitle {
+    font-size: 1.8em;
+  }
+
+  .bannerDescription {
+    font-size: 1em;
+  }
+
+  .mobileContent {
+    padding: 0;
+  }
+
+  .mobileCard {
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .formGroup {
+    gap: 16px;
+  }
+
+  .mobileTabs :global(.ant-tabs-nav) {
+    margin-bottom: 12px;
+  }
+
+  .mobileResultCard {
+    margin: 12px -1px;
+    border-radius: 0;
+  }
+
+  .resultTitle {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  /* 表格响应式样式 */
+  :global(.ant-table) {
+    font-size: 14px;
+  }
+
+  :global(.ant-table-thead > tr > th),
+  :global(.ant-table-tbody > tr > td) {
+    padding: 8px 4px;
+    white-space: nowrap;
+  }
+
+  /* 表单响应式样式 */
+  :global(.ant-form-item) {
+    margin-bottom: 12px;
+  }
+
+  :global(.ant-input) {
+    height: 40px;
+  }
+
+  /* 菜单响应式样式 */
+  .menuButton {
+    display: block;
+  }
+
+  .menu {
+    display: none;
+  }
+
+  .header {
+    padding: 0;
+    height: 56px;
+  }
+
+  .drawerMenu {
+    height: 100%;
+  }
+
+  .drawerMenu :global(.ant-menu-item) {
+    height: 48px;
+    line-height: 48px;
+    padding: 0 24px !important;
+  }
+
+  :global(.ant-drawer-body) {
+    padding: 0;
+  }
+
+  :global(.ant-drawer-header) {
+    height: 56px;
+  }
+
+  .content {
+    padding: 8px;
+  }
+
+  .formGroup {
+    padding: 12px;
+  }
+
+  .banner {
+    margin: 8px;
+    padding: 24px 16px;
+  }
+
+  .mainCard {
+    margin: 8px;
+  }
+
+  /* 优化表单在移动端的显示 */
+  :global(.ant-form-item-label) {
+    padding: 0 0 4px;
+  }
+
+  :global(.ant-input) {
+    font-size: 16px; /* 防止iOS自动缩放 */
+  }
+
+  :global(.ant-btn) {
+    font-size: 16px;
+    height: 44px;
+  }
+
+  /* 优化表格在移动端的显示 */
+  .tableWrapper {
+    margin: 0 -8px;
+  }
+
+  :global(.ant-table-cell) {
+    padding: 8px 4px !important;
+    font-size: 14px;
+  }
+}
