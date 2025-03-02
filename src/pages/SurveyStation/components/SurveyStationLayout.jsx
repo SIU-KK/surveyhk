@@ -12,6 +12,12 @@ const SurveyStationLayout = () => {
 
   const menuItems = [
     {
+      key: 'home',
+      icon: <HomeOutlined />,
+      label: '返回主页',
+      onClick: goHome
+    },
+    {
       key: 'survey-station',
       icon: <CompassOutlined />,
       label: '香港测量控制站查询'
