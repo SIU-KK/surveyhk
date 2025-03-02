@@ -12,10 +12,10 @@ const SurveyStationLayout = () => {
 
   const menuItems = [
     {
-      key: 'home',
+      key: '/',
       icon: <HomeOutlined />,
       label: '返回主页',
-      onClick: goHome
+      onClick: () => navigate('/')
     },
     {
       key: 'survey-station',

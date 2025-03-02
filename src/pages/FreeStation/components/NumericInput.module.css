@@ -1,0 +1,145 @@
+.inputWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.keyboardWrapper {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #f5f5f5;
+  padding: 10px;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: none;
+}
+
+.keyboard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.keyboardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 8px;
+  margin-bottom: 8px;
+  gap: 8px;
+}
+
+.leftButtons,
+.rightButtons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.leftButtons {
+  justify-content: flex-start;
+}
+
+.rightButtons {
+  justify-content: flex-end;
+}
+
+.clearButton,
+.pasteButton,
+.doneButton {
+  flex: 1;
+  padding: 4px 12px;
+  height: 32px;
+  border-radius: 4px;
+  touch-action: manipulation;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.doneButton {
+  background-color: #1890ff;
+  color: white;
+}
+
+.pasteButton {
+  color: #1890ff;
+  border: 1px solid #1890ff;
+}
+
+.clearButton {
+  color: #ff4d4f;
+  border: 1px solid #ff4d4f;
+}
+
+.keyboardGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.keyboardRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.key {
+  flex: 1;
+  height: 48px;
+  border: none;
+  background-color: white;
+  border-radius: 8px;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.key:active {
+  background-color: #e6e6e6;
+  transform: translateY(1px);
+}
+
+.backspace {
+  background-color: #f0f0f0;
+}
+
+@media (max-width: 768px) {
+  .key {
+    height: 46px;
+    font-size: 18px;
+  }
+  
+  .keyboardWrapper {
+    padding: 8px 8px calc(8px + env(safe-area-inset-bottom, 0));
+  }
+  
+  .keyboard {
+    gap: 6px;
+  }
+  
+  .keyboardRow {
+    gap: 6px;
+  }
+
+  .clearButton,
+  .pasteButton,
+  .doneButton {
+    padding: 4px 8px;
+  }
+
+  .doneButton {
+    margin-left: 4px;
+  }
+} 
