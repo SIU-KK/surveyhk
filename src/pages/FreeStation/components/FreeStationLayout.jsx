@@ -354,9 +354,6 @@ const FreeStationLayout = () => {
               <NumericInput placeholder="请输入H值" />
             </Form.Item>
           </Col>
-        </Row>
-        <Divider>观测值2</Divider>
-        <Row gutter={[16, 16]}>
           <Col xs={24} sm={8}>
             <Form.Item
               label="BRG"
@@ -515,18 +512,6 @@ const FreeStationLayout = () => {
     } else {
       return (
         <Form form={form} layout="vertical">
-          <Divider>仪器参数</Divider>
-          <Row gutter={16}>
-            <Col span={8}>
-              <Form.Item label="仪器高" name="instrumentHeight" rules={[{ required: true }]}>
-                <NumericInput 
-                  placeholder="输入仪器高"
-                  inputMode="decimal"
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Divider>已知点1</Divider>
           {render2BRE2DInputs()}
         </Form>
       );
@@ -797,7 +782,7 @@ const FreeStationLayout = () => {
         placement="left"
         onClose={() => setDrawerVisible(false)}
         open={drawerVisible}
-        bodyStyle={{ padding: 0 }}
+        styles={{ body: { padding: 0 } }}
       >
         <Menu
           mode="vertical"
