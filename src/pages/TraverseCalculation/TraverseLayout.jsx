@@ -28,26 +28,17 @@ const TraverseLayout = () => {
   useEffect(() => {
     // 检测设备类型
     const checkIfMobile = () => {
-      return window.innerWidth <= 768;
+      setIsMobile(window.innerWidth <= 768);
     };
-
-    const handleResize = () => {
-      setIsMobile(checkIfMobile());
-    };
-
-    // 初始化设置
-    setIsMobile(checkIfMobile());
-
-    // 添加窗口大小变化监听
-    window.addEventListener('resize', handleResize);
-
-    // 清理函数
+    
+    checkIfMobile();
+    window.addEventListener('resize', checkIfMobile);
+    
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('resize', checkIfMobile);
     };
   }, []);
 
-  // 定义菜单项
   const menuItems = [
     {
       key: '/',
@@ -108,69 +99,80 @@ const TraverseLayout = () => {
     setCalculationType(e.target.value);
   };
 
+  // 根据计算类型渲染不同的组件
+  const renderCalculationComponent = () => {
+    switch (calculationType) {
+      case 'closed':
+        return <ClosedTraverse />;
+      case 'connected':
+        return <ConnectedTraverse />;
+      case 'noOrientation':
+        return <NoOrientationTraverse />;
+      case 'branch':
+        return <BranchTraverse />;
+      default:
+        return <ClosedTraverse />;
+    }
+  };
+
   return (
-    <Layout className={styles.container}>
-      <Layout.Header className={styles.header}>
-        {isMobile ? (
-          <>
-            <Button
-              type="text"
-              icon={<MenuOutlined />}
-              onClick={() => setDrawerVisible(true)}
-              className={styles.menuButton}
-            />
-            <div className={styles.headerTitle}>导线计算</div>
-            <Drawer
-              title="导航菜单"
-              placement="left"
-              onClose={() => setDrawerVisible(false)}
-              open={drawerVisible}
-              bodyStyle={{ padding: 0 }}
+    <Layout className={styles.layout}>
+      {/* 桌面版导航 */}
+      <div className={styles.header}>
+        <Menu
+          mode="horizontal"
+          selectedKeys={['traverse-calculation']}
+          className={styles.menu}
+          items={menuItems}
+        />
+      </div>
+
+      {/* 移动版导航 */}
+      <div className={styles.mobileHeader}>
+        <Button
+          type="text"
+          icon={<MenuOutlined />}
+          onClick={() => setDrawerVisible(true)}
+          className={styles.menuButton}
+        />
+        <div className={styles.headerTitle}>导线计算</div>
+        <div style={{ width: 32 }}></div>
+      </div>
+
+      <Drawer
+        title="导航菜单"
+        placement="left"
+        onClose={() => setDrawerVisible(false)}
+        open={drawerVisible}
+        width={250}
+      >
+        <Menu
+          mode="vertical"
+          selectedKeys={['traverse-calculation']}
+          items={menuItems}
+          onClick={handleMenuClick}
+        />
+      </Drawer>
+
+      <Content className={styles.content}>
+        <Card className={styles.mainCard}>
+          <div className={styles.calculationTypeContainer}>
+            <Radio.Group
+              value={calculationType}
+              onChange={handleCalculationTypeChange}
+              buttonStyle="solid"
+              className={styles.calculationTypeSelector}
             >
-              <Menu
-                theme="light"
-                mode="inline"
-                items={menuItems}
-                selectedKeys={['traverse-calculation']}
-                className={styles.drawerMenu}
-                onClick={() => setDrawerVisible(false)}
-              />
-            </Drawer>
-          </>
-        ) : (
-          <Menu
-            theme="light"
-            mode="horizontal"
-            items={menuItems}
-            selectedKeys={['traverse-calculation']}
-            className={styles.menu}
-          />
-        )}
-      </Layout.Header>
-      <Layout.Content className={styles.content}>
-        <div className={`${styles.mainContent} ${isMobile ? styles.mobileContent : ''}`}>
-          <Card className={`${styles.mainCard} ${isMobile ? styles.mobileCard : ''}`}>
-            {/* 计算方式切换按钮 */}
-            <div className={styles.calculationTypeContainer}>
-              <Radio.Group 
-                value={calculationType} 
-                onChange={handleCalculationTypeChange}
-                className={styles.calculationTypeGroup}
-              >
-                <Radio.Button value="closed">闭合导线</Radio.Button>
-                <Radio.Button value="connected">附合导线</Radio.Button>
-                <Radio.Button value="noOrientation">无定向导线</Radio.Button>
-                <Radio.Button value="branch">支导线</Radio.Button>
-              </Radio.Group>
-            </div>
-            
-            {calculationType === 'closed' && <ClosedTraverse />}
-            {calculationType === 'connected' && <ConnectedTraverse />}
-            {calculationType === 'noOrientation' && <NoOrientationTraverse />}
-            {calculationType === 'branch' && <BranchTraverse />}
-          </Card>
-        </div>
-      </Layout.Content>
+              <Radio.Button value="closed">闭合导线</Radio.Button>
+              <Radio.Button value="connected">附合导线</Radio.Button>
+              <Radio.Button value="noOrientation">无定向导线</Radio.Button>
+              <Radio.Button value="branch">支导线</Radio.Button>
+            </Radio.Group>
+          </div>
+          
+          {renderCalculationComponent()}
+        </Card>
+      </Content>
     </Layout>
   );
 };

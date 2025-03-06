@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout, Form, Input, Button, Table, Card, Space, Tabs, Menu, Select, Drawer, Radio, Row, Col, Divider } from 'antd';
 import { HomeOutlined, CompassOutlined, CalculatorOutlined, AimOutlined, RadiusSettingOutlined, ToolOutlined, MonitorOutlined, MenuOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
@@ -16,10 +16,10 @@ const ConstructionLayout = () => {
   const navigate = useNavigate();
   const [calculationResults, setCalculationResults] = useState([]);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  const [menuVisible, setMenuVisible] = useState(false);
+  const [drawerVisible, setDrawerVisible] = useState(false);
 
   // 添加响应式监听
-  React.useEffect(() => {
+  useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
     };
@@ -717,44 +717,44 @@ const ConstructionLayout = () => {
   return (
     <Layout className={styles.container}>
       <Header className={styles.header}>
-        {isMobile ? (
-          <>
-            <Button
-              type="text"
-              icon={<MenuOutlined />}
-              onClick={() => setMenuVisible(true)}
-              className={styles.menuButton}
-            />
-            <Drawer
-              title="导航菜单"
-              placement="left"
-              onClose={() => setMenuVisible(false)}
-              visible={menuVisible}
-              bodyStyle={{ padding: 0 }}
-            >
-              <Menu
-                theme="light"
-                mode="inline"
-                items={menuItems}
-                selectedKeys={['construction-layout']}
-                className={styles.drawerMenu}
-                onClick={() => setMenuVisible(false)}
-              />
-            </Drawer>
-          </>
-        ) : (
-          <Menu
-            theme="light"
-            mode="horizontal"
-            items={menuItems}
-            selectedKeys={['construction-layout']}
-            className={styles.menu}
-          />
-        )}
+        <Menu
+          theme="dark"
+          mode="horizontal"
+          items={menuItems}
+          selectedKeys={['construction-layout']}
+          className={styles.menu}
+        />
       </Header>
+      
+      <div className={styles.mobileHeader}>
+        <Button 
+          type="text" 
+          icon={<MenuOutlined />} 
+          onClick={() => setDrawerVisible(true)}
+          className={styles.menuButton}
+        />
+        <div className={styles.headerTitle}>施工放样</div>
+        <div style={{ width: 32 }}></div>
+      </div>
+      
+      <Drawer
+        title="菜单"
+        placement="left"
+        onClose={() => setDrawerVisible(false)}
+        open={drawerVisible}
+        bodyStyle={{ padding: 0 }}
+      >
+        <Menu
+          mode="vertical"
+          items={menuItems}
+          selectedKeys={['construction-layout']}
+          style={{ border: 'none' }}
+        />
+      </Drawer>
+      
       <Content className={styles.content}>
-        <div className={`${styles.mainContent} ${isMobile ? styles.mobileContent : ''}`}>
-          <Card className={`${styles.mainCard} ${isMobile ? styles.mobileCard : ''}`}>
+        <div className={styles.pageContainer}>
+          <Card className={styles.mainCard}>
             <div className={styles.calculationTypeContainer}>
               <Radio.Group 
                 value={activeTab} 
@@ -791,7 +791,7 @@ const ConstructionLayout = () => {
                     <span className={styles.resultTime}>{new Date().toLocaleString()}</span>
                   </div>
                 } 
-                className={`${styles.resultCard} ${isMobile ? styles.mobileResultCard : ''}`}
+                className={styles.resultCard}
               >
                 <div className={styles.tableWrapper}>
                   <Table

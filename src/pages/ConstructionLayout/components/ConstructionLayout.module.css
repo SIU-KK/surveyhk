@@ -1,11 +1,10 @@
-.layout {
+.container {
   min-height: 100vh;
   background: #f0f2f5;
 }
 
 .header {
-  background: #FFFFFF;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  background: #001529;
   padding: 0;
   position: fixed;
   width: 100%;
@@ -16,7 +15,6 @@
 
 .menu {
   line-height: 64px;
-  background: #FFFFFF;
   flex: 1;
   border-bottom: none;
 }
@@ -26,7 +24,7 @@
 }
 
 .menu :global(.ant-menu-item) {
-  color: #636E72 !important;
+  color: rgba(255, 255, 255, 0.65) !important;
   font-size: 15px;
   padding: 0 24px !important;
   margin: 0 4px !important;
@@ -34,10 +32,14 @@
 }
 
 .menu :global(.ant-menu-item:hover) {
-  color: #4C84FF !important;
-  background: #F0F7FF !important;
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.08) !important;
 }
 
+.menu :global(.ant-menu-item-selected) {
+  color: #fff !important;
+  border-bottom: 2px solid #1890ff !important;
+}
 
 .mobileHeader {
   display: none;
@@ -47,7 +49,8 @@
   right: 0;
   z-index: 1000;
   height: 50px;
-  background: #fff;
+  background: #001529;
+  color: white;
   align-items: center;
   justify-content: space-between;
   padding: 0 16px;
@@ -55,6 +58,7 @@
 }
 
 .menuButton {
+  color: white !important;
   font-size: 18px;
   padding: 4px 8px;
   height: 32px;
@@ -63,6 +67,7 @@
 .headerTitle {
   font-size: 16px;
   font-weight: 500;
+  color: white;
 }
 
 .content {
@@ -70,8 +75,14 @@
   margin-top: 64px;
 }
 
+.pageContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
 .mainCard {
   margin-bottom: 24px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
 .mainCard :global(.ant-form-item) {

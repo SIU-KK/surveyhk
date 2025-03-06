@@ -27,89 +27,83 @@ const BatchLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMobile, setIsMobile] = useState(false);
-  const [deviceType, setDeviceType] = useState('desktop');
   const [drawerVisible, setDrawerVisible] = useState(false);
 
   useEffect(() => {
     // 检测设备类型
-    const checkDeviceType = () => {
-      const width = window.innerWidth;
-      if (width <= 768) {
-        setDeviceType('mobile');
-        setIsMobile(true);
-      } else if (width <= 1024) {
-        setDeviceType('tablet');
-        setIsMobile(false);
-      } else {
-        setDeviceType('desktop');
-        setIsMobile(false);
-      }
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
     };
-
-    // 初始化设置
-    checkDeviceType();
-
-    // 添加窗口大小变化监听
-    window.addEventListener('resize', checkDeviceType);
-
-    // 清理函数
+    
+    checkIfMobile();
+    window.addEventListener('resize', checkIfMobile);
+    
     return () => {
-      window.removeEventListener('resize', checkDeviceType);
+      window.removeEventListener('resize', checkIfMobile);
     };
   }, []);
 
-  // 根据URL路径设置计算类型
-  useEffect(() => {
-    const path = location.pathname;
-    if (path.includes('direction-inverse')) {
-      setCalculationType('direction-inverse');
-    } else if (path.includes('direction-calc')) {
-      setCalculationType('direction-calc');
-    } else if (path.includes('level-calc')) {
-      setCalculationType('level-calc');
-    } else if (path.includes('level-inverse')) {
-      setCalculationType('level-inverse');
+  const menuItems = [
+    {
+      key: '/',
+      icon: <HomeOutlined />,
+      label: '返回主页',
+      onClick: () => navigate('/')
+    },
+    {
+      key: 'survey-station',
+      icon: <CompassOutlined />,
+      label: '香港测量控制站查询',
+      onClick: () => navigate('/survey-station')
+    },
+    {
+      key: 'free-station',
+      icon: <CalculatorOutlined />,
+      label: '自由设站解算',
+      onClick: () => navigate('/free-station')
+    },
+    {
+      key: 'traverse-calculation',
+      icon: <AimOutlined />,
+      label: '导线计算',
+      onClick: () => navigate('/traverse-calculation')
+    },
+    {
+      key: 'construction-layout',
+      icon: <RadiusSettingOutlined />,
+      label: '施工放样',
+      onClick: () => navigate('/construction-layout')
+    },
+    {
+      key: 'batch-calculation',
+      icon: <RadiusSettingOutlined />,
+      label: '批量计算及转换'
+    },
+    {
+      key: 'tools',
+      icon: <ToolOutlined />,
+      label: '实用工具',
+      onClick: () => navigate('/tools')
+    },
+    {
+      key: 'settlement-monitoring',
+      icon: <MonitorOutlined />,
+      label: '沉降监测系统',
+      onClick: () => navigate('/settlement-monitoring')
     }
-  }, [location.pathname]);
+  ];
 
-  // 处理菜单点击
-  const handleMenuClick = (e) => {
-    navigate(`/${e.key}`);
-  };
-
-  // 处理计算类型切换
-  const handleCalculationTypeChange = (e) => {
-    const value = e.target.value;
-    setCalculationType(value);
-    form.resetFields();
-    
-    // 根据计算类型更新URL
-    navigate(`/batch-calculation/${value}`);
-  };
-
-  // 打开抽屉菜单
-  const showDrawer = () => {
-    setDrawerVisible(true);
-  };
-
-  // 关闭抽屉菜单
-  const onCloseDrawer = () => {
+  const handleMenuClick = ({ key }) => {
+    navigate(`/${key}`);
     setDrawerVisible(false);
   };
 
-  // 渲染计算类型选择器
-  const renderCalculationTypeSelector = () => {
-    return (
-      <Radio.Group value={calculationType} onChange={handleCalculationTypeChange} className={styles.calculationTypeSelector}>
-        <Radio.Button value="direction-inverse">ENH TO BRE VA SD</Radio.Button>
-        <Radio.Button value="direction-calc">BRE VA SD TO ENH</Radio.Button>
-        <Radio.Button value="level-calc">平水计算</Radio.Button>
-        <Radio.Button value="level-inverse">平水反算</Radio.Button>
-      </Radio.Group>
-    );
+  // 处理计算类型变化
+  const handleCalculationTypeChange = (e) => {
+    setCalculationType(e.target.value);
   };
 
-  // 渲染当前选择的计算类型对应的表单
+  // 渲染计算表单
   const renderCalculationForm = () => {
     switch (calculationType) {
       case 'direction-inverse':
@@ -121,108 +115,65 @@ const BatchLayout = () => {
       case 'level-inverse':
         return <LevelInverse form={form} />;
       default:
-        return null;
+        return <DirectionInverse form={form} />;
     }
   };
 
-  // 移动端菜单项
-  const menuItems = [
-    {
-      key: 'home',
-      icon: <HomeOutlined />,
-      label: '首页'
-    },
-    {
-      key: 'survey-station',
-      icon: <CompassOutlined />,
-      label: '香港测量控制站查询'
-    },
-    {
-      key: 'free-station',
-      icon: <CalculatorOutlined />,
-      label: '自由设站解算'
-    },
-    {
-      key: 'traverse-calculation',
-      icon: <AimOutlined />,
-      label: '导线计算'
-    },
-    {
-      key: 'construction-layout',
-      icon: <RadiusSettingOutlined />,
-      label: '施工放样'
-    },
-    {
-      key: 'batch-calculation',
-      icon: <RadiusSettingOutlined />,
-      label: '批量计算及转换'
-    },
-    {
-      key: 'tools',
-      icon: <ToolOutlined />,
-      label: '实用工具'
-    },
-    {
-      key: 'settlement-monitoring',
-      icon: <MonitorOutlined />,
-      label: '沉降监测系统'
-    }
-  ];
-
   return (
     <Layout className={styles.layout}>
-      {/* 移动端头部 */}
-      {isMobile && (
-        <div className={styles.mobileHeader}>
-          <Button
-            className={styles.menuButton}
-            type="text"
-            icon={<MenuOutlined />}
-            onClick={showDrawer}
-          />
-          <div className={styles.headerTitle}>批量计算及转换</div>
-        </div>
-      )}
+      {/* 桌面版导航 */}
+      <div className={styles.header}>
+        <Menu
+          mode="horizontal"
+          selectedKeys={['batch-calculation']}
+          className={styles.menu}
+          items={menuItems}
+        />
+      </div>
 
-      {/* 移动端抽屉菜单 */}
+      {/* 移动版导航 */}
+      <div className={styles.mobileHeader}>
+        <Button
+          type="text"
+          icon={<MenuOutlined />}
+          onClick={() => setDrawerVisible(true)}
+          className={styles.menuButton}
+        />
+        <div className={styles.headerTitle}>批量计算及转换</div>
+        <div style={{ width: 32 }}></div>
+      </div>
+
       <Drawer
-        title="菜单"
+        title="导航菜单"
         placement="left"
-        closable={true}
-        onClose={onCloseDrawer}
-        visible={drawerVisible}
+        onClose={() => setDrawerVisible(false)}
+        open={drawerVisible}
         width={250}
       >
         <Menu
           mode="vertical"
+          selectedKeys={['batch-calculation']}
           items={menuItems}
-          onClick={(e) => {
-            handleMenuClick(e);
-            onCloseDrawer();
-          }}
+          onClick={handleMenuClick}
         />
       </Drawer>
 
-      {/* 桌面端头部 */}
-      {!isMobile && (
-        <Layout.Header className={styles.header}>
-          <div className={styles.menu}>
-            <Menu
-              mode="horizontal"
-              items={menuItems}
-              onClick={handleMenuClick}
-              selectedKeys={['batch-calculation']}
-            />
-          </div>
-        </Layout.Header>
-      )}
-
-      {/* 内容区域 */}
       <Content className={styles.content}>
         <Card className={styles.mainCard}>
           <div className={styles.calculationTypeContainer}>
-            {renderCalculationTypeSelector()}
+            <Radio.Group
+              value={calculationType}
+              onChange={handleCalculationTypeChange}
+              buttonStyle="solid"
+              className={styles.calculationTypeSelector}
+            >
+              <Radio.Button value="direction-inverse">ENH TO BRE VA SD</Radio.Button>
+              <Radio.Button value="direction-calc">BRE VA SD TO ENH</Radio.Button>
+              <Radio.Button value="level-calc">Level Calculation</Radio.Button>
+              <Radio.Button value="level-inverse">Level Inversion</Radio.Button>
+            </Radio.Group>
           </div>
+          
           <div className={styles.formContainer}>
             {renderCalculationForm()}
           </div>

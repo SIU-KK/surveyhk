@@ -83,13 +83,13 @@ const ConstructionLayout = () => {
     {
       key: 'construction-layout',
       icon: <RadiusSettingOutlined />,
-      label: ''
+      label: '施工放样'
     },
     {
-      key: 'circle-calculation',
+      key: 'batch-calculation',
       icon: <RadiusSettingOutlined />,
       label: '批量计算及转换',
-      onClick: () => navigate('/circle-calculation')
+      onClick: () => navigate('/batch-calculation')
     },
     {
       key: 'tools',
@@ -430,12 +430,8 @@ const ConstructionLayout = () => {
           type="text"
           className={styles.menuButton}
         />
-        <span className={styles.headerTitle}>施工放样</span>
-        <Button 
-          icon={<HomeOutlined />} 
-          onClick={() => navigate('/')}
-          type="link"
-        />
+        <div className={styles.headerTitle}>施工放样</div>
+        <div style={{ width: 32 }}></div>
       </div>
 
       {/* 移动端导航抽屉 */}
@@ -444,14 +440,13 @@ const ConstructionLayout = () => {
         placement="left"
         onClose={() => setDrawerVisible(false)}
         open={drawerVisible}
-        styles={{ body: { padding: 0 } }}
+        width={250}
       >
         <Menu
           mode="vertical"
           items={menuItems}
           onClick={handleMenuClick}
           selectedKeys={['construction-layout']}
-          style={{ border: 'none' }}
         />
       </Drawer>
 

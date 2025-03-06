@@ -28,34 +28,44 @@
 .menu :global(.ant-menu-item) {
   color: #636E72 !important;
   font-size: 15px;
+  padding: 0 24px !important;
+  margin: 0 4px !important;
+  border-bottom: 2px solid transparent !important;
 }
 
 .menu :global(.ant-menu-item:hover) {
-  color: #1890ff !important;
+  color: #4C84FF !important;
+  background: #F0F7FF !important;
 }
 
 .menu :global(.ant-menu-item-selected) {
-  color: #1890ff !important;
+  color: #4C84FF !important;
+  border-bottom: 2px solid #4C84FF !important;
 }
 
 .mobileHeader {
-  display: flex;
-  align-items: center;
-  padding: 0 16px;
-  height: 64px;
-  background: #FFFFFF;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  display: none;
   position: fixed;
-  width: 100%;
-  z-index: 100;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 50px;
+  background: #fff;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .menuButton {
-  margin-right: 16px;
+  font-size: 18px;
+  padding: 4px 8px;
+  height: 32px;
 }
 
 .headerTitle {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 500;
 }
 
@@ -263,24 +273,32 @@
 /* 移动端适配 */
 @media (max-width: 768px) {
   .header {
-    padding: 0 16px;
+    display: none;
   }
 
   .mobileHeader {
-    padding: 0 16px;
+    display: flex;
   }
 
   .content {
+    margin-top: 50px;
     padding: 16px;
-    margin-top: 64px;
   }
 
   .mainCard {
-    border-radius: 8px;
+    margin-bottom: 16px;
   }
 
   .mainCard :global(.ant-card-body) {
     padding: 16px;
+  }
+
+  .calculationTypeSelector :global(.ant-radio-button-wrapper) {
+    margin-bottom: 8px;
+    font-size: 14px;
+    padding: 0 12px;
+    height: 32px;
+    line-height: 30px;
   }
 
   .mainCard :global(.ant-form-item) {
