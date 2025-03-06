@@ -1,0 +1,201 @@
+.layout {
+  min-height: 100vh;
+  background: #f0f2f5;
+}
+
+.header {
+  background: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  padding: 0;
+  position: fixed;
+  width: 100%;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+}
+
+.menu {
+  line-height: 64px;
+  background: #FFFFFF;
+  flex: 1;
+  border-bottom: none;
+}
+
+.menu :global(.ant-menu) {
+  border-bottom: none;
+}
+
+.menu :global(.ant-menu-item) {
+  color: #636E72 !important;
+  font-size: 15px;
+  padding: 0 24px !important;
+  margin: 0 4px !important;
+  border-bottom: 2px solid transparent !important;
+}
+
+.menu :global(.ant-menu-item:hover) {
+  color: #4C84FF !important;
+  background: #F0F7FF !important;
+}
+
+.menu :global(.ant-menu-item-selected) {
+  color: #4C84FF !important;
+  border-bottom: 2px solid #4C84FF !important;
+}
+
+.mobileHeader {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 50px;
+  background: #fff;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.menuButton {
+  font-size: 18px;
+  padding: 4px 8px;
+  height: 32px;
+}
+
+.headerTitle {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.content {
+  padding: 24px;
+  margin-top: 64px;
+}
+
+.pageContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.mainCard {
+  margin-bottom: 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.resultCard {
+  margin-top: 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form {
+  width: 100%;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.stationContainer {
+  margin-bottom: 24px;
+}
+
+.pointsTableContainer {
+  margin-bottom: 24px;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  color: #1890ff;
+}
+
+.buttonGroup {
+  margin-top: 24px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.submitButton {
+  min-width: 120px;
+  height: 40px;
+  border-radius: 4px;
+  margin-right: 16px;
+}
+
+.resetButton {
+  min-width: 100px;
+  height: 40px;
+  border-radius: 4px;
+}
+
+.addButton {
+  margin-top: 16px;
+}
+
+.inputField {
+  height: 40px;
+  border-radius: 4px;
+}
+
+.dataTable {
+  margin-top: 16px;
+}
+
+.resultTable {
+  margin-top: 16px;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+  background-color: #f9f9f9;
+  padding: 16px;
+  border-radius: 4px;
+}
+
+.calculationResult {
+  width: 100%;
+}
+
+.tableActions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .header {
+    display: none;
+  }
+  
+  .mobileHeader {
+    display: flex;
+  }
+  
+  .content {
+    margin-top: 50px;
+    padding: 16px;
+  }
+  
+  .formGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobileHeader {
+    display: none;
+  }
+} 

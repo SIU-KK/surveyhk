@@ -1,6 +1,6 @@
-.container {
+.layout {
   min-height: 100vh;
-  background: #FFFFFF;
+  background: #f0f2f5;
 }
 
 .header {
@@ -10,11 +10,19 @@
   position: fixed;
   width: 100%;
   z-index: 100;
+  display: flex;
+  align-items: center;
 }
 
 .menu {
   line-height: 64px;
   background: #FFFFFF;
+  flex: 1;
+  border-bottom: none;
+}
+
+.menu :global(.ant-menu) {
+  border-bottom: none;
 }
 
 .menu :global(.ant-menu-item) {
@@ -30,178 +38,196 @@
   background: #F0F7FF !important;
 }
 
-.menu :global(.ant-menu-item-selected) {
-  color: #4C84FF !important;
-  background: #F0F7FF !important;
+
+.mobileHeader {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 50px;
+  background: #fff;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.menuButton {
+  font-size: 18px;
+  padding: 4px 8px;
+  height: 32px;
+}
+
+.headerTitle {
+  font-size: 16px;
   font-weight: 500;
-  border-bottom: 2px solid #4C84FF !important;
 }
 
-.menu :global(.ant-menu-item::after) {
-  display: none !important;
+.content {
+  padding: 24px;
+  margin-top: 64px;
 }
 
-.banner {
-  padding-top: 84px;
-  background: linear-gradient(180deg, #F7FAFF 0%, #FFFFFF 100%);
+.mainCard {
+  margin-bottom: 24px;
+}
+
+.mainCard :global(.ant-form-item) {
+  margin-bottom: 16px;
+}
+
+.mainCard :global(.ant-input) {
+  height: 40px;
+  font-size: 16px;
+}
+
+.mainCard :global(.ant-radio-group) {
+  margin-bottom: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mainCard :global(.ant-radio-button-wrapper) {
+  flex: 1;
   text-align: center;
-  padding-bottom: 40px;
+  min-width: 120px;
 }
 
-.bannerTitle {
-  font-size: 36px;
-  font-weight: 700;
-  color: #2D3436;
-  margin-bottom: 16px;
+.mainCard :global(.ant-form-item-label) {
+  padding-bottom: 4px;
 }
 
-.bannerDescription {
-  font-size: 16px;
-  color: #636E72;
-  max-width: 600px;
-  margin: 0 auto;
-  line-height: 1.6;
+.mainCard :global(.ant-form-item-label > label) {
+  font-size: 14px;
+  color: #333;
 }
 
-.mainContent {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 32px;
+.mainCard :global(.ant-input-number) {
+  width: 100%;
 }
 
-.tabs {
-  margin-bottom: 24px;
+.resultCard {
+  background: #fff;
 }
 
-.tabs :global(.ant-tabs-nav) {
-  margin-bottom: 24px;
+.resultItem {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.tabs :global(.ant-tabs-tab) {
-  font-size: 15px;
-  padding: 12px 24px !important;
-  transition: all 0.3s ease;
+.resultLabel {
+  color: rgba(0, 0, 0, 0.45);
+  margin-right: 8px;
 }
 
-.tabs :global(.ant-tabs-tab-active) {
-  background: #F0F7FF !important;
-}
-
-.tabs :global(.ant-tabs-tab-btn) {
-  color: #636E72;
-}
-
-.tabs :global(.ant-tabs-tab-active .ant-tabs-tab-btn) {
-  color: #4C84FF !important;
+.resultValue {
+  color: rgba(0, 0, 0, 0.85);
   font-weight: 500;
 }
 
-.card {
-  border-radius: 12px;
-  border: 1px solid #E8EFF7;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  margin-bottom: 24px;
+/* 新增样式 */
+:global(.ant-card-bordered) {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
-.card :global(.ant-card-head) {
-  border-bottom: 1px solid #E8EFF7;
-  padding: 16px 24px;
-}
-
-.card :global(.ant-card-head-title) {
-  font-size: 16px;
-  font-weight: 600;
-  color: #2D3436;
-}
-
-.formGroup {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 24px;
-  margin-bottom: 24px;
-}
-
-.formItem :global(.ant-form-item) {
-  margin-bottom: 16px;
-}
-
-.formItem :global(.ant-input) {
-  border-radius: 8px;
-  border-color: #E8EFF7;
-  padding: 8px 12px;
-  transition: all 0.3s ease;
-}
-
-.formItem :global(.ant-input:hover),
-.formItem :global(.ant-input:focus) {
-  border-color: #4C84FF;
-  box-shadow: 0 0 0 2px rgba(76, 132, 255, 0.1);
-}
-
-.submitButton {
-  background: #4C84FF;
-  border: none;
-  height: 44px;
-  padding: 0 32px;
-  border-radius: 8px;
+:global(.ant-card-head-title) {
   font-size: 16px;
   font-weight: 500;
-  transition: all 0.3s ease;
+  color: #333;
 }
 
-.submitButton:hover {
-  background: #3B73FF;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(76, 132, 255, 0.2);
+:global(.ant-divider) {
+  margin: 12px 0;
 }
 
-.resultSection {
-  margin-top: 32px;
+.resultCard :global(.ant-card) {
+  background: #fafafa;
+  height: 100%;
 }
 
-.table {
-  margin-top: 16px;
+.resultCard :global(.ant-card-head) {
+  border-bottom: 1px solid #f0f0f0;
+  min-height: 40px;
+  padding: 0 12px;
 }
 
-.table :global(.ant-table-thead > tr > th) {
-  background: #F7FAFF;
-  color: #2D3436;
-  font-weight: 600;
+.resultCard :global(.ant-card-body) {
+  padding: 12px;
 }
 
-.table :global(.ant-table-tbody > tr > td) {
-  color: #636E72;
+.cardTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
-.table :global(.ant-table-tbody > tr:hover > td) {
-  background: #F0F7FF !important;
+.cardCopyButton {
+  margin-left: 8px;
+  opacity: 0.6;
+  transition: all 0.3s;
+}
+
+.cardCopyButton:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.04);
 }
 
 @media (max-width: 768px) {
-  .banner {
-    padding-top: 80px;
-    padding-bottom: 32px;
+  .header {
+    display: none;
   }
 
-  .bannerTitle {
-    font-size: 28px;
+  .mobileHeader {
+    display: flex;
   }
 
-  .bannerDescription {
+  .content {
+    margin-top: 50px;
+    padding: 16px;
+  }
+
+  .mainCard {
+    margin-bottom: 16px;
+  }
+
+  .mainCard :global(.ant-card-body) {
+    padding: 16px;
+  }
+
+  .mainCard :global(.ant-form-item) {
+    margin-bottom: 12px;
+  }
+
+  .mainCard :global(.ant-input) {
+    height: 44px;
+    font-size: 16px;
+    padding: 8px 12px;
+  }
+
+  .mainCard :global(.ant-radio-button-wrapper) {
+    padding: 0 8px;
+    height: 36px;
+    line-height: 34px;
     font-size: 14px;
-    padding: 0 24px;
   }
 
-  .mainContent {
-    padding: 24px 16px;
+  .mainCard :global(.ant-form-item-label > label) {
+    font-size: 14px;
   }
 
-  .formGroup {
-    grid-template-columns: 1fr;
-    gap: 16px;
+  .mainCard :global(.ant-row) {
+    margin-left: -8px !important;
+    margin-right: -8px !important;
   }
 
-  .submitButton {
-    width: 100%;
+  .mainCard :global(.ant-col) {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
   }
 }

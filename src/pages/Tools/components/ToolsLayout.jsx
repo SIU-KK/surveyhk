@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Layout, Menu, Card, Form, Input, Button, Table, Tabs } from 'antd';
-import { HomeOutlined, CompassOutlined, CalculatorOutlined, AimOutlined, RadiusSettingOutlined, ToolOutlined, MonitorOutlined } from '@ant-design/icons';
+import React, { useState, useEffect } from 'react';
+import { Layout, Menu, Card, Form, Input, Button, Table, Tabs, Drawer } from 'antd';
+import { HomeOutlined, CompassOutlined, CalculatorOutlined, AimOutlined, RadiusSettingOutlined, ToolOutlined, MonitorOutlined, MenuOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import styles from './ToolsLayout.module.css';
 
@@ -10,6 +10,17 @@ const ToolsLayout = () => {
   const [activeTab, setActiveTab] = useState('arc');
   const [form] = Form.useForm();
   const navigate = useNavigate();
+  const [isMobile, setIsMobile] = useState(false);
+  const [drawerVisible, setDrawerVisible] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const goHome = () => {
     navigate('/');
@@ -47,10 +58,10 @@ const ToolsLayout = () => {
       onClick: () => navigate('/construction-layout')
     },
     {
-      key: 'circle-calculation',
+      key: 'batch-calculation',
       icon: <RadiusSettingOutlined />,
-      label: '圆计算',
-      onClick: () => navigate('/circle-calculation')
+      label: '批量计算及转换',
+      onClick: () => navigate('/batch-calculation')
     },
     {
       key: 'tools',
@@ -113,75 +124,119 @@ const ToolsLayout = () => {
     </Form>
   );
 
-  const items = [
-    {
-      key: 'arc',
-      label: '弧线中拱',
-      children: (
-        <Card title="计算参数" className={styles.card}>
-          {renderArcForm()}
-        </Card>
-      ),
-    },
-    {
-      key: 'hypotenuse',
-      label: '斜边快速计算',
-      children: (
-        <Card title="计算参数" className={styles.card}>
-          {renderHypotenuseForm()}
-        </Card>
-      ),
-    },
-    {
-      key: 'level',
-      label: '平水快速计算',
-      children: (
-        <Card title="计算参数" className={styles.card}>
-          {renderLevelForm()}
-        </Card>
-      ),
-    },
-  ];
+  const renderAngleForm = () => (
+    <Form form={form} layout="vertical">
+      <div className={styles.formGroup}>
+        <Form.Item label="角度转换参数" className={styles.formItem}>
+          <Form.Item name="degrees" rules={[{ required: true, message: '请输入角度' }]}>
+            <Input placeholder="角度值" />
+          </Form.Item>
+        </Form.Item>
+      </div>
+      <Button type="primary" size="large" className={styles.submitButton}>转换</Button>
+    </Form>
+  );
+
+  const renderAreaForm = () => (
+    <Form form={form} layout="vertical">
+      <div className={styles.formGroup}>
+        <Form.Item label="面积计算参数" className={styles.formItem}>
+          <Form.Item name="length" rules={[{ required: true, message: '请输入长度' }]}>
+            <Input placeholder="长度" />
+          </Form.Item>
+          <Form.Item name="width" rules={[{ required: true, message: '请输入宽度' }]}>
+            <Input placeholder="宽度" />
+          </Form.Item>
+        </Form.Item>
+      </div>
+      <Button type="primary" size="large" className={styles.submitButton}>计算</Button>
+    </Form>
+  );
+
+  const showDrawer = () => {
+    setDrawerVisible(true);
+  };
+
+  const onCloseDrawer = () => {
+    setDrawerVisible(false);
+  };
+
+  const handleMenuClick = (item) => {
+    if (item.key !== 'tools') {
+      onCloseDrawer();
+    }
+  };
 
   return (
-    <Layout className={styles.container}>
+    <Layout className={styles.layout}>
       <Header className={styles.header}>
-        <Menu
-          theme="dark"
-          mode="horizontal"
-          items={menuItems}
-          selectedKeys={['tools']}
-          className={styles.menu}
-        />
-      </Header>
-      <Content className={styles.content}>
-        <div className={styles.banner}>
-          <h2 className={styles.bannerTitle}>实用工具</h2>
-          <p className={styles.bannerDescription}>
-            提供弧线中拱计算、斜边快速计算、平水快速计算等实用工具
-          </p>
+        <div className={styles.menu}>
+          <Menu mode="horizontal" defaultSelectedKeys={['tools']} items={menuItems} />
         </div>
-        <div className={styles.mainContent}>
+      </Header>
+      
+      {isMobile && (
+        <div className={styles.mobileHeader}>
+          <Button
+            type="text"
+            icon={<MenuOutlined />}
+            onClick={showDrawer}
+            className={styles.menuButton}
+          />
+          <div className={styles.headerTitle}>实用工具</div>
+          <div style={{ width: 32 }}></div>
+        </div>
+      )}
+      
+      <Drawer
+        title="导航菜单"
+        placement="left"
+        onClose={onCloseDrawer}
+        open={drawerVisible}
+        width={250}
+      >
+        <Menu
+          mode="vertical"
+          defaultSelectedKeys={['tools']}
+          items={menuItems}
+          onClick={handleMenuClick}
+        />
+      </Drawer>
+      
+      <Content className={styles.content}>
+        <Card className={styles.mainCard} title="实用工具">
           <Tabs
             activeKey={activeTab}
             onChange={setActiveTab}
-            items={items}
-            type="card"
-            className={styles.tabs}
+            items={[
+              {
+                key: 'arc',
+                label: '弧长计算',
+                children: renderArcForm()
+              },
+              {
+                key: 'hypotenuse',
+                label: '斜边计算',
+                children: renderHypotenuseForm()
+              },
+              {
+                key: 'level',
+                label: '平水快速计算',
+                children: renderLevelForm()
+              },
+              {
+                key: 'angle',
+                label: '角度转换',
+                children: renderAngleForm()
+              },
+              {
+                key: 'area',
+                label: '面积计算',
+                children: renderAreaForm()
+              }
+            ]}
           />
-          <Card title="计算结果" className={`${styles.card} ${styles.resultSection}`}>
-            <Table
-              columns={[
-                { title: '参数', dataIndex: 'parameter', key: 'parameter' },
-                { title: '数值', dataIndex: 'value', key: 'value' },
-                { title: '单位', dataIndex: 'unit', key: 'unit' },
-                { title: '备注', dataIndex: 'remarks', key: 'remarks' },
-              ]}
-              dataSource={[]}
-              className={styles.table}
-            />
-          </Card>
-        </div>
+        </Card>
       </Content>
     </Layout>
   );

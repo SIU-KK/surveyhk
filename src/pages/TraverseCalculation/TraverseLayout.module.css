@@ -75,7 +75,28 @@
 }
 
 .mainCard {
+  background: #FFFFFF;
+  border-radius: 8px;
   margin-bottom: 24px;
+}
+
+.calculationTypeContainer {
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.calculationTypeSelector {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.calculationTypeSelector :global(.ant-radio-button-wrapper) {
+  min-width: 120px;
+  text-align: center;
+  justify-content: center;
 }
 
 .mainCard :global(.ant-form-item) {
@@ -233,5 +254,13 @@
   .mainCard :global(.ant-col) {
     padding-left: 8px !important;
     padding-right: 8px !important;
+  }
+
+  .calculationTypeSelector :global(.ant-radio-button-wrapper) {
+    margin-bottom: 8px;
+    font-size: 14px;
+    padding: 0 12px;
+    height: 32px;
+    line-height: 30px;
   }
 }

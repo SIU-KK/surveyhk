@@ -5,7 +5,7 @@ import SurveyStation from '../pages/SurveyStation';
 import FreeStation from '../pages/FreeStation';
 import TraverseCalculation from '../pages/TraverseCalculation';
 import ConstructionLayout from '../pages/ConstructionLayout';
-import CircleCalculation from '../pages/CircleCalculation';
+import BatchCalculation from '../pages/BatchCalculation';
 import Tools from '../pages/Tools';
 import SettlementMonitoring from '../pages/SettlementMonitoring';
 
@@ -35,8 +35,8 @@ const router = createBrowserRouter([
         element: <ConstructionLayout />
       },
       {
-        path: 'circle-calculation',
-        element: <CircleCalculation />
+        path: 'batch-calculation',
+        element: <BatchCalculation />
       },
       {
         path: 'tools',

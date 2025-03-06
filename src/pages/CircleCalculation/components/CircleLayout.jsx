@@ -1,26 +1,62 @@
-import React, { useState } from 'react';
-import { Layout, Form, Input, Button, Table, Card, Space, Tabs, Menu } from 'antd';
-import { HomeOutlined, CompassOutlined, CalculatorOutlined, AimOutlined, RadiusSettingOutlined, ToolOutlined, MonitorOutlined } from '@ant-design/icons';
+import React, { useState, useEffect } from 'react';
+import { Layout, Form, Input, Button, Table, Card, Space, Tabs, Menu, Drawer } from 'antd';
+import { 
+  HomeOutlined, 
+  CompassOutlined, 
+  CalculatorOutlined, 
+  AimOutlined, 
+  RadiusSettingOutlined, 
+  ToolOutlined, 
+  MonitorOutlined,
+  MenuOutlined
+} from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import styles from './CircleLayout.module.css';
 
-const { Content, Header } = Layout;
+const { Content } = Layout;
 
 const CircleLayout = () => {
   const [activeTab, setActiveTab] = useState('1');
   const [form] = Form.useForm();
   const navigate = useNavigate();
+  const [isMobile, setIsMobile] = useState(false);
+  const [deviceType, setDeviceType] = useState('desktop');
+  const [drawerVisible, setDrawerVisible] = useState(false);
 
-  const goHome = () => {
-    navigate('/');
-  };
+  useEffect(() => {
+    // 检测设备类型
+    const checkDeviceType = () => {
+      const width = window.innerWidth;
+      if (width <= 768) {
+        setDeviceType('mobile');
+        setIsMobile(true);
+      } else if (width <= 1024) {
+        setDeviceType('tablet');
+        setIsMobile(false);
+      } else {
+        setDeviceType('desktop');
+        setIsMobile(false);
+      }
+    };
+
+    // 初始化设置
+    checkDeviceType();
+
+    // 添加窗口大小变化监听
+    window.addEventListener('resize', checkDeviceType);
+
+    // 清理函数
+    return () => {
+      window.removeEventListener('resize', checkDeviceType);
+    };
+  }, []);
 
   const menuItems = [
     {
-      key: 'home',
+      key: '/',
       icon: <HomeOutlined />,
       label: '返回主页',
-      onClick: goHome
+      onClick: () => navigate('/')
     },
     {
       key: 'survey-station',
@@ -49,7 +85,7 @@ const CircleLayout = () => {
     {
       key: 'circle-calculation',
       icon: <RadiusSettingOutlined />,
-      label: '圆计算'
+      label: '批量计算及转换'
     },
     {
       key: 'tools',
@@ -65,133 +101,164 @@ const CircleLayout = () => {
     }
   ];
 
+  const handleMenuClick = ({ key }) => {
+    if (key === '/') {
+      navigate('/');
+    } else {
+      navigate(`/${key}`);
+    }
+    setDrawerVisible(false);
+  };
+
   const renderThreePointsForm = () => (
-    <Form form={form} layout="vertical">
-      <div className={styles.formGroup}>
-        <Form.Item label="第一点坐标" className={styles.formItem}>
-          <Form.Item name="point1Id" rules={[{ required: true, message: '请输入点号' }]}>
-            <Input placeholder="点号" />
+    <Form form={form} layout="vertical" className={styles.calculationForm}>
+      <div className={styles.formGrid}>
+        <div className={styles.formSection}>
+          <h3 className={styles.sectionTitle}>第一点坐标</h3>
+          <Form.Item name="point1Id" label="点号" rules={[{ required: true, message: '请输入点号' }]}>
+            <Input placeholder="点号" className={styles.inputField} size="large" />
           </Form.Item>
-          <Form.Item name="point1X" rules={[{ required: true, message: '请输入X坐标' }]}>
-            <Input placeholder="X坐标" />
+          <Form.Item name="point1X" label="X坐标" rules={[{ required: true, message: '请输入X坐标' }]}>
+            <Input placeholder="X坐标" className={styles.inputField} size="large" />
           </Form.Item>
-          <Form.Item name="point1Y" rules={[{ required: true, message: '请输入Y坐标' }]}>
-            <Input placeholder="Y坐标" />
+          <Form.Item name="point1Y" label="Y坐标" rules={[{ required: true, message: '请输入Y坐标' }]}>
+            <Input placeholder="Y坐标" className={styles.inputField} size="large" />
           </Form.Item>
-        </Form.Item>
-        <Form.Item label="第二点坐标" className={styles.formItem}>
-          <Form.Item name="point2Id" rules={[{ required: true, message: '请输入点号' }]}>
-            <Input placeholder="点号" />
+        </div>
+        
+        <div className={styles.formSection}>
+          <h3 className={styles.sectionTitle}>第二点坐标</h3>
+          <Form.Item name="point2Id" label="点号" rules={[{ required: true, message: '请输入点号' }]}>
+            <Input placeholder="点号" className={styles.inputField} size="large" />
           </Form.Item>
-          <Form.Item name="point2X" rules={[{ required: true, message: '请输入X坐标' }]}>
-            <Input placeholder="X坐标" />
+          <Form.Item name="point2X" label="X坐标" rules={[{ required: true, message: '请输入X坐标' }]}>
+            <Input placeholder="X坐标" className={styles.inputField} size="large" />
           </Form.Item>
-          <Form.Item name="point2Y" rules={[{ required: true, message: '请输入Y坐标' }]}>
-            <Input placeholder="Y坐标" />
+          <Form.Item name="point2Y" label="Y坐标" rules={[{ required: true, message: '请输入Y坐标' }]}>
+            <Input placeholder="Y坐标" className={styles.inputField} size="large" />
           </Form.Item>
-        </Form.Item>
-        <Form.Item label="第三点坐标" className={styles.formItem}>
-          <Form.Item name="point3Id" rules={[{ required: true, message: '请输入点号' }]}>
-            <Input placeholder="点号" />
+        </div>
+        
+        <div className={styles.formSection}>
+          <h3 className={styles.sectionTitle}>第三点坐标</h3>
+          <Form.Item name="point3Id" label="点号" rules={[{ required: true, message: '请输入点号' }]}>
+            <Input placeholder="点号" className={styles.inputField} size="large" />
           </Form.Item>
-          <Form.Item name="point3X" rules={[{ required: true, message: '请输入X坐标' }]}>
-            <Input placeholder="X坐标" />
+          <Form.Item name="point3X" label="X坐标" rules={[{ required: true, message: '请输入X坐标' }]}>
+            <Input placeholder="X坐标" className={styles.inputField} size="large" />
           </Form.Item>
-          <Form.Item name="point3Y" rules={[{ required: true, message: '请输入Y坐标' }]}>
-            <Input placeholder="Y坐标" />
+          <Form.Item name="point3Y" label="Y坐标" rules={[{ required: true, message: '请输入Y坐标' }]}>
+            <Input placeholder="Y坐标" className={styles.inputField} size="large" />
           </Form.Item>
-        </Form.Item>
+        </div>
       </div>
-      <Button type="primary" size="large" className={styles.submitButton}>计算</Button>
+      <div className={styles.buttonGroup}>
+        <Button type="primary" size="large" className={styles.submitButton} icon={<CalculatorOutlined />}>计算</Button>
+        <Button size="large" className={styles.resetButton}>重置</Button>
+      </div>
     </Form>
   );
 
   const renderTwoPointsForm = () => (
-    <Form form={form} layout="vertical">
-      <div className={styles.formGroup}>
-        <Form.Item label="第一点坐标" className={styles.formItem}>
-          <Form.Item name="point1Id" rules={[{ required: true, message: '请输入点号' }]}>
-            <Input placeholder="点号" />
+    <Form form={form} layout="vertical" className={styles.calculationForm}>
+      <div className={styles.formGrid}>
+        <div className={styles.formSection}>
+          <h3 className={styles.sectionTitle}>第一点坐标</h3>
+          <Form.Item name="point1Id" label="点号" rules={[{ required: true, message: '请输入点号' }]}>
+            <Input placeholder="点号" className={styles.inputField} size="large" />
           </Form.Item>
-          <Form.Item name="point1X" rules={[{ required: true, message: '请输入X坐标' }]}>
-            <Input placeholder="X坐标" />
+          <Form.Item name="point1X" label="X坐标" rules={[{ required: true, message: '请输入X坐标' }]}>
+            <Input placeholder="X坐标" className={styles.inputField} size="large" />
           </Form.Item>
-          <Form.Item name="point1Y" rules={[{ required: true, message: '请输入Y坐标' }]}>
-            <Input placeholder="Y坐标" />
+          <Form.Item name="point1Y" label="Y坐标" rules={[{ required: true, message: '请输入Y坐标' }]}>
+            <Input placeholder="Y坐标" className={styles.inputField} size="large" />
           </Form.Item>
-        </Form.Item>
-        <Form.Item label="第二点坐标" className={styles.formItem}>
-          <Form.Item name="point2Id" rules={[{ required: true, message: '请输入点号' }]}>
-            <Input placeholder="点号" />
+        </div>
+        
+        <div className={styles.formSection}>
+          <h3 className={styles.sectionTitle}>第二点坐标</h3>
+          <Form.Item name="point2Id" label="点号" rules={[{ required: true, message: '请输入点号' }]}>
+            <Input placeholder="点号" className={styles.inputField} size="large" />
           </Form.Item>
-          <Form.Item name="point2X" rules={[{ required: true, message: '请输入X坐标' }]}>
-            <Input placeholder="X坐标" />
+          <Form.Item name="point2X" label="X坐标" rules={[{ required: true, message: '请输入X坐标' }]}>
+            <Input placeholder="X坐标" className={styles.inputField} size="large" />
           </Form.Item>
-          <Form.Item name="point2Y" rules={[{ required: true, message: '请输入Y坐标' }]}>
-            <Input placeholder="Y坐标" />
+          <Form.Item name="point2Y" label="Y坐标" rules={[{ required: true, message: '请输入Y坐标' }]}>
+            <Input placeholder="Y坐标" className={styles.inputField} size="large" />
           </Form.Item>
-        </Form.Item>
-        <Form.Item label="圆参数" className={styles.formItem}>
-          <Form.Item name="radius" rules={[{ required: true, message: '请输入半径' }]}>
-            <Input placeholder="半径" />
+        </div>
+        
+        <div className={styles.formSection}>
+          <h3 className={styles.sectionTitle}>圆参数</h3>
+          <Form.Item name="radius" label="半径" rules={[{ required: true, message: '请输入半径' }]}>
+            <Input placeholder="半径" className={styles.inputField} size="large" />
           </Form.Item>
-        </Form.Item>
+        </div>
       </div>
-      <Button type="primary" size="large" className={styles.submitButton}>计算</Button>
+      <div className={styles.buttonGroup}>
+        <Button type="primary" size="large" className={styles.submitButton} icon={<CalculatorOutlined />}>计算</Button>
+        <Button size="large" className={styles.resetButton}>重置</Button>
+      </div>
     </Form>
   );
 
   const renderCenterPointForm = () => (
-    <Form form={form} layout="vertical">
-      <div className={styles.formGroup}>
-        <Form.Item label="圆心坐标" className={styles.formItem}>
-          <Form.Item name="centerPointId" rules={[{ required: true, message: '请输入圆心点号' }]}>
-            <Input placeholder="圆心点号" />
+    <Form form={form} layout="vertical" className={styles.calculationForm}>
+      <div className={styles.formGrid}>
+        <div className={styles.formSection}>
+          <h3 className={styles.sectionTitle}>圆心坐标</h3>
+          <Form.Item name="centerPointId" label="圆心点号" rules={[{ required: true, message: '请输入圆心点号' }]}>
+            <Input placeholder="圆心点号" className={styles.inputField} size="large" />
           </Form.Item>
-          <Form.Item name="centerX" rules={[{ required: true, message: '请输入X坐标' }]}>
-            <Input placeholder="X坐标" />
+          <Form.Item name="centerX" label="X坐标" rules={[{ required: true, message: '请输入X坐标' }]}>
+            <Input placeholder="X坐标" className={styles.inputField} size="large" />
           </Form.Item>
-          <Form.Item name="centerY" rules={[{ required: true, message: '请输入Y坐标' }]}>
-            <Input placeholder="Y坐标" />
+          <Form.Item name="centerY" label="Y坐标" rules={[{ required: true, message: '请输入Y坐标' }]}>
+            <Input placeholder="Y坐标" className={styles.inputField} size="large" />
           </Form.Item>
-        </Form.Item>
-        <Form.Item label="圆参数" className={styles.formItem}>
-          <Form.Item name="radius" rules={[{ required: true, message: '请输入半径' }]}>
-            <Input placeholder="半径" />
+        </div>
+        
+        <div className={styles.formSection}>
+          <h3 className={styles.sectionTitle}>圆参数</h3>
+          <Form.Item name="radius" label="半径" rules={[{ required: true, message: '请输入半径' }]}>
+            <Input placeholder="半径" className={styles.inputField} size="large" />
           </Form.Item>
-          <Form.Item name="pointCount" rules={[{ required: true, message: '请输入计算点数' }]}>
-            <Input placeholder="计算点数" />
+          <Form.Item name="pointCount" label="计算点数" rules={[{ required: true, message: '请输入计算点数' }]}>
+            <Input placeholder="计算点数" className={styles.inputField} size="large" />
           </Form.Item>
-        </Form.Item>
+        </div>
       </div>
-      <Button type="primary" size="large" className={styles.submitButton}>计算</Button>
+      <div className={styles.buttonGroup}>
+        <Button type="primary" size="large" className={styles.submitButton} icon={<CalculatorOutlined />}>计算</Button>
+        <Button size="large" className={styles.resetButton}>重置</Button>
+      </div>
     </Form>
   );
 
   const items = [
     {
       key: '1',
-      label: '三点求圆心',
+      label: <span className={styles.tabLabel}>三点求圆心</span>,
       children: (
-        <Card title="计算参数" className={styles.card}>
+        <Card className={styles.card} bordered={false}>
           {renderThreePointsForm()}
         </Card>
       ),
     },
     {
       key: '2',
-      label: '两点求圆心',
+      label: <span className={styles.tabLabel}>两点求圆心</span>,
       children: (
-        <Card title="计算参数" className={styles.card}>
+        <Card className={styles.card} bordered={false}>
           {renderTwoPointsForm()}
         </Card>
       ),
     },
     {
       key: '3',
-      label: '圆心求坐标',
+      label: <span className={styles.tabLabel}>圆心求坐标</span>,
       children: (
-        <Card title="计算参数" className={styles.card}>
+        <Card className={styles.card} bordered={false}>
           {renderCenterPointForm()}
         </Card>
       ),
@@ -199,45 +266,83 @@ const CircleLayout = () => {
   ];
 
   return (
-    <Layout className={styles.container}>
-      <Header className={styles.header}>
+    <Layout className={styles.layout}>
+      {/* 桌面端菜单 */}
+      <div className={styles.header}>
         <Menu
-          theme="dark"
           mode="horizontal"
           items={menuItems}
-          selectedKeys={['circle-calculation']}
+          onClick={handleMenuClick}
           className={styles.menu}
+          selectedKeys={['circle-calculation']}
         />
-      </Header>
+      </div>
+
+      {/* 移动端顶部导航 */}
+      <div className={styles.mobileHeader}>
+        <Button 
+          icon={<MenuOutlined />}
+          onClick={() => setDrawerVisible(true)}
+          type="text"
+          className={styles.menuButton}
+        />
+        <span className={styles.headerTitle}>批量计算及转换</span>
+        <Button 
+          icon={<HomeOutlined />} 
+          onClick={() => navigate('/')}
+          type="link"
+        />
+      </div>
+
+      {/* 移动端导航抽屉 */}
+      <Drawer
+        title="导航菜单"
+        placement="left"
+        onClose={() => setDrawerVisible(false)}
+        open={drawerVisible}
+        styles={{ body: { padding: 0 } }}
+      >
+        <Menu
+          mode="vertical"
+          items={menuItems}
+          onClick={handleMenuClick}
+          selectedKeys={['circle-calculation']}
+          style={{ border: 'none' }}
+        />
+      </Drawer>
+
       <Content className={styles.content}>
-        <div className={styles.banner}>
-          <h2 className={styles.bannerTitle}>圆计算</h2>
-          <p className={styles.bannerDescription}>
-            提供三点求圆心、两点求圆心、圆心求坐标等多种计算方法
-          </p>
-        </div>
-        <div className={styles.mainContent}>
-          <Tabs
-            activeKey={activeTab}
-            onChange={setActiveTab}
-            items={items}
-            type="card"
-            className={styles.tabs}
-          />
-          <Card title="计算结果" className={`${styles.card} ${styles.resultSection}`}>
-            <Table
-              columns={[
-                { title: '点号', dataIndex: 'pointId', key: 'pointId' },
-                { title: 'X坐标', dataIndex: 'x', key: 'x' },
-                { title: 'Y坐标', dataIndex: 'y', key: 'y' },
-                { title: '半径', dataIndex: 'radius', key: 'radius' },
-                { title: '面积', dataIndex: 'area', key: 'area' },
-                { title: '备注', dataIndex: 'remarks', key: 'remarks' },
-              ]}
-              dataSource={[]}
-              className={styles.table}
+        <div className={styles.pageContainer}>
+          <div className={styles.mainContent}>
+            <Tabs
+              activeKey={activeTab}
+              onChange={setActiveTab}
+              items={items}
+              type="card"
+              className={styles.tabs}
+              tabBarStyle={{ marginBottom: 0 }}
+              tabBarGutter={8}
+              size="large"
             />
-          </Card>
+            <Card className={`${styles.card} ${styles.resultCard}`} bordered={false}>
+              <h3 className={styles.sectionTitle}>计算结果</h3>
+              <Table
+                columns={[
+                  { title: '点号', dataIndex: 'pointId', key: 'pointId' },
+                  { title: 'X坐标', dataIndex: 'x', key: 'x' },
+                  { title: 'Y坐标', dataIndex: 'y', key: 'y' },
+                  { title: '半径', dataIndex: 'radius', key: 'radius' },
+                  { title: '面积', dataIndex: 'area', key: 'area' },
+                  { title: '备注', dataIndex: 'remarks', key: 'remarks' },
+                ]}
+                dataSource={[]}
+                className={styles.resultTable}
+                size="middle"
+                pagination={false}
+                bordered
+              />
+            </Card>
+          </div>
         </div>
       </Content>
     </Layout>

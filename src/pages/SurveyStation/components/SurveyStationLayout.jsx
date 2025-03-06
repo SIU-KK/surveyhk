@@ -12,6 +12,12 @@ const SurveyStationLayout = () => {
 
   const menuItems = [
     {
+      key: '/',
+      icon: <HomeOutlined />,
+      label: '返回主页',
+      onClick: () => navigate('/')
+    },
+    {
       key: 'survey-station',
       icon: <CompassOutlined />,
       label: '香港测量控制站查询'
@@ -34,7 +40,7 @@ const SurveyStationLayout = () => {
     {
       key: 'circle-calculation',
       icon: <RadiusSettingOutlined />,
-      label: '圆计算'
+      label: '批量计算及转换'
     },
     {
       key: 'tools',

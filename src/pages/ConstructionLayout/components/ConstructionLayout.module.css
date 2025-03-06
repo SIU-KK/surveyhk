@@ -1,72 +1,30 @@
-.constructionContainer {
-    padding: 20px;
-}
-
-.formSection {
-    margin-bottom: 20px;
-}
-
-.inputGroup {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-}
-
-.inputItem {
-    min-width: 200px;
-}
-
-.buttonGroup {
-    margin-top: 16px;
-}
-
-.dataTable {
-    margin-top: 24px;
-}
-
-.resultSection {
-    margin-top: 32px;
-}
-
 .container {
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  background: #f0f2f5;
 }
 
 .header {
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
+  background: #001529;
   padding: 0;
+  position: fixed;
+  width: 100%;
+  z-index: 100;
   display: flex;
   align-items: center;
 }
 
-.menuButton {
-  font-size: 20px;
-  margin: 0 16px;
-  padding: 8px;
-  display: none;
-}
-
-.drawerMenu {
-  border-right: none;
-}
-
-.drawerMenu :global(.ant-menu-item) {
-  margin: 0 !important;
-  border-radius: 0 !important;
-}
-
 .menu {
   line-height: 64px;
+  flex: 1;
+  border-bottom: none;
+}
+
+.menu :global(.ant-menu) {
+  border-bottom: none;
 }
 
 .menu :global(.ant-menu-item) {
-  color: #636E72 !important;
+  color: rgba(255, 255, 255, 0.65) !important;
   font-size: 15px;
   padding: 0 24px !important;
   margin: 0 4px !important;
@@ -74,261 +32,230 @@
 }
 
 .menu :global(.ant-menu-item:hover) {
-  color: #4C84FF !important;
-  background: #F0F7FF !important;
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.08) !important;
 }
 
 .menu :global(.ant-menu-item-selected) {
-  color: #4C84FF !important;
-  background: #F0F7FF !important;
-  font-weight: 500;
-  border-bottom: 2px solid #4C84FF !important;
+  color: #fff !important;
+  border-bottom: 2px solid #1890ff !important;
 }
 
-.menu :global(.ant-menu-item::after) {
-  display: none !important;
+.mobileHeader {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 50px;
+  background: #001529;
+  color: white;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.menuButton {
+  color: white !important;
+  font-size: 18px;
+  padding: 4px 8px;
+  height: 32px;
+}
+
+.headerTitle {
+  font-size: 16px;
+  font-weight: 500;
+  color: white;
 }
 
 .content {
-  flex: 1;
   padding: 24px;
-  background: #f0f2f5;
+  margin-top: 64px;
 }
 
-.banner {
-  background: linear-gradient(135deg, #1a365d 0%, #2563eb 100%);
-  padding: 48px 24px;
-  border-radius: 8px;
-  margin-bottom: 24px;
-  text-align: center;
-  color: white;
-}
-
-.bannerTitle {
-  font-size: 2.5em;
-  margin-bottom: 16px;
-  color: white;
-}
-
-.bannerDescription {
-  font-size: 1.2em;
-  opacity: 0.9;
-}
-
-.mainContent {
-  padding: 0 24px 48px;
+.pageContainer {
   max-width: 1200px;
   margin: 0 auto;
 }
 
 .mainCard {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
-.customTabs {
-  padding: 16px 24px 0;
+.mainCard :global(.ant-form-item) {
+  margin-bottom: 16px;
 }
 
-.customTabs :global(.ant-tabs-nav::before) {
-  border-bottom: none;
-}
-
-.customTabs :global(.ant-tabs-tab) {
+.mainCard :global(.ant-input) {
+  height: 40px;
   font-size: 16px;
-  padding: 12px 24px;
 }
 
-.customTabs :global(.ant-tabs-tab-active) {
-  background: #f0f7ff;
-  border-radius: 8px 8px 0 0;
+.mainCard :global(.ant-radio-group) {
+  margin-bottom: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mainCard :global(.ant-radio-button-wrapper) {
+  flex: 1;
+  text-align: center;
+  min-width: 120px;
+}
+
+.mainCard :global(.ant-form-item-label) {
+  padding-bottom: 4px;
+}
+
+.mainCard :global(.ant-form-item-label > label) {
+  font-size: 14px;
+  color: #333;
+}
+
+.mainCard :global(.ant-input-number) {
+  width: 100%;
 }
 
 .resultCard {
-  margin-top: 24px;
+  background: #fff;
 }
 
-.resultTitle {
+.resultItem {
+  margin-bottom: 8px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
 }
 
-.resultTime {
-  font-size: 14px;
-  color: #666;
+.resultLabel {
+  color: rgba(0, 0, 0, 0.45);
+  margin-right: 8px;
 }
 
-.resultTable {
-  margin-top: 16px;
+.resultValue {
+  color: rgba(0, 0, 0, 0.85);
+  font-weight: 500;
 }
 
-.tableColumn {
-  text-align: center;
+/* 新增样式 */
+:global(.ant-card-bordered) {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
-.tableColumn :global(.ant-table-cell) {
-  padding: 16px;
-}
-
-.formGroup {
-  display: grid;
-  gap: 24px;
-  margin-bottom: 24px;
-}
-
-.formItem {
-  margin-bottom: 0;
-}
-
-.submitButton {
-  width: 100%;
-  height: 48px;
+:global(.ant-card-head-title) {
   font-size: 16px;
+  font-weight: 500;
+  color: #333;
 }
 
-.tableWrapper {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+:global(.ant-divider) {
+  margin: 12px 0;
 }
 
-/* 移动端适配样式 */
-@media screen and (max-width: 768px) {
-  .content {
-    padding: 12px;
-  }
+.resultCard :global(.ant-card) {
+  background: #fafafa;
+  height: 100%;
+}
 
-  .mobileBanner {
-    padding: 32px 16px;
-  }
+.resultCard :global(.ant-card-head) {
+  border-bottom: 1px solid #f0f0f0;
+  min-height: 40px;
+  padding: 0 12px;
+}
 
-  .bannerTitle {
-    font-size: 1.8em;
-  }
+.resultCard :global(.ant-card-body) {
+  padding: 12px;
+}
 
-  .bannerDescription {
-    font-size: 1em;
-  }
+.cardTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
 
-  .mobileContent {
-    padding: 0;
-  }
+.cardCopyButton {
+  margin-left: 8px;
+  opacity: 0.6;
+  transition: all 0.3s;
+}
 
-  .mobileCard {
-    border-radius: 0;
-    box-shadow: none;
-  }
+.cardCopyButton:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.04);
+}
 
-  .formGroup {
-    gap: 16px;
-  }
-
-  .mobileTabs :global(.ant-tabs-nav) {
-    margin-bottom: 12px;
-  }
-
-  .mobileResultCard {
-    margin: 12px -1px;
-    border-radius: 0;
-  }
-
-  .resultTitle {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  /* 表格响应式样式 */
-  :global(.ant-table) {
-    font-size: 14px;
-  }
-
-  :global(.ant-table-thead > tr > th),
-  :global(.ant-table-tbody > tr > td) {
-    padding: 8px 4px;
-    white-space: nowrap;
-  }
-
-  /* 表单响应式样式 */
-  :global(.ant-form-item) {
-    margin-bottom: 12px;
-  }
-
-  :global(.ant-input) {
-    height: 40px;
-  }
-
-  /* 菜单响应式样式 */
-  .menuButton {
-    display: block;
-  }
-
-  .menu {
+@media (max-width: 768px) {
+  .header {
     display: none;
   }
 
-  .header {
-    padding: 0;
-    height: 56px;
-  }
-
-  .drawerMenu {
-    height: 100%;
-  }
-
-  .drawerMenu :global(.ant-menu-item) {
-    height: 48px;
-    line-height: 48px;
-    padding: 0 24px !important;
-  }
-
-  :global(.ant-drawer-body) {
-    padding: 0;
-  }
-
-  :global(.ant-drawer-header) {
-    height: 56px;
+  .mobileHeader {
+    display: flex;
   }
 
   .content {
-    padding: 8px;
-  }
-
-  .formGroup {
-    padding: 12px;
-  }
-
-  .banner {
-    margin: 8px;
-    padding: 24px 16px;
+    margin-top: 50px;
+    padding: 16px;
   }
 
   .mainCard {
-    margin: 8px;
+    margin-bottom: 16px;
   }
 
-  /* 优化表单在移动端的显示 */
-  :global(.ant-form-item-label) {
-    padding: 0 0 4px;
+  .mainCard :global(.ant-card-body) {
+    padding: 16px;
   }
 
-  :global(.ant-input) {
-    font-size: 16px; /* 防止iOS自动缩放 */
+  .mainCard :global(.ant-form-item) {
+    margin-bottom: 12px;
   }
 
-  :global(.ant-btn) {
-    font-size: 16px;
+  .mainCard :global(.ant-input) {
     height: 44px;
+    font-size: 16px;
+    padding: 8px 12px;
   }
 
-  /* 优化表格在移动端的显示 */
-  .tableWrapper {
-    margin: 0 -8px;
-  }
-
-  :global(.ant-table-cell) {
-    padding: 8px 4px !important;
+  .mainCard :global(.ant-radio-button-wrapper) {
+    padding: 0 8px;
+    height: 36px;
+    line-height: 34px;
     font-size: 14px;
   }
+
+  .mainCard :global(.ant-form-item-label > label) {
+    font-size: 14px;
+  }
+
+  .mainCard :global(.ant-row) {
+    margin-left: -8px !important;
+    margin-right: -8px !important;
+  }
+
+  .mainCard :global(.ant-col) {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+}
+
+.calculationTypeContainer {
+  margin-bottom: 24px;
+}
+
+.calculationTypeGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.calculationTypeGroup :global(.ant-radio-button-wrapper) {
+  flex: 1;
+  text-align: center;
+  min-width: 120px;
 }

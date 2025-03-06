@@ -58,13 +58,14 @@ const AppLayout = () => {
       ]
     },
     {
-      key: 'circle-calculation',
+      key: 'batch-calculation',
       icon: <RadiusSettingOutlined />,
-      label: '圆计算',
+      label: '批量计算及转换',
       children: [
-        { key: 'circle-calculation/3points', label: '三点求圆心' },
-        { key: 'circle-calculation/2points', label: '两点求圆心' },
-        { key: 'circle-calculation/center', label: '圆心求坐标' }
+        { key: 'batch-calculation/direction-inverse', label: 'ENH TO BRE VA SD' },
+        { key: 'batch-calculation/direction-calc', label: 'BRE VA SD TO ENH' },
+        { key: 'batch-calculation/level-calc', label: '平水计算' },
+        { key: 'batch-calculation/level-inverse', label: '平水反算' }
       ]
     },
     {

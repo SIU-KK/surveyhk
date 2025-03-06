@@ -1,6 +1,6 @@
-import React from 'react';
-import { Layout, Row, Col, Menu, Typography, Image } from 'antd';
-import { HomeOutlined, CompassOutlined, CalculatorOutlined, AimOutlined, RadiusSettingOutlined, ToolOutlined, MonitorOutlined } from '@ant-design/icons';
+import React, { useState } from 'react';
+import { Layout, Row, Col, Menu, Typography, Image, Drawer, Button } from 'antd';
+import { HomeOutlined, CompassOutlined, CalculatorOutlined, AimOutlined, RadiusSettingOutlined, ToolOutlined, MonitorOutlined, MenuOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import styles from './SettlementMonitoringLayout.module.css';
 
@@ -8,6 +8,7 @@ const { Content, Header } = Layout;
 
 const SettlementMonitoringLayout = () => {
   const navigate = useNavigate();
+  const [drawerVisible, setDrawerVisible] = useState(false);
 
   const goHome = () => {
     navigate('/');
@@ -60,10 +61,10 @@ const SettlementMonitoringLayout = () => {
       onClick: () => navigate('/construction-layout')
     },
     {
-      key: 'circle-calculation',
+      key: 'batch-calculation',
       icon: <RadiusSettingOutlined />,
-      label: '圆计算',
-      onClick: () => navigate('/circle-calculation')
+      label: '批量计算及转换',
+      onClick: () => navigate('/batch-calculation')
     },
     {
       key: 'tools',
@@ -112,7 +113,34 @@ const SettlementMonitoringLayout = () => {
           className={styles.menu}
         />
       </Header>
-      <Content>
+      
+      <div className={styles.mobileHeader}>
+        <Button 
+          type="text" 
+          icon={<MenuOutlined />} 
+          onClick={() => setDrawerVisible(true)}
+          className={styles.menuButton}
+        />
+        <div className={styles.headerTitle}>沉降监测系统</div>
+        <div style={{ width: 32 }}></div>
+      </div>
+      
+      <Drawer
+        title="菜单"
+        placement="left"
+        onClose={() => setDrawerVisible(false)}
+        open={drawerVisible}
+        bodyStyle={{ padding: 0 }}
+      >
+        <Menu
+          mode="vertical"
+          items={menuItems}
+          selectedKeys={['settlement-monitoring']}
+          style={{ border: 'none' }}
+        />
+      </Drawer>
+      
+      <Content className={styles.content}>
         <div className={styles.banner}>
           <Typography.Title level={2} className={styles.bannerTitle}>沉降监测系统</Typography.Title>
           <Typography.Paragraph className={styles.bannerDescription}>
@@ -121,9 +149,9 @@ const SettlementMonitoringLayout = () => {
           </Typography.Paragraph>
         </div>
         <div className={styles.featureSection}>
-          <Row gutter={[48, 48]}>
+          <Row gutter={[24, 24]}>
             {features.map((feature, index) => (
-              <Col xs={24} md={12} key={index}>
+              <Col xs={24} sm={12} key={index}>
                 {renderFeatureSection(
                   feature.title,
                   feature.description,
