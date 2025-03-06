@@ -40,7 +40,7 @@ const SurveyStationLayout = () => {
     {
       key: 'circle-calculation',
       icon: <RadiusSettingOutlined />,
-      label: '圆计算'
+      label: '批量计算及转换'
     },
     {
       key: 'tools',

@@ -1,5 +1,5 @@
 import React from 'react';
-import TraverseLayout from './components/TraverseLayout';
+import TraverseLayout from './TraverseLayout';
 
 const TraverseCalculation = () => {
   return <TraverseLayout />;

@@ -53,9 +53,9 @@ const FreeStationLayout = () => {
       label: '施工放样'
     },
     {
-      key: 'circle-calculation',
+      key: 'batch-calculation',
       icon: <RadiusSettingOutlined />,
-      label: '圆计算'
+      label: '批量计算及转换'
     },
     {
       key: 'tools',
@@ -758,7 +758,7 @@ const FreeStationLayout = () => {
           className={styles.menu}
           selectedKeys={['free-station']}
         />
-      </div>
+      </div> 
 
       {/* 移动端顶部导航 */}
       <div className={styles.mobileHeader}>

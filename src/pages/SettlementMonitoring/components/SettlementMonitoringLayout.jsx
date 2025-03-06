@@ -60,10 +60,10 @@ const SettlementMonitoringLayout = () => {
       onClick: () => navigate('/construction-layout')
     },
     {
-      key: 'circle-calculation',
+      key: 'batch-calculation',
       icon: <RadiusSettingOutlined />,
-      label: '圆计算',
-      onClick: () => navigate('/circle-calculation')
+      label: '批量计算及转换',
+      onClick: () => navigate('/batch-calculation')
     },
     {
       key: 'tools',

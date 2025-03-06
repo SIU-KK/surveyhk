@@ -43,8 +43,8 @@ const features = [
   },
   {
     icon: <RadiusSettingOutlined style={{ fontSize: '32px' }} />,
-    title: '圆计算',
-    description: '支持多种圆计算方法，快速获取圆心坐标',
+    title: '批量计算及转换',
+    description: '支持多种计算方法和数据转换功能',
     path: '/circle-calculation',
     color: '#FF9F43'
   },
