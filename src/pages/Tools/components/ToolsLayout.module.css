@@ -4,7 +4,7 @@
 }
 
 .header {
-  background: #FFFFFF;
+  background: #001529;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   padding: 0;
   position: fixed;
@@ -16,7 +16,6 @@
 
 .menu {
   line-height: 64px;
-  background: #FFFFFF;
   flex: 1;
   border-bottom: none;
 }
@@ -26,7 +25,7 @@
 }
 
 .menu :global(.ant-menu-item) {
-  color: #636E72 !important;
+  color: rgba(255, 255, 255, 0.65) !important;
   font-size: 15px;
   padding: 0 24px !important;
   margin: 0 4px !important;
@@ -34,10 +33,14 @@
 }
 
 .menu :global(.ant-menu-item:hover) {
-  color: #4C84FF !important;
-  background: #F0F7FF !important;
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.08) !important;
 }
 
+.menu :global(.ant-menu-item-selected) {
+  color: #fff !important;
+  border-bottom: 2px solid #1890ff !important;
+}
 
 .mobileHeader {
   display: none;
@@ -47,7 +50,8 @@
   right: 0;
   z-index: 1000;
   height: 50px;
-  background: #fff;
+  background: #001529;
+  color: white;
   align-items: center;
   justify-content: space-between;
   padding: 0 16px;
@@ -72,6 +76,25 @@
 
 .mainCard {
   margin-bottom: 24px;
+}
+
+.calculationTypeContainer {
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.calculationTypeSelector {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.calculationTypeSelector :global(.ant-radio-button-wrapper) {
+  min-width: 120px;
+  text-align: center;
+  justify-content: center;
 }
 
 .mainCard :global(.ant-form-item) {
@@ -110,7 +133,33 @@
 }
 
 .resultCard {
-  background: #fff;
+  background: #f9f9f9;
+  border: 1px solid #e8e8e8;
+  border-radius: 4px;
+  padding: 16px;
+  margin-top: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.resultCard h3 {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+}
+
+.resultCard p {
+  margin-bottom: 8px;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.resultCard p:last-child {
+  font-weight: 500;
+  color: #1890ff;
 }
 
 .resultItem {
@@ -178,6 +227,421 @@
   background: rgba(0, 0, 0, 0.04);
 }
 
+/* 中拱示意图样式 */
+.arcDiagram {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border: 1px solid #f0f0f0;
+  border-radius: 4px;
+  padding: 16px;
+  background-color: #fafafa;
+}
+
+.diagramTitle {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  color: rgba(0, 0, 0, 0.85);
+  text-align: center;
+}
+
+.diagramContent {
+  width: 100%;
+  height: 200px;
+  position: relative;
+  margin-bottom: 16px;
+  overflow: visible;
+}
+
+.diagramDescription {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed #f0f0f0;
+}
+
+.diagramDescription p {
+  margin-bottom: 8px;
+  color: rgba(0, 0, 0, 0.65);
+  font-size: 14px;
+}
+
+.scaleNote {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #999;
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .arcDiagram {
+    margin-top: 16px;
+    margin-bottom: 16px;
+    padding: 12px;
+  }
+  
+  .diagramTitle {
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+  
+  .diagramContent {
+    height: 180px;
+  }
+  
+  .diagramDescription p {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+  
+  .scaleNote {
+    font-size: 10px;
+  }
+}
+
+/* 弦线 */
+.chord {
+  position: absolute;
+  width: 160px;
+  height: 3px;
+  background: #ff4d4f;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+/* 弦中点 */
+.midpoint {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: #ff4d4f;
+  border-radius: 50%;
+  bottom: 78.5px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+}
+
+/* 中拱值线 */
+.midOffset {
+  position: absolute;
+  width: 2px;
+  height: 30px;
+  background: #52c41a;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+/* 弦端点 */
+.chordEndLeft {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #ff4d4f;
+  border-radius: 50%;
+  bottom: 78.5px;
+  left: calc(50% - 80px);
+  transform: translateX(-50%);
+  z-index: 3;
+}
+
+.chordEndRight {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #ff4d4f;
+  border-radius: 50%;
+  bottom: 78.5px;
+  left: calc(50% + 80px);
+  transform: translateX(-50%);
+  z-index: 3;
+}
+
+/* 圆弧 */
+.arcPath {
+  position: absolute;
+  width: 160px;
+  height: 30px;
+  border-top: 3px solid #52c41a;
+  border-radius: 100% 100% 0 0;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+/* 标签 */
+.labelChord {
+  position: absolute;
+  color: #ff4d4f;
+  font-weight: 500;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-size: 13px;
+}
+
+.labelMidOffset {
+  position: absolute;
+  color: #52c41a;
+  font-weight: 500;
+  bottom: 110px;
+  left: calc(50% + 5px);
+  z-index: 4;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-size: 13px;
+}
+
+/* 数值标签 */
+.valueChord {
+  position: absolute;
+  color: #ff4d4f;
+  font-size: 12px;
+  bottom: 45px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+
+.valueMidOffset {
+  position: absolute;
+  color: #52c41a;
+  font-size: 12px;
+  bottom: 95px;
+  left: calc(50% + 5px);
+  z-index: 4;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+
+.buttonRow {
+  margin-bottom: 20px;
+}
+
+.submitButton, .quarterButton {
+  height: 40px;
+  font-size: 15px;
+}
+
+.quarterButton {
+  background-color: #f0f0f0;
+  border-color: #d9d9d9;
+}
+
+.quarterButton:hover {
+  background-color: #e6f7ff;
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+/* 四分点标记 */
+.quarterPointLeft, .quarterPointRight {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #722ed1;
+  border-radius: 50%;
+  bottom: 78.5px;
+  transform: translateX(-50%);
+  z-index: 3;
+}
+
+/* 四分点标记的标签和值 */
+.labelQuarterPoint {
+  position: absolute;
+  color: #722ed1;
+  font-weight: 500;
+  bottom: 110px;
+  left: calc(25% + 5px);
+  z-index: 4;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-size: 13px;
+}
+
+.valueQuarterPoint {
+  position: absolute;
+  color: #722ed1;
+  font-size: 12px;
+  bottom: 95px;
+  left: calc(25% + 5px);
+  z-index: 4;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+
+/* 四分点偏移线 */
+.quarterOffsetLeft, .quarterOffsetRight {
+  position: absolute;
+  width: 2px;
+  height: 20px;
+  background: #722ed1;
+  bottom: 80px;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.quarterCountBadge {
+  font-size: 12px;
+  color: #722ed1;
+  background: rgba(114, 46, 209, 0.1);
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-left: 8px;
+  font-weight: normal;
+}
+
+.quarterCountLabel {
+  font-size: 12px;
+  color: #722ed1;
+  background: rgba(114, 46, 209, 0.1);
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-left: 8px;
+  font-weight: normal;
+}
+
+.resetButton {
+  height: 40px;
+  font-size: 15px;
+  border-color: #d9d9d9;
+}
+
+.resetButton:hover {
+  color: #ff4d4f;
+  border-color: #ff4d4f;
+}
+
+/* 四分弦长标签 */
+.labelQuarterChord {
+  position: absolute;
+  color: #722ed1;
+  font-weight: 500;
+  bottom: 110px;
+  left: calc(75% + 5px);
+  z-index: 4;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-size: 13px;
+}
+
+.valueQuarterChord {
+  position: absolute;
+  color: #722ed1;
+  font-size: 12px;
+  bottom: 95px;
+  left: calc(75% + 5px);
+  z-index: 4;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+
+.quarterResultItem {
+  margin-bottom: 16px;
+  background-color: #fafafa;
+  border-radius: 4px;
+  padding: 0 8px 8px;
+}
+
+.quarterResultItem:last-child {
+  margin-bottom: 0;
+}
+
+.quarterDivider {
+  margin: 8px 0 12px;
+}
+
+.quarterDivider :global(.ant-divider-inner-text) {
+  font-size: 14px;
+  color: #722ed1;
+  font-weight: 500;
+  background-color: rgba(114, 46, 209, 0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.quarterResultItem p {
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+
+.quarterResultItem p span:first-child {
+  color: rgba(0, 0, 0, 0.65);
+  margin-right: 8px;
+}
+
+.quarterResultItem p span:last-child {
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.arcResultItem {
+  margin-bottom: 16px;
+  background-color: #f6ffed;
+  border-radius: 4px;
+  padding: 0 8px 8px;
+}
+
+.arcDivider {
+  margin: 8px 0 12px;
+}
+
+.arcDivider :global(.ant-divider-inner-text) {
+  font-size: 14px;
+  color: #52c41a;
+  font-weight: 500;
+  background-color: rgba(82, 196, 26, 0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.resultRow {
+  margin-bottom: 8px;
+}
+
+.resultRow p {
+  margin-bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.resultRow p span:first-child {
+  color: rgba(0, 0, 0, 0.65);
+  flex: 1;
+}
+
+.resultRow p span:last-child {
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.85);
+  flex: 1;
+  text-align: right;
+}
+
+.noResultTip {
+  text-align: center;
+  color: #999;
+  padding: 20px 0;
+  font-size: 14px;
+}
+
 @media (max-width: 768px) {
   .header {
     display: none;
@@ -229,5 +693,1055 @@
   .mainCard :global(.ant-col) {
     padding-left: 8px !important;
     padding-right: 8px !important;
+  }
+
+  .calculationTypeSelector :global(.ant-radio-button-wrapper) {
+    margin-bottom: 8px;
+    font-size: 14px;
+    padding: 0 12px;
+    height: 32px;
+    line-height: 30px;
+  }
+
+  .resultCard {
+    padding: 12px;
+    margin-top: 16px;
+  }
+  
+  .resultCard h3 {
+    font-size: 15px;
+    margin-bottom: 12px;
+  }
+  
+  .resultCard p {
+    font-size: 13px;
+  }
+
+  .arcDiagram {
+    padding: 12px;
+    margin: 16px 0;
+  }
+  
+  .diagramContent {
+    height: 170px;
+  }
+  
+  .chord {
+    width: 140px;
+    bottom: 70px;
+  }
+  
+  .chordEndLeft {
+    bottom: 68.5px;
+    left: calc(50% - 70px);
+  }
+  
+  .chordEndRight {
+    bottom: 68.5px;
+    left: calc(50% + 70px);
+  }
+  
+  .arcPath {
+    width: 140px;
+    bottom: 70px;
+  }
+  
+  .midpoint {
+    bottom: 68.5px;
+  }
+  
+  .midOffset {
+    bottom: 70px;
+  }
+  
+  .labelChord {
+    bottom: 50px;
+    font-size: 12px;
+    padding: 1px 4px;
+  }
+  
+  .labelMidOffset {
+    bottom: 100px;
+    font-size: 12px;
+    padding: 1px 4px;
+  }
+  
+  .valueChord {
+    bottom: 35px;
+    font-size: 11px;
+  }
+  
+  .valueMidOffset {
+    bottom: 85px;
+    font-size: 11px;
+  }
+  
+  .scaleNote {
+    bottom: 3px;
+    right: 5px;
+    font-size: 10px;
+  }
+  
+  .diagramDescription p {
+    font-size: 12px;
+  }
+
+  .buttonRow {
+    margin-bottom: 16px;
+  }
+  
+  .submitButton, .quarterButton {
+    height: 38px;
+    font-size: 14px;
+  }
+  
+  .quarterPointLeft, .quarterPointRight {
+    width: 6px;
+    height: 6px;
+    bottom: 68.5px;
+  }
+  
+  .labelQuarterPoint {
+    bottom: 100px;
+    font-size: 12px;
+    padding: 1px 4px;
+  }
+  
+  .valueQuarterPoint {
+    bottom: 85px;
+    font-size: 11px;
+  }
+  
+  .quarterOffsetLeft, .quarterOffsetRight {
+    width: 2px;
+    bottom: 70px;
+  }
+
+  .quarterCountBadge, .quarterCountLabel {
+    font-size: 10px;
+    padding: 1px 4px;
+    margin-left: 4px;
+  }
+  
+  .resetButton {
+    height: 38px;
+    font-size: 14px;
+  }
+  
+  .labelQuarterChord {
+    bottom: 100px;
+    font-size: 12px;
+    padding: 1px 4px;
+    left: calc(75% + 2px);
+  }
+  
+  .valueQuarterChord {
+    bottom: 85px;
+    font-size: 11px;
+    left: calc(75% + 2px);
+  }
+
+  .quarterResultItem {
+    padding: 0 4px 4px;
+  }
+  
+  .quarterDivider {
+    margin: 4px 0 8px;
+  }
+  
+  .quarterDivider :global(.ant-divider-inner-text) {
+    font-size: 12px;
+    padding: 1px 6px;
+  }
+  
+  .quarterResultItem p {
+    font-size: 12px;
+    margin-bottom: 2px;
+  }
+
+  .arcResultItem {
+    padding: 0 4px 4px;
+  }
+  
+  .arcDivider {
+    margin: 4px 0 8px;
+  }
+  
+  .arcDivider :global(.ant-divider-inner-text) {
+    font-size: 12px;
+    padding: 1px 6px;
+  }
+  
+  .resultRow {
+    margin-bottom: 4px;
+  }
+  
+  .resultRow p {
+    font-size: 12px;
+  }
+  
+  .noResultTip {
+    padding: 15px 0;
+    font-size: 12px;
+  }
+}
+
+.triangleDiagram {
+  margin: 20px 0;
+  padding: 16px;
+  background: #f9f9f9;
+  border-radius: 4px;
+  border: 1px solid #e8e8e8;
+}
+
+.triangleContent {
+  position: relative;
+  height: 200px;
+  margin-bottom: 16px;
+  background: white;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #eee;
+}
+
+.triangle {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-bottom: 150px solid transparent;
+  border-left: 200px solid transparent;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.adjacentLine {
+  position: absolute;
+  width: 200px;
+  height: 3px;
+  background: #1890ff;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.oppositeLine {
+  position: absolute;
+  width: 3px;
+  height: 150px;
+  background: #ff4d4f;
+  bottom: 30px;
+  left: calc(50% - 100px);
+  z-index: 2;
+}
+
+.hypotenuseLine {
+  position: absolute;
+  width: 250px;
+  height: 3px;
+  background: #52c41a;
+  bottom: 180px;
+  left: calc(50% - 50px);
+  transform: rotate(-37deg);
+  transform-origin: left bottom;
+  z-index: 2;
+}
+
+.rightAngleMark {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-right: 3px solid #722ed1;
+  border-bottom: 3px solid #722ed1;
+  bottom: 30px;
+  left: calc(50% - 100px);
+  z-index: 3;
+}
+
+.labelAdjacent {
+  position: absolute;
+  color: #1890ff;
+  font-weight: 500;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-size: 13px;
+}
+
+.labelOpposite {
+  position: absolute;
+  color: #ff4d4f;
+  font-weight: 500;
+  bottom: 105px;
+  left: calc(50% - 120px);
+  z-index: 4;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-size: 13px;
+}
+
+.labelHypotenuse {
+  position: absolute;
+  color: #52c41a;
+  font-weight: 500;
+  bottom: 120px;
+  left: calc(50% - 20px);
+  z-index: 4;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-size: 13px;
+  transform: rotate(-37deg);
+}
+
+.labelAngle {
+  position: absolute;
+  color: #722ed1;
+  font-weight: 500;
+  bottom: 45px;
+  left: calc(50% - 85px);
+  z-index: 4;
+  font-size: 16px;
+}
+
+.hypotenuseResultItem {
+  margin-bottom: 16px;
+  background-color: #f0f9ff;
+  border-radius: 4px;
+  padding: 0 8px 8px;
+}
+
+.hypotenuseDivider {
+  margin: 8px 0 12px;
+}
+
+.hypotenuseDivider :global(.ant-divider-inner-text) {
+  font-size: 14px;
+  color: #1890ff;
+  font-weight: 500;
+  background-color: rgba(24, 144, 255, 0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+  .triangleDiagram {
+    padding: 12px;
+    margin: 16px 0;
+  }
+  
+  .triangleContent {
+    height: 170px;
+  }
+  
+  .triangle {
+    border-bottom: 120px solid transparent;
+    border-left: 160px solid transparent;
+  }
+  
+  .adjacentLine {
+    width: 160px;
+  }
+  
+  .oppositeLine {
+    height: 120px;
+    left: calc(50% - 80px);
+  }
+  
+  .hypotenuseLine {
+    width: 200px;
+    bottom: 140px;
+    left: calc(50% - 40px);
+  }
+  
+  .rightAngleMark {
+    width: 15px;
+    height: 15px;
+    left: calc(50% - 80px);
+  }
+  
+  .labelAdjacent {
+    font-size: 12px;
+    padding: 1px 4px;
+  }
+  
+  .labelOpposite {
+    font-size: 12px;
+    padding: 1px 4px;
+    bottom: 85px;
+    left: calc(50% - 100px);
+  }
+  
+  .labelHypotenuse {
+    font-size: 12px;
+    padding: 1px 4px;
+    bottom: 100px;
+  }
+  
+  .labelAngle {
+    font-size: 14px;
+    bottom: 40px;
+    left: calc(50% - 70px);
+  }
+  
+  .hypotenuseResultItem {
+    padding: 0 4px 4px;
+  }
+  
+  .hypotenuseDivider {
+    margin: 4px 0 8px;
+  }
+  
+  .hypotenuseDivider :global(.ant-divider-inner-text) {
+    font-size: 12px;
+    padding: 1px 6px;
+  }
+}
+
+.labelRightAngle {
+  position: absolute;
+  color: #722ed1;
+  font-weight: 500;
+  bottom: 35px;
+  left: calc(50% - 95px);
+  z-index: 4;
+  font-size: 14px;
+}
+
+.labelComplementaryAngle {
+  position: absolute;
+  color: #722ed1;
+  font-weight: 500;
+  bottom: 160px;
+  left: calc(50% - 90px);
+  z-index: 4;
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  .labelRightAngle {
+    font-size: 12px;
+    bottom: 30px;
+    left: calc(50% - 80px);
+  }
+  
+  .labelComplementaryAngle {
+    font-size: 14px;
+    bottom: 130px;
+    left: calc(50% - 75px);
+  }
+}
+
+.angleFormatHint {
+  background-color: #f5f5f5;
+  padding: 10px 15px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  border-left: 3px solid #1890ff;
+}
+
+.angleFormatHint p {
+  margin-bottom: 4px;
+  font-size: 13px;
+  color: #666;
+}
+
+.angleFormatHint p:first-child {
+  font-weight: 500;
+  color: #333;
+}
+
+.angleResultItem {
+  margin-bottom: 16px;
+  background-color: #e6f7ff;
+  border-radius: 4px;
+  padding: 0 8px 8px;
+}
+
+.angleDivider {
+  margin: 8px 0 12px;
+}
+
+.angleDivider :global(.ant-divider-inner-text) {
+  font-size: 14px;
+  color: #1890ff;
+  font-weight: 500;
+  background-color: rgba(24, 144, 255, 0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+  .angleFormatHint {
+    padding: 8px 12px;
+    margin-bottom: 12px;
+  }
+  
+  .angleFormatHint p {
+    font-size: 12px;
+    margin-bottom: 3px;
+  }
+  
+  .angleResultItem {
+    padding: 0 4px 4px;
+  }
+  
+  .angleDivider {
+    margin: 4px 0 8px;
+  }
+  
+  .angleDivider :global(.ant-divider-inner-text) {
+    font-size: 12px;
+    padding: 1px 6px;
+  }
+}
+
+.inputFormatSwitch {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.inputFormatSwitch span {
+  margin-right: 10px;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.formatSwitch {
+  min-width: 80px;
+}
+
+@media (max-width: 768px) {
+  .inputFormatSwitch {
+    margin-bottom: 10px;
+  }
+  
+  .inputFormatSwitch span {
+    font-size: 13px;
+  }
+}
+
+.levelFormatHint {
+  background-color: #f5f5f5;
+  padding: 10px 15px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  border-left: 3px solid #52c41a;
+}
+
+.levelFormatHint p {
+  margin-bottom: 4px;
+  font-size: 13px;
+  color: #666;
+}
+
+.levelFormatHint p:first-child {
+  font-weight: 500;
+  color: #333;
+}
+
+.levelResultItem {
+  margin-bottom: 16px;
+  background-color: #f6ffed;
+  border-radius: 4px;
+  padding: 0 8px 8px;
+}
+
+.levelDivider {
+  margin: 8px 0 12px;
+}
+
+.levelDivider :global(.ant-divider-inner-text) {
+  font-size: 14px;
+  color: #52c41a;
+  font-weight: 500;
+  background-color: rgba(82, 196, 26, 0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+  .levelFormatHint {
+    padding: 8px 12px;
+    margin-bottom: 12px;
+  }
+  
+  .levelFormatHint p {
+    font-size: 12px;
+    margin-bottom: 3px;
+  }
+  
+  .levelResultItem {
+    padding: 0 4px 4px;
+  }
+  
+  .levelDivider {
+    margin: 4px 0 8px;
+  }
+  
+  .levelDivider :global(.ant-divider-inner-text) {
+    font-size: 12px;
+    padding: 1px 6px;
+  }
+}
+
+.arrowUp {
+  color: #52c41a;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.arrowDown {
+  color: #ff4d4f;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  .arrowUp, .arrowDown {
+    font-size: 14px;
+  }
+}
+
+/* 嵌套表单项的样式 */
+.formItem :global(.ant-form-item) {
+  margin-bottom: 16px;
+}
+
+.formItem :global(.ant-form-item-label) {
+  text-align: left;
+  padding-right: 8px;
+}
+
+.formItem :global(.ant-form-item-label > label) {
+  color: rgba(0, 0, 0, 0.85);
+  font-size: 14px;
+  font-weight: normal;
+}
+
+.formItem :global(.ant-form-item-control) {
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .formItem :global(.ant-form-item) {
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+  
+  .formItem :global(.ant-form-item-label) {
+    flex: 0 0 40%;
+    text-align: left;
+    padding-right: 8px;
+  }
+  
+  .formItem :global(.ant-form-item-control) {
+    flex: 0 0 60%;
+  }
+  
+  .formItem :global(.ant-form-item-label > label) {
+    font-size: 13px;
+  }
+}
+
+.formGroup {
+  margin-bottom: 24px;
+}
+
+.formSectionTitle {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  color: rgba(0, 0, 0, 0.85);
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 8px;
+}
+
+/* 表单项样式 */
+.horizontalForm :global(.ant-form-item) {
+  display: flex;
+  margin-bottom: 16px;
+  align-items: center;
+}
+
+.horizontalForm :global(.ant-form-item-label) {
+  text-align: left !important;
+  padding-right: 12px;
+  flex: 0 0 120px;
+  white-space: normal;
+  overflow: visible;
+}
+
+.horizontalForm :global(.ant-form-item-control) {
+  flex: 1;
+}
+
+.horizontalForm :global(.ant-form-item-label > label) {
+  color: rgba(0, 0, 0, 0.85);
+  font-size: 14px;
+  font-weight: normal;
+  height: auto;
+  line-height: 1.5;
+}
+
+.horizontalForm :global(.ant-input),
+.horizontalForm :global(.ant-input-number) {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .formGroup {
+    margin-bottom: 16px;
+  }
+  
+  .formSectionTitle {
+    font-size: 15px;
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+  }
+  
+  .horizontalForm {
+    width: 100%;
+  }
+  
+  .horizontalForm :global(.ant-form-item) {
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .horizontalForm :global(.ant-form-item-label) {
+    padding-right: 8px;
+    text-align: left !important;
+    flex: 0 0 100px;
+    white-space: normal;
+    overflow: visible;
+  }
+  
+  .horizontalForm :global(.ant-form-item-control) {
+    flex: 1;
+  }
+  
+  .horizontalForm :global(.ant-form-item-label > label) {
+    font-size: 13px;
+    height: auto;
+    line-height: 1.5;
+  }
+}
+
+/* 全局覆盖 Ant Design 的表单标签样式 */
+:global(.ant-form-horizontal .ant-form-item-label) {
+  text-align: left !important;
+}
+
+:global(.ant-form-item-label > label) {
+  text-align: left !important;
+}
+
+:global(.ant-col-8) {
+  text-align: left !important;
+}
+
+:global(.ant-form-item-label) {
+  text-align: left !important;
+}
+
+/* 水准测量示意图样式 */
+.levelDiagram {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border: 1px solid #f0f0f0;
+  border-radius: 4px;
+  padding: 16px;
+  background-color: #fafafa;
+}
+
+.diagramTitle {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  color: rgba(0, 0, 0, 0.85);
+  text-align: center;
+}
+
+.diagramContent {
+  width: 100%;
+  height: auto;
+  margin-bottom: 16px;
+  overflow: auto;
+}
+
+.diagramDescription {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed #f0f0f0;
+}
+
+.diagramDescription p {
+  margin-bottom: 8px;
+  color: rgba(0, 0, 0, 0.65);
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .levelDiagram {
+    margin-top: 16px;
+    margin-bottom: 16px;
+    padding: 12px;
+    overflow-x: auto;
+  }
+  
+  .diagramTitle {
+    font-size: 15px;
+    margin-bottom: 12px;
+  }
+  
+  .diagramContent {
+    margin-bottom: 12px;
+    min-width: 400px;
+  }
+  
+  .diagramDescription {
+    margin-top: 12px;
+    padding-top: 12px;
+  }
+  
+  .diagramDescription p {
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+}
+
+/* 按钮组样式 */
+.buttonGroup {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.submitButton {
+  min-width: 120px;
+}
+
+.clearButton {
+  min-width: 120px;
+}
+
+@media (max-width: 768px) {
+  .buttonGroup {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .submitButton,
+  .clearButton {
+    width: 100%;
+  }
+}
+
+/* 添加旁视按钮容器 */
+.addButtonContainer {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.addButton {
+  min-width: 150px;
+}
+
+@media (max-width: 768px) {
+  .addButtonContainer {
+    margin-top: 16px;
+  }
+  
+  .addButton {
+    width: 100%;
+  }
+}
+
+/* 坐标表格样式 */
+.tableContainer {
+  margin-bottom: 20px;
+  overflow-x: auto;
+}
+
+.coordinateTable {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #f0f0f0;
+}
+
+.coordinateTable th,
+.coordinateTable td {
+  padding: 8px;
+  text-align: center;
+  border: 1px solid #f0f0f0;
+}
+
+.coordinateTable th {
+  background-color: #fafafa;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.coordinateTable td {
+  vertical-align: middle;
+}
+
+.coordinateTable tr:hover {
+  background-color: #f5f5f5;
+}
+
+/* 面积计算结果样式 */
+.areaResultItem {
+  margin-bottom: 16px;
+  padding: 16px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  border-left: 3px solid #1890ff;
+}
+
+.areaResultItem p {
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.areaResultItem p:last-child {
+  margin-bottom: 0;
+}
+
+.areaResultItem p span:first-child {
+  color: rgba(0, 0, 0, 0.65);
+  font-weight: 500;
+}
+
+.areaResultItem p span:last-child {
+  color: #1890ff;
+  font-weight: 500;
+}
+
+.areaDivider {
+  margin: 24px 0 16px;
+}
+
+.areaDivider :global(.ant-divider-inner-text) {
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.formulaExplanation {
+  margin-top: 16px;
+  padding: 12px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  border-left: 3px solid #52c41a;
+}
+
+.formulaExplanation p {
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.formulaExplanation p:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+  .coordinateTable th,
+  .coordinateTable td {
+    padding: 6px;
+    font-size: 12px;
+  }
+  
+  .areaResultItem {
+    padding: 12px;
+  }
+  
+  .areaResultItem p {
+    font-size: 12px;
+  }
+  
+  .areaDivider :global(.ant-divider-inner-text) {
+    font-size: 14px;
+  }
+  
+  .formulaExplanation {
+    padding: 10px;
+  }
+  
+  .formulaExplanation p {
+    font-size: 12px;
+  }
+}
+
+/* 多边形示意图样式 */
+.areaDiagram {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border: 1px solid #f0f0f0;
+  border-radius: 4px;
+  padding: 16px;
+  background-color: #fafafa;
+}
+
+.areaDiagram .diagramTitle {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  color: rgba(0, 0, 0, 0.85);
+  text-align: center;
+}
+
+.areaDiagram .diagramContent {
+  width: 100%;
+  height: 300px;
+  position: relative;
+  margin-bottom: 16px;
+  overflow: visible;
+  background-color: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 4px;
+}
+
+.areaDiagram .scaleNote {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #999;
+  font-style: italic;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .areaDiagram {
+    margin-top: 16px;
+    margin-bottom: 16px;
+    padding: 12px;
+  }
+  
+  .areaDiagram .diagramTitle {
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+  
+  .areaDiagram .diagramContent {
+    height: 250px;
+  }
+  
+  .areaDiagram .scaleNote {
+    font-size: 10px;
   }
 }
