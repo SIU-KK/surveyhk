@@ -1,0 +1,54 @@
+.formCard {
+  margin-bottom: 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form {
+  padding: 16px;
+}
+
+.form :global(.ant-form-item-label) {
+  font-weight: 500;
+}
+
+.form :global(.ant-input-number),
+.form :global(.ant-input) {
+  width: 100%;
+  border-radius: 4px;
+}
+
+.form :global(.ant-input-number:hover),
+.form :global(.ant-input:hover) {
+  border-color: #40a9ff;
+}
+
+.form :global(.ant-input-number:focus),
+.form :global(.ant-input:focus) {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.buttonContainer {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.buttonContainer button {
+  min-width: 120px;
+  height: 40px;
+  font-size: 16px;
+  border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+  .form {
+    padding: 8px;
+  }
+
+  .buttonContainer button {
+    min-width: 100px;
+  }
+}

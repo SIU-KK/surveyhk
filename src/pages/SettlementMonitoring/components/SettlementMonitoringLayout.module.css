@@ -1,0 +1,331 @@
+.container {
+  min-height: 100vh;
+  background: #f0f2f5;
+}
+
+.header {
+  background: #001529;
+  padding: 0;
+  position: fixed;
+  width: 100%;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+}
+
+.menu {
+  line-height: 64px;
+  flex: 1;
+  border-bottom: none;
+}
+
+.menu :global(.ant-menu) {
+  border-bottom: none;
+}
+
+.menu :global(.ant-menu-item) {
+  color: rgba(255, 255, 255, 0.65) !important;
+  font-size: 15px;
+  padding: 0 24px !important;
+  margin: 0 4px !important;
+  border-bottom: 2px solid transparent !important;
+}
+
+.menu :global(.ant-menu-item:hover) {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.menu :global(.ant-menu-item-selected) {
+  color: #fff !important;
+  border-bottom: 2px solid #1890ff !important;
+}
+
+.mobileHeader {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 50px;
+  background: #001529;
+  color: white;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.menuButton {
+  color: white !important;
+  font-size: 18px;
+  padding: 4px 8px;
+  height: 32px;
+}
+
+.headerTitle {
+  font-size: 16px;
+  font-weight: 500;
+  color: white;
+}
+
+.content {
+  padding: 24px;
+  margin-top: 64px;
+}
+
+.banner {
+  background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+  padding: 48px 24px;
+  text-align: center;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.bannerTitle {
+  color: white !important;
+  margin-bottom: 16px !important;
+}
+
+.bannerDescription {
+  color: rgba(255, 255, 255, 0.85) !important;
+  font-size: 16px !important;
+  max-width: 800px;
+  margin: 0 auto !important;
+}
+
+.featureSection {
+  padding: 0 8px;
+}
+
+.featureItem {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  height: 100%;
+  transition: all 0.3s;
+}
+
+.featureItem:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.featureImage {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.featureContent {
+  padding: 20px;
+}
+
+.featureTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+.featureDescription {
+  color: #666;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.mainCard {
+  margin-bottom: 24px;
+}
+
+.mainCard :global(.ant-form-item) {
+  margin-bottom: 16px;
+}
+
+.mainCard :global(.ant-input) {
+  height: 40px;
+  font-size: 16px;
+}
+
+.mainCard :global(.ant-radio-group) {
+  margin-bottom: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mainCard :global(.ant-radio-button-wrapper) {
+  flex: 1;
+  text-align: center;
+  min-width: 120px;
+}
+
+.mainCard :global(.ant-form-item-label) {
+  padding-bottom: 4px;
+}
+
+.mainCard :global(.ant-form-item-label > label) {
+  font-size: 14px;
+  color: #333;
+}
+
+.mainCard :global(.ant-input-number) {
+  width: 100%;
+}
+
+.resultCard {
+  background: #fff;
+}
+
+.resultItem {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.resultLabel {
+  color: rgba(0, 0, 0, 0.45);
+  margin-right: 8px;
+}
+
+.resultValue {
+  color: rgba(0, 0, 0, 0.85);
+  font-weight: 500;
+}
+
+/* 新增样式 */
+:global(.ant-card-bordered) {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+:global(.ant-card-head-title) {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+}
+
+:global(.ant-divider) {
+  margin: 12px 0;
+}
+
+.resultCard :global(.ant-card) {
+  background: #fafafa;
+  height: 100%;
+}
+
+.resultCard :global(.ant-card-head) {
+  border-bottom: 1px solid #f0f0f0;
+  min-height: 40px;
+  padding: 0 12px;
+}
+
+.resultCard :global(.ant-card-body) {
+  padding: 12px;
+}
+
+.cardTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.cardCopyButton {
+  margin-left: 8px;
+  opacity: 0.6;
+  transition: all 0.3s;
+}
+
+.cardCopyButton:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+@media (max-width: 768px) {
+  .header {
+    display: none;
+  }
+
+  .mobileHeader {
+    display: flex;
+  }
+
+  .content {
+    margin-top: 50px;
+    padding: 16px;
+  }
+
+  .banner {
+    padding: 32px 16px;
+    margin-bottom: 16px;
+  }
+
+  .bannerTitle {
+    font-size: 24px !important;
+  }
+
+  .bannerDescription {
+    font-size: 14px !important;
+  }
+
+  .featureImage {
+    height: 140px;
+  }
+
+  .featureContent {
+    padding: 16px;
+  }
+
+  .featureTitle {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+
+  .featureDescription {
+    font-size: 13px;
+  }
+
+  .mainCard {
+    margin-bottom: 16px;
+  }
+
+  .mainCard :global(.ant-card-body) {
+    padding: 16px;
+  }
+
+  .mainCard :global(.ant-form-item) {
+    margin-bottom: 12px;
+  }
+
+  .mainCard :global(.ant-input) {
+    height: 44px;
+    font-size: 16px;
+    padding: 8px 12px;
+  }
+
+  .mainCard :global(.ant-radio-button-wrapper) {
+    padding: 0 8px;
+    height: 36px;
+    line-height: 34px;
+    font-size: 14px;
+  }
+
+  .mainCard :global(.ant-form-item-label > label) {
+    font-size: 14px;
+  }
+
+  .mainCard :global(.ant-row) {
+    margin-left: -8px !important;
+    margin-right: -8px !important;
+  }
+
+  .mainCard :global(.ant-col) {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+}

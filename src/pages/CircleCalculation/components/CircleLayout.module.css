@@ -1,0 +1,233 @@
+.layout {
+  min-height: 100vh;
+  background: #f0f2f5;
+}
+
+.header {
+  background: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  padding: 0;
+  position: fixed;
+  width: 100%;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+}
+
+.menu {
+  line-height: 64px;
+  background: #FFFFFF;
+  flex: 1;
+  border-bottom: none;
+}
+
+.menu :global(.ant-menu) {
+  border-bottom: none;
+}
+
+.menu :global(.ant-menu-item) {
+  color: #636E72 !important;
+  font-size: 15px;
+  padding: 0 24px !important;
+  margin: 0 4px !important;
+  border-bottom: 2px solid transparent !important;
+}
+
+.menu :global(.ant-menu-item:hover) {
+  color: #4C84FF !important;
+  background: #F0F7FF !important;
+}
+
+
+.mobileHeader {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 50px;
+  background: #fff;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.menuButton {
+  font-size: 18px;
+  padding: 4px 8px;
+  height: 32px;
+}
+
+.headerTitle {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.content {
+  padding: 24px;
+  margin-top: 64px;
+}
+
+.mainCard {
+  margin-bottom: 24px;
+}
+
+.mainCard :global(.ant-form-item) {
+  margin-bottom: 16px;
+}
+
+.mainCard :global(.ant-input) {
+  height: 40px;
+  font-size: 16px;
+}
+
+.mainCard :global(.ant-radio-group) {
+  margin-bottom: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mainCard :global(.ant-radio-button-wrapper) {
+  flex: 1;
+  text-align: center;
+  min-width: 120px;
+}
+
+.mainCard :global(.ant-form-item-label) {
+  padding-bottom: 4px;
+}
+
+.mainCard :global(.ant-form-item-label > label) {
+  font-size: 14px;
+  color: #333;
+}
+
+.mainCard :global(.ant-input-number) {
+  width: 100%;
+}
+
+.resultCard {
+  background: #fff;
+}
+
+.resultItem {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.resultLabel {
+  color: rgba(0, 0, 0, 0.45);
+  margin-right: 8px;
+}
+
+.resultValue {
+  color: rgba(0, 0, 0, 0.85);
+  font-weight: 500;
+}
+
+/* 新增样式 */
+:global(.ant-card-bordered) {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+:global(.ant-card-head-title) {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+}
+
+:global(.ant-divider) {
+  margin: 12px 0;
+}
+
+.resultCard :global(.ant-card) {
+  background: #fafafa;
+  height: 100%;
+}
+
+.resultCard :global(.ant-card-head) {
+  border-bottom: 1px solid #f0f0f0;
+  min-height: 40px;
+  padding: 0 12px;
+}
+
+.resultCard :global(.ant-card-body) {
+  padding: 12px;
+}
+
+.cardTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.cardCopyButton {
+  margin-left: 8px;
+  opacity: 0.6;
+  transition: all 0.3s;
+}
+
+.cardCopyButton:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+@media (max-width: 768px) {
+  .header {
+    display: none;
+  }
+
+  .mobileHeader {
+    display: flex;
+  }
+
+  .content {
+    margin-top: 50px;
+    padding: 16px;
+  }
+
+  .mainCard {
+    margin-bottom: 16px;
+  }
+
+  .mainCard :global(.ant-card-body) {
+    padding: 16px;
+  }
+
+  .mainCard :global(.ant-form-item) {
+    margin-bottom: 12px;
+  }
+
+  .mainCard :global(.ant-input) {
+    height: 44px;
+    font-size: 16px;
+    padding: 8px 12px;
+  }
+
+  .mainCard :global(.ant-radio-button-wrapper) {
+    padding: 0 8px;
+    height: 36px;
+    line-height: 34px;
+    font-size: 14px;
+  }
+
+  .mainCard :global(.ant-form-item-label > label) {
+    font-size: 14px;
+  }
+
+  .mainCard :global(.ant-row) {
+    margin-left: -8px !important;
+    margin-right: -8px !important;
+  }
+
+  .mainCard :global(.ant-col) {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+}

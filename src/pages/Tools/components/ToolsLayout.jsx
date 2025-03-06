@@ -198,6 +198,7 @@ const ToolsLayout = () => {
     // 创建或更新四分点结果数组
     const newQuarterResult = quarterResult ? [...quarterResult] : [];
     newQuarterResult.push({
+      count: newQuarterCount,
       chordLength: quarterChordLength.toFixed(4),
       midOffset: quarterMidOffset.toFixed(4),
       distanceFromStart: distanceFromStart.toFixed(4)
@@ -207,6 +208,7 @@ const ToolsLayout = () => {
     setQuarterCount(newQuarterCount);
     
     message.success(`第${newQuarterCount}次四分法计算完成`);
+    console.log('四分点计算结果:', newQuarterResult);
   };
   
   // 重置四分法计算
@@ -1257,11 +1259,13 @@ const ToolsLayout = () => {
 
   return (
     <Layout className={styles.layout}>
-      <Header className={styles.header}>
-        <div className={styles.menu}>
-          <Menu mode="horizontal" theme="dark" defaultSelectedKeys={['tools']} items={menuItems} />
-        </div>
-      </Header>
+      {!isMobile && (
+        <Header className={styles.header}>
+          <div className={styles.menu}>
+            <Menu mode="horizontal" theme="dark" defaultSelectedKeys={['tools']} items={menuItems} onClick={handleMenuClick} />
+          </div>
+        </Header>
+      )}
       
       {isMobile && (
         <div className={styles.mobileHeader}>
@@ -1323,28 +1327,28 @@ const ToolsLayout = () => {
                 <h4 className={styles.formSectionTitle}>中拱计算参数</h4>
                 <Form.Item 
                   label={<span style={labelStyle}>半径 (m)</span>} 
-                  name="radius" 
-                  rules={[{ required: true, message: '请输入半径' }]}
-                >
-                  <Input 
-                    type="number" 
-                    step="any" 
-                    inputMode="decimal" 
-                    pattern="[0-9]*[.,]?[0-9]*"
-                  />
-                </Form.Item>
+                    name="radius" 
+                    rules={[{ required: true, message: '请输入半径' }]}
+                  >
+                    <Input 
+                      type="number" 
+                      step="any" 
+                      inputMode="decimal" 
+                      pattern="[0-9]*[.,]?[0-9]*"
+                    />
+                  </Form.Item>
                 <Form.Item 
                   label={<span style={labelStyle}>弦长 (m)</span>} 
-                  name="chordLength" 
-                  rules={[{ required: true, message: '请输入弦长' }]}
-                >
-                  <Input 
-                    type="number" 
-                    step="any" 
-                    inputMode="decimal" 
-                    pattern="[0-9]*[.,]?[0-9]*"
-                  />
-                </Form.Item>
+                    name="chordLength" 
+                    rules={[{ required: true, message: '请输入弦长' }]}
+                  >
+                    <Input 
+                      type="number" 
+                      step="any" 
+                      inputMode="decimal" 
+                      pattern="[0-9]*[.,]?[0-9]*"
+                    />
+                  </Form.Item>
               </div>
               
               <div className={styles.arcDiagram}>
@@ -1375,6 +1379,75 @@ const ToolsLayout = () => {
                       stroke="#52c41a" 
                       strokeWidth="2"
                     />
+                    
+                    {/* 四分点标记 */}
+                    {quarterResult && quarterResult.map((result, index) => {
+                      const quarterChordLength = parseFloat(result.chordLength);
+                      const distanceFromStart = parseFloat(result.distanceFromStart);
+                      const quarterMidOffset = parseFloat(result.midOffset);
+                      
+                      // 计算四分点的位置
+                      const leftX = 200 - distanceFromStart - quarterChordLength / 2;
+                      const rightX = 200 - distanceFromStart + quarterChordLength / 2;
+                      const midY = 150 - quarterMidOffset * 40;
+                      
+                      return (
+                        <g key={index}>
+                          {/* 四分点左侧点 */}
+                          <circle 
+                            cx={leftX} 
+                            cy="150" 
+                            r="3" 
+                            fill="#ff8c00" 
+                            stroke="#fff" 
+                            strokeWidth="1"
+                          />
+                          
+                          {/* 四分点右侧点 */}
+                          <circle 
+                            cx={rightX} 
+                            cy="150" 
+                            r="3" 
+                            fill="#ff8c00" 
+                            stroke="#fff" 
+                            strokeWidth="1"
+                          />
+                          
+                          {/* 四分点弦线 */}
+                          <line 
+                            x1={leftX} 
+                            y1="150" 
+                            x2={rightX} 
+                            y2="150" 
+                            stroke="#ff8c00" 
+                            strokeWidth="1.5" 
+                            strokeDasharray="3,2"
+                          />
+                          
+                          {/* 四分点中矢距线 */}
+                          <line 
+                            x1={(leftX + rightX) / 2} 
+                            y1="150" 
+                            x2={(leftX + rightX) / 2} 
+                            y2={midY} 
+                            stroke="#ff8c00" 
+                            strokeWidth="1.5" 
+                            strokeDasharray="3,2"
+                          />
+                          
+                          {/* 四分点标签 */}
+                          <text 
+                            x={(leftX + rightX) / 2} 
+                            y="165" 
+                            textAnchor="middle" 
+                            fill="#ff8c00" 
+                            fontSize="10"
+                          >
+                            四分点#{result.count || (index + 1)}
+                          </text>
+                        </g>
+                      );
+                    })}
                     
                     {/* 文字标签 */}
                     <text x="200" y="170" textAnchor="middle" fill="#333" fontSize="14">弦长</text>
@@ -1464,24 +1537,35 @@ const ToolsLayout = () => {
               {quarterResult && quarterCount > 0 && (
                 <div className={styles.resultCard}>
                   <h3>四分点计算结果</h3>
-                  {Array.from({ length: quarterCount }).map((_, index) => (
+                  {quarterResult.map((result, index) => (
                     <div className={styles.quarterResultItem} key={index}>
                       <Divider orientation="left" className={styles.quarterDivider}>
-                        四分点 #{index + 1}
+                        四分点 #{result.count || (index + 1)}
                       </Divider>
                       <div className={styles.resultRow}>
-                        <p><span>距起点:</span> <span>{quarterResult[index].distanceFromStart} m</span></p>
+                        <p><span>距起点:</span> <span>{result.distanceFromStart} m</span></p>
                       </div>
                       <div className={styles.resultRow}>
-                        <p><span>弦长:</span> <span>{quarterResult[index].chordLength} m</span></p>
+                        <p><span>弦长:</span> <span>{result.chordLength} m</span></p>
                       </div>
                       <div className={styles.resultRow}>
-                        <p><span>中矢距:</span> <span>{quarterResult[index].midOffset} m</span></p>
+                        <p><span>中矢距:</span> <span>{result.midOffset} m</span></p>
                       </div>
                     </div>
                   ))}
                   <div className={styles.buttonRow}>
-                    <Button type="default" className={styles.resetButton} onClick={resetQuarterMethod}>
+                    <Button 
+                      type="primary" 
+                      className={styles.quarterButton} 
+                      onClick={calculateQuarterMethod}
+                    >
+                      继续计算四分点
+                    </Button>
+                    <Button 
+                      type="default" 
+                      className={styles.resetButton} 
+                      onClick={resetQuarterMethod}
+                    >
                       重置四分点
                     </Button>
                   </div>
@@ -1491,17 +1575,12 @@ const ToolsLayout = () => {
               {!quarterResult && (
                 <div className={styles.buttonRow}>
                   <Button 
-                    type="default" 
+                    type="primary" 
                     className={styles.quarterButton} 
                     onClick={calculateQuarterMethod}
                     disabled={!arcResult}
                   >
                     计算四分点
-                    {quarterCount > 0 && (
-                      <span className={styles.quarterCountBadge}>
-                        <span className={styles.quarterCountLabel}>{quarterCount}</span>
-                      </span>
-                    )}
                   </Button>
                 </div>
               )}

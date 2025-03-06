@@ -1,0 +1,407 @@
+.container {
+  min-height: 100vh;
+  background: #FFFFFF;
+}
+
+.header {
+  background: #001529;
+  padding: 0;
+  position: fixed;
+  width: 100%;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+}
+
+.menu {
+  line-height: 64px;
+  flex: 1;
+  border-bottom: none;
+}
+
+.menu :global(.ant-menu) {
+  border-bottom: none;
+}
+
+.menu :global(.ant-menu-item) {
+  color: rgba(255, 255, 255, 0.65) !important;
+  font-size: 15px;
+  padding: 0 24px !important;
+  margin: 0 4px !important;
+  border-bottom: 2px solid transparent !important;
+}
+
+.menu :global(.ant-menu-item:hover) {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.menu :global(.ant-menu-item-selected) {
+  color: #fff !important;
+  border-bottom: 2px solid #1890ff !important;
+}
+
+.menu :global(.ant-menu-item::after) {
+  display: none !important;
+}
+
+/* 添加移动端顶部导航样式 */
+.layoutContainer {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f0f2f5;
+}
+
+.mobileHeader {
+  display: none;  /* 默认隐藏移动端导航 */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 50px;
+  background: #fff;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.menuButton {
+  font-size: 18px;
+  padding: 4px 8px;
+  height: 32px;
+}
+
+.headerTitle {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.contentContainer {
+  padding: 16px;
+  flex: 1;
+}
+
+.hero {
+  padding-top: 64px;
+  height: 25vh;
+  background: linear-gradient(180deg, #F7FAFF 0%, #FFFFFF 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+}
+
+.heroContent {
+  max-width: 800px;
+  padding: 0 24px;
+}
+
+.heroTitle {
+  font-size: 36px;
+  font-weight: 700;
+  color: #2D3436;
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+
+.heroHighlight {
+  display: block;
+  color: #4C84FF;
+  font-size: 42px;
+  margin-top: 8px;
+}
+
+.heroDescription {
+  font-size: 16px;
+  color: #636E72;
+  line-height: 1.6;
+}
+
+.mainContent {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 32px;
+}
+
+.sectionTitle {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.sectionTitle h2 {
+  font-size: 36px;
+  font-weight: 700;
+  color: #2D3436;
+  margin-bottom: 16px;
+}
+
+.sectionTitle p {
+  font-size: 18px;
+  color: #636E72;
+}
+
+.featureSection {
+  margin: 0 auto;
+  max-width: 1200px;
+}
+
+.featureCard {
+  background: #FFFFFF;
+  border: 1px solid #E8EFF7;
+  border-radius: 12px;
+  padding: 20px;
+  height: 100%;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+.featureCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(76, 132, 255, 0.1);
+  border-color: #4C84FF;
+}
+
+.featureIcon {
+  font-size: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F0F7FF;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  margin-bottom: 16px;
+}
+
+.featureCard:hover .featureIcon {
+  transform: scale(1.1);
+  background: #4C84FF;
+  color: #FFFFFF !important;
+}
+
+.featureTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2D3436;
+  margin-bottom: 12px;
+}
+
+.featureDescription {
+  font-size: 14px;
+  color: #636E72;
+  line-height: 1.5;
+  margin-bottom: 16px;
+  flex-grow: 1;
+}
+
+.featureAction {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #4C84FF;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.featureActionIcon {
+  transition: transform 0.3s ease;
+}
+
+.featureCard:hover .featureActionIcon {
+  transform: translateX(4px);
+}
+
+@media (max-width: 768px) {
+  .header {
+    display: none;  /* 在移动端隐藏桌面菜单 */
+  }
+
+  .mobileHeader {
+    display: flex;  /* 在移动端显示移动导航 */
+  }
+
+  .contentContainer {
+    margin-top: 50px;  /* 为移动端顶部导航预留空间 */
+    padding: 8px;
+  }
+
+  .hero {
+    height: auto;
+    min-height: 160px;
+    padding: 24px 16px;
+    margin-top: 0;
+  }
+
+  .heroTitle {
+    font-size: 24px;
+    margin-top: 0;
+  }
+  
+  .heroHighlight {
+    font-size: 28px;
+  }
+  
+  .heroDescription {
+    font-size: 14px;
+  }
+  
+  .mainContent {
+    padding: 12px 8px;
+  }
+
+  .featureCard {
+    padding: 16px;
+    margin-bottom: 0;
+  }
+  
+  .featureIcon {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
+  
+  .featureTitle {
+    font-size: 15px;
+  }
+  
+  .featureDescription {
+    font-size: 13px;
+  }
+
+  .resultCard {
+    margin-top: 16px !important;
+  }
+
+  .resultCard :global(.ant-card-head) {
+    padding: 12px 16px;
+  }
+
+  .resultCard :global(.ant-card-body) {
+    padding: 16px;
+  }
+
+  :global(.ant-table) {
+    font-size: 13px;
+  }
+
+  :global(.ant-table-thead > tr > th),
+  :global(.ant-table-tbody > tr > td) {
+    padding: 8px !important;
+  }
+
+  :global(.ant-form-item) {
+    margin-bottom: 12px;
+  }
+
+  :global(.ant-form-item-label) {
+    padding-bottom: 4px;
+  }
+
+  :global(.ant-space) {
+    gap: 8px !important;
+  }
+
+  :global(.ant-table-pagination) {
+    margin: 16px 0 0 !important;
+  }
+
+  :global(.ant-pagination-options) {
+    display: none !important;
+  }
+
+  /* 抽屉菜单样式 */
+  :global(.ant-drawer-body) {
+    padding: 0 !important;
+  }
+
+  :global(.ant-drawer-header) {
+    padding: 16px !important;
+  }
+
+  :global(.ant-drawer) {
+    width: 50% !important;  /* 设置为1/3屏幕宽度 */
+  }
+
+  :global(.ant-drawer-content-wrapper) {
+    width: 100% !important;  /* 设置为1/3屏幕宽度 */
+  }
+
+  :global(.ant-menu-vertical) {
+    border-right: none !important;
+  }
+
+  :global(.ant-menu-item) {
+    height: 48px !important;
+    line-height: 48px !important;
+    margin: 0 !important;
+    padding: 0 16px !important;
+  }
+}
+
+.resultCard {
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.resultCard :global(.ant-card-head) {
+  border-bottom: 1px solid #f0f0f0;
+  padding: 16px 24px;
+  background: #fafafa;
+}
+
+.resultCard :global(.ant-card-body) {
+  padding: 24px;
+}
+
+:global(.ant-tabs-nav) {
+  margin-bottom: 24px !important;
+  background: white;
+  padding: 8px;
+  border-radius: 8px 8px 0 0;
+}
+
+:global(.ant-tabs-tab) {
+  font-size: 16px;
+  padding: 12px 24px !important;
+  transition: all 0.3s ease;
+}
+
+:global(.ant-tabs-tab-active) {
+  background: #e6f7ff;
+  border-radius: 4px;
+}
+
+:global(.ant-table-thead > tr > th) {
+  background: #fafafa;
+  font-weight: 600;
+  padding: 16px 24px;
+}
+
+:global(.ant-table-tbody > tr > td) {
+  padding: 16px 24px;
+}
+
+:global(.ant-table-tbody > tr:hover > td) {
+  background: #f5f7fa !important;
+}
+
+.content {
+  flex: 1;
+  padding: 24px;
+  background-color: #f0f2f5;
+}
+
+.mainContent {
+  background: transparent;
+  padding: 24px;
+}
