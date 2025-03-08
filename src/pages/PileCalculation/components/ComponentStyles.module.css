@@ -1,0 +1,109 @@
+.mainCard {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  padding: 16px;
+}
+
+.modeContainer {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.modeSelector {
+  width: 100%;
+  max-width: 300px;
+  text-align: center;
+}
+
+.card {
+  margin-bottom: 24px;
+  border-radius: 8px;
+}
+
+.resultCard {
+  margin-top: 24px;
+  border-radius: 8px;
+}
+
+.svgContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+  overflow: auto;
+}
+
+.customResult {
+  font-family: 'Consolas', 'Monaco', monospace;
+  padding: 15px;
+}
+
+.resultRow {
+  margin-bottom: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.resultLabel {
+  font-weight: 600;
+  color: #333;
+  min-width: 120px;
+  margin-right: 10px;
+}
+
+.resultValue {
+  color: #1890ff;
+  font-weight: 500;
+}
+
+/* 专业模式结果显示样式 */
+.professionalResult {
+  font-family: 'Consolas', 'Monaco', monospace;
+  padding: 15px;
+  width: 100%;
+}
+
+.divider {
+  font-weight: bold;
+  margin-bottom: 10px;
+  letter-spacing: -1px;
+}
+
+.resultCell {
+  display: inline-block;
+  padding: 3px 5px;
+  vertical-align: top;
+}
+
+@media (max-width: 768px) {
+  .mainCard {
+    padding: 12px;
+  }
+  
+  .modeSelector {
+    max-width: 100%;
+  }
+  
+  .resultLabel {
+    min-width: 90px;
+    margin-right: 5px;
+    font-size: 14px;
+  }
+  
+  .resultValue {
+    font-size: 14px;
+  }
+  
+  .professionalResult {
+    font-size: 12px;
+    padding: 10px 5px;
+  }
+  
+  .resultCell {
+    padding: 2px;
+  }
+} 

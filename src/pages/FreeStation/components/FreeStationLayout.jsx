@@ -26,7 +26,7 @@ const FreeStationLayout = () => {
 
   const menuItems = [
     {
-      key: '/',
+      key: 'home',
       icon: <HomeOutlined />,
       label: '返回主页',
       onClick: () => navigate('/')
@@ -45,27 +45,32 @@ const FreeStationLayout = () => {
     {
       key: 'traverse-calculation',
       icon: <AimOutlined />,
-      label: '导线计算'
+      label: '导线计算',
+      onClick: () => navigate('/traverse-calculation')
     },
     {
       key: 'construction-layout',
       icon: <RadiusSettingOutlined />,
-      label: '施工放样'
+      label: '施工放样',
+      onClick: () => navigate('/construction-layout')
     },
     {
       key: 'batch-calculation',
       icon: <RadiusSettingOutlined />,
-      label: '批量计算及转换'
+      label: '批量计算及转换',
+      onClick: () => navigate('/batch-calculation')
     },
     {
       key: 'tools',
       icon: <ToolOutlined />,
-      label: '实用工具'
+      label: '实用工具',
+      onClick: () => navigate('/tools')
     },
     {
       key: 'settlement-monitoring',
       icon: <MonitorOutlined />,
-      label: '沉降监测系统'
+      label: '沉降监测系统',
+      onClick: () => navigate('/settlement-monitoring')
     }
   ];
 
@@ -114,11 +119,18 @@ const FreeStationLayout = () => {
 
   const renderCalculationTypeSelector = () => {
     return (
-      <Radio.Group value={calculationType} onChange={(e) => setCalculationType(e.target.value)}>
-        <Radio.Button value="2BRE1D">2BRE + 1Distance</Radio.Button>
-        <Radio.Button value="2BRE2D">2BRE + 2Distance</Radio.Button>
-        <Radio.Button value="3BRE3D">3BRE + 3Distance</Radio.Button>
-      </Radio.Group>
+      <div className={styles.calculationTypeContainer}>
+        <Radio.Group 
+          value={calculationType} 
+          onChange={(e) => setCalculationType(e.target.value)}
+          buttonStyle="solid"
+          className={styles.calculationTypeSelector}
+        >
+          <Radio.Button value="2BRE1D">2BRE + 1Distance</Radio.Button>
+          <Radio.Button value="2BRE2D">2BRE + 2Distance</Radio.Button>
+          <Radio.Button value="3BRE3D">3BRE + 3Distance</Radio.Button>
+        </Radio.Group>
+      </div>
     );
   };
 
@@ -750,47 +762,55 @@ const FreeStationLayout = () => {
   return (
     <Layout className={styles.layout}>
       {/* 桌面端菜单 */}
-      <div className={styles.header}>
+      <Layout.Header className={styles.header}>
         <Menu
+          theme="dark"
           mode="horizontal"
-          items={menuItems}
+          selectedKeys={['free-station']}
           onClick={handleMenuClick}
           className={styles.menu}
-          selectedKeys={['free-station']}
-        />
-      </div> 
+        >
+          {menuItems.map(item => (
+            <Menu.Item key={item.key} icon={item.icon}>
+              {item.label}
+            </Menu.Item>
+          ))}
+        </Menu>
+      </Layout.Header>
 
       {/* 移动端顶部导航 */}
       <div className={styles.mobileHeader}>
         <Button 
-          icon={<MenuOutlined />}
+          type="text" 
+          icon={<MenuOutlined />} 
           onClick={() => setDrawerVisible(true)}
-          type="text"
           className={styles.menuButton}
         />
-        <span className={styles.headerTitle}>自由测站计算</span>
-        <Button 
-          icon={<HomeOutlined />} 
-          onClick={() => navigate('/')}
-          type="link"
-        />
+        <div className={styles.headerTitle}>自由设站解算</div>
+        <div style={{ width: 32 }}></div>
       </div>
 
       {/* 移动端导航抽屉 */}
       <Drawer
-        title="导航菜单"
+        title="菜单"
         placement="left"
         onClose={() => setDrawerVisible(false)}
         open={drawerVisible}
-        styles={{ body: { padding: 0 } }}
+        bodyStyle={{ padding: 0 }}
       >
         <Menu
           mode="vertical"
-          items={menuItems}
-          onClick={handleMenuClick}
           selectedKeys={['free-station']}
+          onClick={handleMenuClick}
           style={{ border: 'none' }}
-        />
+          theme="light"
+        >
+          {menuItems.map(item => (
+            <Menu.Item key={item.key} icon={item.icon}>
+              {item.label}
+            </Menu.Item>
+          ))}
+        </Menu>
       </Drawer>
 
       <Content className={styles.content}>

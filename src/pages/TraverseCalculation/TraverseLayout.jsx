@@ -41,7 +41,7 @@ const TraverseLayout = () => {
 
   const menuItems = [
     {
-      key: '/',
+      key: 'home',
       icon: <HomeOutlined />,
       label: '返回主页',
       onClick: () => navigate('/')
@@ -118,14 +118,20 @@ const TraverseLayout = () => {
   return (
     <Layout className={styles.layout}>
       {/* 桌面版导航 */}
-      <div className={styles.header}>
+      <Layout.Header className={styles.header}>
         <Menu
+          theme="dark"
           mode="horizontal"
           selectedKeys={['traverse-calculation']}
           className={styles.menu}
-          items={menuItems}
-        />
-      </div>
+        >
+          {menuItems.map(item => (
+            <Menu.Item key={item.key} icon={item.icon} onClick={item.onClick}>
+              {item.label}
+            </Menu.Item>
+          ))}
+        </Menu>
+      </Layout.Header>
 
       {/* 移动版导航 */}
       <div className={styles.mobileHeader}>
@@ -140,18 +146,24 @@ const TraverseLayout = () => {
       </div>
 
       <Drawer
-        title="导航菜单"
+        title="菜单"
         placement="left"
         onClose={() => setDrawerVisible(false)}
         open={drawerVisible}
-        width={250}
+        bodyStyle={{ padding: 0 }}
       >
         <Menu
           mode="vertical"
           selectedKeys={['traverse-calculation']}
-          items={menuItems}
-          onClick={handleMenuClick}
-        />
+          theme="light"
+          style={{ border: 'none' }}
+        >
+          {menuItems.map(item => (
+            <Menu.Item key={item.key} icon={item.icon} onClick={item.onClick}>
+              {item.label}
+            </Menu.Item>
+          ))}
+        </Menu>
       </Drawer>
 
       <Content className={styles.content}>

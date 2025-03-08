@@ -98,49 +98,57 @@ const SurveyStationLayout = () => {
   ];
 
   return (
-    <Layout className={styles.layoutContainer}>
-      {/* 桌面端菜单 */}
-      <div className={styles.header}>
+    <Layout className={styles.container}>
+      {/* 桌面端顶部导航 */}
+      <Layout.Header className={styles.header}>
         <Menu
           mode="horizontal"
-          items={menuItems}
+          selectedKeys={['survey-station']}
           onClick={handleMenuClick}
           className={styles.menu}
-          selectedKeys={['survey-station']}
-        />
-      </div>
+          theme="dark"
+        >
+          {menuItems.map(item => (
+            <Menu.Item key={item.key} icon={item.icon}>
+              {item.label}
+            </Menu.Item>
+          ))}
+        </Menu>
+      </Layout.Header>
 
       {/* 移动端顶部导航 */}
       <div className={styles.mobileHeader}>
-        <Button 
+        <Button
+          type="text"
           icon={<MenuOutlined />}
           onClick={() => setDrawerVisible(true)}
-          type="text"
           className={styles.menuButton}
         />
-        <span className={styles.headerTitle}>控制点查询</span>
-        <Button 
-          icon={<HomeOutlined />} 
-          onClick={() => navigate('/')}
-          type="link"
-        />
+        <div className={styles.headerTitle}>香港测量控制站查询</div>
+        <div style={{ width: 32 }}></div>
       </div>
 
-      {/* 移动端导航抽屉 */}
+      {/* 移动端侧边抽屉菜单 */}
       <Drawer
-        title="导航菜单"
+        title="菜单"
         placement="left"
         onClose={() => setDrawerVisible(false)}
         open={drawerVisible}
-        bodyStyle={{ padding: 0 }}
+        width={280}
       >
         <Menu
           mode="vertical"
-          items={menuItems}
-          onClick={handleMenuClick}
           selectedKeys={['survey-station']}
+          onClick={handleMenuClick}
           style={{ border: 'none' }}
-        />
+          theme="light"
+        >
+          {menuItems.map(item => (
+            <Menu.Item key={item.key} icon={item.icon}>
+              {item.label}
+            </Menu.Item>
+          ))}
+        </Menu>
       </Drawer>
       
       <Content className={styles.contentContainer}>

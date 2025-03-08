@@ -24,7 +24,7 @@
 }
 
 .menu :global(.ant-menu-item) {
-  color: #636E72 !important;
+  color: rgba(255, 255, 255, 0.65) !important;
   font-size: 15px;
   padding: 0 24px !important;
   margin: 0 4px !important;
@@ -32,8 +32,13 @@
 }
 
 .menu :global(.ant-menu-item:hover) {
-  color: #4C84FF !important;
-  background: #F0F7FF !important;
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.menu :global(.ant-menu-item-selected) {
+  color: #fff !important;
+  border-bottom: 2px solid #1890ff !important;
 }
 
 .mobileHeader {
@@ -322,5 +327,297 @@
   .mainCard :global(.ant-col) {
     padding-left: 8px !important;
     padding-right: 8px !important;
+  }
+}
+
+/* 顶部横幅 */
+.heroBanner {
+  position: relative;
+  background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+  border-radius: 8px;
+  margin-bottom: 32px;
+  overflow: hidden;
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  background-image: url('/images/settlement-bg.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+.heroOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(24, 144, 255, 0.85) 0%, rgba(9, 109, 217, 0.9) 100%);
+  z-index: 1;
+}
+
+.heroContent {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 0 24px;
+  max-width: 800px;
+}
+
+.heroTitle {
+  color: white !important;
+  font-size: 42px !important;
+  margin-bottom: 24px !important;
+  font-weight: 700 !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.heroDescription {
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-size: 18px !important;
+  line-height: 1.6 !important;
+  margin-bottom: 32px !important;
+}
+
+.heroButtons {
+  margin-top: 24px;
+}
+
+/* 统计部分 */
+.statisticsSection {
+  margin-bottom: 48px;
+}
+
+.statisticCard {
+  text-align: center;
+  padding: 24px 16px;
+  height: 100%;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.statisticCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* 功能部分 */
+.featuresSection {
+  margin-bottom: 48px;
+}
+
+.sectionTitle {
+  text-align: center;
+  margin-bottom: 40px !important;
+  font-weight: 600 !important;
+  color: #333 !important;
+  position: relative;
+}
+
+.titleUnderline {
+  width: 60px;
+  height: 4px;
+  background: #1890ff;
+  margin: 16px auto 0;
+  border-radius: 2px;
+}
+
+.featureCard {
+  height: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.featureCard:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+.featureCardHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.featureCardIcon {
+  font-size: 28px;
+  color: #1890ff;
+  margin-right: 12px;
+  background: rgba(24, 144, 255, 0.1);
+  padding: 12px;
+  border-radius: 50%;
+}
+
+.featureCardTitle {
+  margin: 0 !important;
+  color: #333 !important;
+}
+
+.featureCardDescription {
+  color: #666 !important;
+  margin-bottom: 16px !important;
+  min-height: 60px;
+}
+
+.featureDivider {
+  margin: 16px 0 !important;
+}
+
+.featureItemList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.featureItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.featureItem svg {
+  color: #1890ff;
+  font-size: 16px;
+}
+
+.featureItemText {
+  color: #555;
+}
+
+/* 系统优势部分 */
+.advantagesSection {
+  margin-bottom: 48px;
+}
+
+.advantageCard {
+  height: 100%;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  padding: 8px;
+}
+
+.advantageCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+.advantageTitle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #333 !important;
+  font-size: 20px !important;
+  margin-bottom: 16px !important;
+}
+
+.advantageIcon {
+  color: #1890ff;
+  font-size: 24px;
+  background: rgba(24, 144, 255, 0.1);
+  padding: 10px;
+  border-radius: 50%;
+}
+
+.advantageDescription {
+  color: #666 !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+}
+
+/* 行动号召部分 */
+.ctaSection {
+  margin-bottom: 48px;
+}
+
+.ctaCard {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%);
+  border-radius: 8px;
+  text-align: center;
+  padding: 48px 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.ctaTitle {
+  color: #333 !important;
+  margin-bottom: 16px !important;
+  font-weight: 600 !important;
+}
+
+.ctaDescription {
+  color: #666 !important;
+  font-size: 16px !important;
+  max-width: 600px;
+  margin: 0 auto 24px !important;
+}
+
+.ctaButtons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .header {
+    display: none;
+  }
+
+  .mobileHeader {
+    display: flex;
+  }
+
+  .content {
+    margin-top: 50px;
+    padding: 16px;
+  }
+
+  .heroBanner {
+    height: 300px;
+    margin-bottom: 24px;
+  }
+
+  .heroTitle {
+    font-size: 28px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .heroDescription {
+    font-size: 14px !important;
+    margin-bottom: 24px !important;
+  }
+
+  .sectionTitle {
+    margin-bottom: 24px !important;
+    font-size: 20px !important;
+  }
+
+  .featureCardDescription {
+    min-height: auto;
+  }
+
+  .advantageTitle {
+    font-size: 18px !important;
+  }
+
+  .ctaCard {
+    padding: 32px 16px;
+  }
+
+  .ctaTitle {
+    font-size: 20px !important;
+  }
+
+  .ctaDescription {
+    font-size: 14px !important;
+  }
+
+  .ctaButtons {
+    flex-direction: column;
+    gap: 12px;
   }
 }

@@ -759,7 +759,8 @@ const ConstructionLayout = () => {
               <Radio.Group 
                 value={activeTab} 
                 onChange={(e) => handleTabChange(e.target.value)}
-                className={styles.calculationTypeGroup}
+                buttonStyle="solid"
+                className={styles.calculationTypeSelector}
               >
                 <Radio.Button value="1">点放样</Radio.Button>
                 <Radio.Button value="2">线放样</Radio.Button>

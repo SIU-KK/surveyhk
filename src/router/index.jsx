@@ -6,8 +6,11 @@ import FreeStation from '../pages/FreeStation';
 import TraverseCalculation from '../pages/TraverseCalculation';
 import ConstructionLayout from '../pages/ConstructionLayout';
 import BatchCalculation from '../pages/BatchCalculation';
+import PileCalculation from '../pages/PileCalculation';
+import PileCalculationLayout from '../pages/PileCalculation/components/PileCalculationLayout';
 import Tools from '../pages/Tools';
 import SettlementMonitoring from '../pages/SettlementMonitoring';
+import CircleCalculation from '../pages/CircleCalculation';
 
 const router = createBrowserRouter([
   {
@@ -39,12 +42,24 @@ const router = createBrowserRouter([
         element: <BatchCalculation />
       },
       {
+        path: 'pile-calculation',
+        element: <PileCalculation />
+      },
+      {
+        path: 'pile-material-calculation',
+        element: <PileCalculationLayout />
+      },
+      {
         path: 'tools',
         element: <Tools />
       },
       {
         path: 'settlement-monitoring',
         element: <SettlementMonitoring />
+      },
+      {
+        path: 'circle-calculation',
+        element: <CircleCalculation />
       }
     ]
   }

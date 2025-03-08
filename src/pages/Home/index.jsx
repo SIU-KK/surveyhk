@@ -42,10 +42,17 @@ const features = [
     color: '#7A6FFF'
   },
   {
+    icon: <CalculatorOutlined style={{ fontSize: '32px' }} />,
+    title: '桩计算',
+    description: '提供桩放样、头桩检查、二桩检查、尾桩检查及材料计算功能',
+    path: '/pile-calculation',
+    color: '#FF9F43'
+  },
+  {
     icon: <RadiusSettingOutlined style={{ fontSize: '32px' }} />,
     title: '批量计算及转换',
     description: '支持多种计算方法和数据转换功能',
-    path: '/circle-calculation',
+    path: '/batch-calculation',
     color: '#FF9F43'
   },
   {
