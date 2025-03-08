@@ -10,7 +10,7 @@ import PileCalculation from '../pages/PileCalculation';
 import PileCalculationLayout from '../pages/PileCalculation/components/PileCalculationLayout';
 import Tools from '../pages/Tools';
 import SettlementMonitoring from '../pages/SettlementMonitoring';
-import CircleCalculation from '../pages/CircleCalculation';
+import CircleCalculation from '../pages/BatchCalculation';
 
 const router = createBrowserRouter([
   {
