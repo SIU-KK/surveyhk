@@ -14,38 +14,43 @@ const SurveyStationLayout = () => {
     {
       key: '/',
       icon: <HomeOutlined />,
-      label: '返回主页',
+      label: '返回主頁',
       onClick: () => navigate('/')
     },
     {
       key: 'survey-station',
       icon: <CompassOutlined />,
-      label: '香港测量控制站查询'
+      label: '香港測量控制站查詢'
     },
     {
       key: 'free-station',
       icon: <CalculatorOutlined />,
-      label: '自由设站解算'
+      label: '自由設站解算'
     },
     {
       key: 'traverse-calculation',
       icon: <AimOutlined />,
-      label: '导线计算'
+      label: '導線計算'
     },
     {
       key: 'construction-layout',
       icon: <RadiusSettingOutlined />,
-      label: '施工放样'
+      label: '施工放樣'
+    },
+    {
+      key: 'pile-calculation',
+      icon: <CalculatorOutlined />,
+      label: '樁計算'
     },
     {
       key: 'circle-calculation',
       icon: <RadiusSettingOutlined />,
-      label: '批量计算及转换'
+      label: '批量計算及轉換'
     },
     {
       key: 'tools',
       icon: <ToolOutlined />,
-      label: '实用工具'
+      label: '實用工具'
     },
     {
       key: 'settlement-monitoring',
@@ -124,13 +129,13 @@ const SurveyStationLayout = () => {
           onClick={() => setDrawerVisible(true)}
           className={styles.menuButton}
         />
-        <div className={styles.headerTitle}>香港测量控制站查询</div>
+        <div className={styles.headerTitle}>香港測量控制站查詢</div>
         <div style={{ width: 32 }}></div>
       </div>
 
       {/* 移动端侧边抽屉菜单 */}
       <Drawer
-        title="菜单"
+        title="菜單"
         placement="left"
         onClose={() => setDrawerVisible(false)}
         open={drawerVisible}

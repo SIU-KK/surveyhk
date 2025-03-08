@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Form, Input, Button, Table, Card, Space, Tabs, Menu, Select, Drawer, Radio, Row, Col, Divider } from 'antd';
+import { Layout, Form, Input, Button, Table, Card, Space, Tabs, Menu, Select, Drawer, Radio, Row, Col, Divider, message } from 'antd';
 import { HomeOutlined, CompassOutlined, CalculatorOutlined, AimOutlined, RadiusSettingOutlined, ToolOutlined, MonitorOutlined, MenuOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import styles from './ConstructionLayout.module.css';
@@ -7,12 +7,14 @@ import PointLayoutForm from './PointLayoutForm';
 
 const { Content, Header } = Layout;
 const { Option } = Select;
+const { TabPane } = Tabs;
 
 const ConstructionLayout = () => {
-  const [activeTab, setActiveTab] = useState('1');
+  const [activeTab, setActiveTab] = useState('point');
   const [pointForm] = Form.useForm();
   const [lineForm] = Form.useForm();
   const [arcForm] = Form.useForm();
+  const [curveForm] = Form.useForm();
   const navigate = useNavigate();
   const [calculationResults, setCalculationResults] = useState([]);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -36,48 +38,54 @@ const ConstructionLayout = () => {
     {
       key: 'home',
       icon: <HomeOutlined />,
-      label: '返回主页',
+      label: '返回主頁',
       onClick: goHome
     },
     {
       key: 'survey-station',
       icon: <CompassOutlined />,
-      label: '香港测量控制站查询',
+      label: '香港測量控制站查詢',
       onClick: () => navigate('/survey-station')
     },
     {
       key: 'free-station',
       icon: <CalculatorOutlined />,
-      label: '自由设站解算',
+      label: '自由設站解算',
       onClick: () => navigate('/free-station')
     },
     {
       key: 'traverse-calculation',
       icon: <AimOutlined />,
-      label: '导线计算',
+      label: '導線計算',
       onClick: () => navigate('/traverse-calculation')
     },
     {
       key: 'construction-layout',
       icon: <RadiusSettingOutlined />,
-      label: '施工放样'
+      label: '施工放樣'
+    },
+    {
+      key: 'pile-calculation',
+      icon: <CalculatorOutlined />,
+      label: '樁計算',
+      onClick: () => navigate('/pile-calculation')
     },
     {
       key: 'batch-calculation',
       icon: <RadiusSettingOutlined />,
-      label: '批量计算及转换',
+      label: '批量計算及轉換',
       onClick: () => navigate('/batch-calculation')
     },
     {
       key: 'tools',
       icon: <ToolOutlined />,
-      label: '实用工具',
+      label: '實用工具',
       onClick: () => navigate('/tools')
     },
     {
       key: 'settlement-monitoring',
       icon: <MonitorOutlined />,
-      label: '沉降监测系统',
+      label: '沉降監測系統',
       onClick: () => navigate('/settlement-monitoring')
     }
   ];
@@ -362,354 +370,450 @@ const ConstructionLayout = () => {
     setCalculationResults([result]);
   };
 
+  // 曲线放样计算
+  const calculateCurveLayout = (values) => {
+    try {
+      // 获取输入值
+      const radius = parseFloat(values.radius);
+      const startAngle = parseFloat(values.startAngle);
+      const endAngle = parseFloat(values.endAngle);
+      const centerE = parseFloat(values.centerE);
+      const centerN = parseFloat(values.centerN);
+      const centerH = values.centerH ? parseFloat(values.centerH) : null;
+      const stationE = parseFloat(values.stationE);
+      const stationN = parseFloat(values.stationN);
+      const stationH = values.stationH ? parseFloat(values.stationH) : null;
+      const interval = parseFloat(values.interval);
+      const ih = values.ih ? parseFloat(values.ih) : 0;
+      const th = values.th ? parseFloat(values.th) : 0;
+
+      // 验证输入
+      if (isNaN(radius) || isNaN(startAngle) || isNaN(endAngle) || 
+          isNaN(centerE) || isNaN(centerN) || isNaN(stationE) || 
+          isNaN(stationN) || isNaN(interval)) {
+        message.error('請輸入有效的數值');
+        return;
+      }
+
+      // 确保角度范围正确
+      let adjustedStartAngle = startAngle;
+      let adjustedEndAngle = endAngle;
+      
+      // 如果结束角度小于起始角度，添加360度
+      if (adjustedEndAngle < adjustedStartAngle) {
+        adjustedEndAngle += 360;
+      }
+
+      // 计算角度范围
+      const angleRange = adjustedEndAngle - adjustedStartAngle;
+      
+      // 计算点数
+      const pointCount = Math.ceil(angleRange / interval) + 1;
+      
+      // 生成结果数组
+      const results = [];
+      
+      for (let i = 0; i < pointCount; i++) {
+        // 计算当前角度
+        const currentAngle = adjustedStartAngle + i * interval;
+        if (currentAngle > adjustedEndAngle) break;
+        
+        // 转换为弧度
+        const angleRad = currentAngle * Math.PI / 180;
+        
+        // 计算曲线上的点坐标
+        const pointE = centerE + radius * Math.cos(angleRad);
+        const pointN = centerN + radius * Math.sin(angleRad);
+        const pointH = centerH !== null ? centerH : null;
+        
+        // 计算从测站到点的方位角
+        const dE = pointE - stationE;
+        const dN = pointN - stationN;
+        const azimuth = Math.atan2(dE, dN) * 180 / Math.PI;
+        const azimuthDMS = convertToDDMMSS(azimuth >= 0 ? azimuth : azimuth + 360);
+        
+        // 计算水平距离
+        const horizontalDistance = Math.sqrt(dE * dE + dN * dN);
+        
+        // 计算高差和斜距
+        let heightDifference = null;
+        let slopeDistance = null;
+        
+        if (pointH !== null && stationH !== null) {
+          heightDifference = pointH - stationH - ih + th;
+          slopeDistance = Math.sqrt(horizontalDistance * horizontalDistance + heightDifference * heightDifference);
+        }
+        
+        // 添加到结果数组
+        results.push({
+          key: i.toString(),
+          pointNumber: i + 1,
+          angle: currentAngle.toFixed(4),
+          easting: pointE.toFixed(4),
+          northing: pointN.toFixed(4),
+          height: pointH !== null ? pointH.toFixed(4) : null,
+          azimuth: azimuthDMS,
+          horizontalDistance: horizontalDistance.toFixed(4),
+          heightDifference: heightDifference !== null ? heightDifference.toFixed(4) : null,
+          slopeDistance: slopeDistance !== null ? slopeDistance.toFixed(4) : null
+        });
+      }
+      
+      // 更新计算结果
+      setCalculationResults(results);
+      
+      // 显示成功消息
+      message.success('曲線放樣計算完成');
+    } catch (error) {
+      console.error('曲線放樣計算錯誤:', error);
+      message.error('計算過程中發生錯誤');
+    }
+  };
+
   const onFinish = (values) => {
     calculatePointLayout(values);
   };
 
   const handleTabChange = (value) => {
     setActiveTab(value);
-    // 只有在切换到不同标签页时才重置表单和清除结果
-    if (value !== activeTab) {
-      setCalculationResults([]);
-      // 重置当前激活的表单
-      switch(value) {
-        case '1':
-          pointForm.resetFields();
-          break;
-        case '2':
-          lineForm.resetFields();
-          break;
-        case '3':
-          arcForm.resetFields();
-          break;
-      }
+    setCalculationResults([]);
+    
+    // 清空表单
+    if (value === 'point') {
+      pointForm.resetFields();
+    } else if (value === 'line') {
+      lineForm.resetFields();
+    } else if (value === 'arc') {
+      arcForm.resetFields();
+    } else if (value === 'curve') {
+      curveForm.resetFields();
     }
   };
 
   const renderPointLayoutForm = () => (
     <Form form={pointForm} layout="vertical" onFinish={calculatePointLayout}>
-      <Divider orientation="left">测站数据</Divider>
+      <Divider orientation="left">測站數據</Divider>
       <Row gutter={[16, 0]}>
         <Col xs={24} sm={12} md={6}>
-          <Form.Item name="stationE" label="E坐标" rules={[{ required: true, message: '请输入测站E坐标' }]}>
-            <Input placeholder="E坐标" />
+          <Form.Item name="stationE" label="E坐標" rules={[{ required: true, message: '請輸入測站E坐標' }]}>
+            <Input placeholder="E坐標" />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Form.Item name="stationN" label="N坐标" rules={[{ required: true, message: '请输入测站N坐标' }]}>
-            <Input placeholder="N坐标" />
+          <Form.Item name="stationN" label="N坐標" rules={[{ required: true, message: '請輸入測站N坐標' }]}>
+            <Input placeholder="N坐標" />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
           <Form.Item name="stationRL" label="RL高程" rules={[{ required: false }]}>
-            <Input placeholder="RL高程（选填）" />
+            <Input placeholder="RL高程（選填）" />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Form.Item name="instrumentHeight" label="仪器高度(IH)" rules={[{ required: false }]}>
-            <Input placeholder="仪器高度（选填）" />
+          <Form.Item name="instrumentHeight" label="儀器高度(IH)" rules={[{ required: false }]}>
+            <Input placeholder="儀器高度（選填）" />
           </Form.Item>
         </Col>
       </Row>
       
-      <Divider orientation="left">放样点数据</Divider>
+      <Divider orientation="left">放樣點數據</Divider>
       <Row gutter={[16, 0]}>
         <Col xs={24} sm={12} md={6}>
-          <Form.Item name="pointE" label="E坐标" rules={[{ required: true, message: '请输入放样点E坐标' }]}>
-            <Input placeholder="E坐标" />
+          <Form.Item name="pointE" label="E坐標" rules={[{ required: true, message: '請輸入放樣點E坐標' }]}>
+            <Input placeholder="E坐標" />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Form.Item name="pointN" label="N坐标" rules={[{ required: true, message: '请输入放样点N坐标' }]}>
-            <Input placeholder="N坐标" />
+          <Form.Item name="pointN" label="N坐標" rules={[{ required: true, message: '請輸入放樣點N坐標' }]}>
+            <Input placeholder="N坐標" />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
           <Form.Item name="pointRL" label="RL高程" rules={[{ required: false }]}>
-            <Input placeholder="RL高程（选填）" />
+            <Input placeholder="RL高程（選填）" />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Form.Item name="prismHeight" label="棱镜高度(PH)" rules={[{ required: false }]}>
-            <Input placeholder="棱镜高度（选填）" />
+          <Form.Item name="prismHeight" label="棱鏡高度(PH)" rules={[{ required: false }]}>
+            <Input placeholder="棱鏡高度（選填）" />
           </Form.Item>
         </Col>
       </Row>
       
       <Form.Item>
-        <Button type="primary" size="large" className={styles.submitButton} htmlType="submit">计算</Button>
+        <Button type="primary" size="large" className={styles.submitButton} htmlType="submit">計算</Button>
       </Form.Item>
     </Form>
   );
 
   const renderLineLayoutForm = () => (
     <Form form={lineForm} layout="vertical" onFinish={calculateLineLayout}>
-      <Divider orientation="left">起点坐标</Divider>
+      <Divider orientation="left">起點坐標</Divider>
       <Row gutter={[16, 0]}>
         <Col xs={24} sm={12} md={8}>
-          <Form.Item name="startE" label="E坐标" rules={[{ required: true, message: '请输入起点E坐标' }]}>
-            <Input placeholder="E坐标" />
+          <Form.Item name="startE" label="E坐標" rules={[{ required: true, message: '請輸入起點E坐標' }]}>
+            <Input placeholder="E坐標" />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={8}>
-          <Form.Item name="startN" label="N坐标" rules={[{ required: true, message: '请输入起点N坐标' }]}>
-            <Input placeholder="N坐标" />
+          <Form.Item name="startN" label="N坐標" rules={[{ required: true, message: '請輸入起點N坐標' }]}>
+            <Input placeholder="N坐標" />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={8}>
           <Form.Item name="startH" label="高程" rules={[{ required: false }]}>
-            <Input placeholder="高程（选填）" />
+            <Input placeholder="高程（選填）" />
           </Form.Item>
         </Col>
       </Row>
       
-      <Divider orientation="left">终点坐标</Divider>
+      <Divider orientation="left">終點坐標</Divider>
       <Row gutter={[16, 0]}>
         <Col xs={24} sm={12} md={8}>
-          <Form.Item name="endE" label="E坐标" rules={[{ required: true, message: '请输入终点E坐标' }]}>
-            <Input placeholder="E坐标" />
+          <Form.Item name="endE" label="E坐標" rules={[{ required: true, message: '請輸入終點E坐標' }]}>
+            <Input placeholder="E坐標" />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={8}>
-          <Form.Item name="endN" label="N坐标" rules={[{ required: true, message: '请输入终点N坐标' }]}>
-            <Input placeholder="N坐标" />
+          <Form.Item name="endN" label="N坐標" rules={[{ required: true, message: '請輸入終點N坐標' }]}>
+            <Input placeholder="N坐標" />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={8}>
           <Form.Item name="endH" label="高程" rules={[{ required: false }]}>
-            <Input placeholder="高程（选填）" />
+            <Input placeholder="高程（選填）" />
           </Form.Item>
         </Col>
       </Row>
       
-      <Divider orientation="left">测站数据</Divider>
+      <Divider orientation="left">測站數據</Divider>
       <Row gutter={[16, 0]}>
         <Col xs={24} sm={12} md={6}>
-          <Form.Item name="stationE" label="E坐标" rules={[{ required: true, message: '请输入测站E坐标' }]}>
-            <Input placeholder="E坐标" />
+          <Form.Item name="stationE" label="E坐標" rules={[{ required: true, message: '請輸入測站E坐標' }]}>
+            <Input placeholder="E坐標" />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Form.Item name="stationN" label="N坐标" rules={[{ required: true, message: '请输入测站N坐标' }]}>
-            <Input placeholder="N坐标" />
+          <Form.Item name="stationN" label="N坐標" rules={[{ required: true, message: '請輸入測站N坐標' }]}>
+            <Input placeholder="N坐標" />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
           <Form.Item name="stationH" label="高程" rules={[{ required: false }]}>
-            <Input placeholder="高程（选填）" />
+            <Input placeholder="高程（選填）" />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Form.Item name="chainage" label="起始链距" rules={[{ required: false }]}>
-            <Input placeholder="起始链距（选填，默认为0）" />
+          <Form.Item name="chainage" label="起始鏈距" rules={[{ required: false }]}>
+            <Input placeholder="起始鏈距（選填，默認為0）" />
           </Form.Item>
         </Col>
       </Row>
       
-      <Divider orientation="left">平移数据（选填）</Divider>
+      <Divider orientation="left">平移數據（選填）</Divider>
       <Row gutter={[16, 0]}>
         <Col xs={24} sm={12} md={8}>
-          <Form.Item name="offsetDistance" label="平移距离" rules={[{ required: false }]}>
-            <Input placeholder="平移距离（正值向右，负值向左）" />
+          <Form.Item name="offsetDistance" label="平移距離" rules={[{ required: false }]}>
+            <Input placeholder="平移距離（正值向右，負值向左）" />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={8}>
           <Form.Item name="heightOffset" label="高程平移" rules={[{ required: false }]}>
-            <Input placeholder="高程平移（正值向上，负值向下）" />
+            <Input placeholder="高程平移（正值向上，負值向下）" />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={8}>
-          <Form.Item name="chainageOffset" label="链距平移" rules={[{ required: false }]}>
-            <Input placeholder="链距平移（正值向前，负值向后）" />
+          <Form.Item name="chainageOffset" label="鏈距平移" rules={[{ required: false }]}>
+            <Input placeholder="鏈距平移（正值向前，負值向后）" />
           </Form.Item>
         </Col>
       </Row>
       
       <Form.Item>
-        <Button type="primary" size="large" className={styles.submitButton} htmlType="submit">计算</Button>
+        <Button type="primary" size="large" className={styles.submitButton} htmlType="submit">計算</Button>
       </Form.Item>
     </Form>
   );
 
   const renderArcLayoutForm = () => (
     <Form form={arcForm} layout="vertical" onFinish={calculateArcLayout}>
-      <Divider orientation="left">圆弧起点</Divider>
+      <Divider orientation="left">圓弧起點</Divider>
       <Row gutter={[16, 0]}>
         <Col xs={24} sm={12} md={8}>
-          <Form.Item name="startE" label="E坐标" rules={[{ required: true, message: '请输入起点E坐标' }]}>
-            <Input placeholder="E坐标" />
+          <Form.Item name="startE" label="E坐標" rules={[{ required: true, message: '請輸入起點E坐標' }]}>
+            <Input placeholder="E坐標" />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={8}>
-          <Form.Item name="startN" label="N坐标" rules={[{ required: true, message: '请输入起点N坐标' }]}>
-            <Input placeholder="N坐标" />
+          <Form.Item name="startN" label="N坐標" rules={[{ required: true, message: '請輸入起點N坐標' }]}>
+            <Input placeholder="N坐標" />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={8}>
           <Form.Item name="startH" label="高程" rules={[{ required: false }]}>
-            <Input placeholder="高程（选填）" />
+            <Input placeholder="高程（選填）" />
           </Form.Item>
         </Col>
       </Row>
       
-      <Divider orientation="left">圆弧终点</Divider>
+      <Divider orientation="left">圓弧終點</Divider>
       <Row gutter={[16, 0]}>
         <Col xs={24} sm={12} md={8}>
-          <Form.Item name="endE" label="E坐标" rules={[{ required: true, message: '请输入终点E坐标' }]}>
-            <Input placeholder="E坐标" />
+          <Form.Item name="endE" label="E坐標" rules={[{ required: true, message: '請輸入終點E坐標' }]}>
+            <Input placeholder="E坐標" />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={8}>
-          <Form.Item name="endN" label="N坐标" rules={[{ required: true, message: '请输入终点N坐标' }]}>
-            <Input placeholder="N坐标" />
+          <Form.Item name="endN" label="N坐標" rules={[{ required: true, message: '請輸入終點N坐標' }]}>
+            <Input placeholder="N坐標" />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={8}>
           <Form.Item name="endH" label="高程" rules={[{ required: false }]}>
-            <Input placeholder="高程（选填）" />
+            <Input placeholder="高程（選填）" />
           </Form.Item>
         </Col>
       </Row>
       
-      <Divider orientation="left">圆弧参数</Divider>
+      <Divider orientation="left">圓弧參數</Divider>
       <Row gutter={[16, 0]}>
         <Col xs={24} sm={12} md={24}>
           <Form.Item 
             name="radius" 
-            label="半径"
+            label="半徑"
             rules={[{ 
               required: true, 
-              message: '请输入半径（从起点到终点方向看，右侧为正值，左侧为负值）' 
+              message: '請輸入半徑（從起點到終點方向看，右側為正值，左側為負值）' 
             }]}
           >
-            <Input placeholder="半径（右侧+/左侧-）" />
+            <Input placeholder="半徑（右側+/左側-）" />
           </Form.Item>
         </Col>
       </Row>
       
-      <Divider orientation="left">放样点坐标</Divider>
+      <Divider orientation="left">放樣點坐標</Divider>
       <Row gutter={[16, 0]}>
         <Col xs={24} sm={12} md={8}>
-          <Form.Item name="pointE" label="E坐标" rules={[{ required: true, message: '请输入放样点E坐标' }]}>
-            <Input placeholder="E坐标" />
+          <Form.Item name="pointE" label="E坐標" rules={[{ required: true, message: '請輸入放樣點E坐標' }]}>
+            <Input placeholder="E坐標" />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={8}>
-          <Form.Item name="pointN" label="N坐标" rules={[{ required: true, message: '请输入放样点N坐标' }]}>
-            <Input placeholder="N坐标" />
+          <Form.Item name="pointN" label="N坐標" rules={[{ required: true, message: '請輸入放樣點N坐標' }]}>
+            <Input placeholder="N坐標" />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={8}>
           <Form.Item name="pointH" label="高程" rules={[{ required: false }]}>
-            <Input placeholder="高程（选填）" />
+            <Input placeholder="高程（選填）" />
           </Form.Item>
         </Col>
       </Row>
       
-      <Divider orientation="left">平移数据（选填）</Divider>
+      <Divider orientation="left">平移數據（選填）</Divider>
       <Row gutter={[16, 0]}>
         <Col xs={24} sm={12} md={8}>
-          <Form.Item name="radiusOffset" label="半径平移" rules={[{ required: false }]}>
-            <Input placeholder="半径平移（正值向外，负值向内）" />
+          <Form.Item name="radiusOffset" label="半徑平移" rules={[{ required: false }]}>
+            <Input placeholder="半徑平移（正值向外，負值向內）" />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={8}>
           <Form.Item name="heightOffset" label="高程平移" rules={[{ required: false }]}>
-            <Input placeholder="高程平移（正值向上，负值向下）" />
+            <Input placeholder="高程平移（正值向上，負值向下）" />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={8}>
-          <Form.Item name="chainageOffset" label="链距平移" rules={[{ required: false }]}>
-            <Input placeholder="链距平移（正值向前，负值向后）" />
+          <Form.Item name="chainageOffset" label="鏈距平移" rules={[{ required: false }]}>
+            <Input placeholder="鏈距平移（正值向前，負值向后）" />
           </Form.Item>
         </Col>
       </Row>
       
       <Form.Item>
-        <Button type="primary" size="large" className={styles.submitButton} htmlType="submit">计算</Button>
+        <Button type="primary" size="large" className={styles.submitButton} htmlType="submit">計算</Button>
       </Form.Item>
     </Form>
   );
 
   const renderCurveLayoutForm = () => (
     <Form form={curveForm} layout="vertical" onFinish={calculateCurveLayout}>
-      <Divider orientation="left">曲线参数</Divider>
+      <Divider orientation="left">曲線參數</Divider>
       <Row gutter={[16, 0]}>
         <Col xs={24} sm={12} md={8}>
-          <Form.Item name="radius" label="半径" rules={[{ required: true, message: '请输入曲线半径' }]}>
-            <Input placeholder="半径" />
+          <Form.Item name="radius" label="半徑" rules={[{ required: true, message: '請輸入曲線半徑' }]}>
+            <Input placeholder="半徑" />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={8}>
-          <Form.Item name="startAngle" label="起始角度" rules={[{ required: true, message: '请输入起始角度' }]}>
+          <Form.Item name="startAngle" label="起始角度" rules={[{ required: true, message: '請輸入起始角度' }]}>
             <Input placeholder="起始角度（度）" />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={8}>
-          <Form.Item name="endAngle" label="结束角度" rules={[{ required: true, message: '请输入结束角度' }]}>
-            <Input placeholder="结束角度（度）" />
+          <Form.Item name="endAngle" label="結束角度" rules={[{ required: true, message: '請輸入結束角度' }]}>
+            <Input placeholder="結束角度（度）" />
           </Form.Item>
         </Col>
       </Row>
       
-      <Divider orientation="left">圆心坐标</Divider>
+      <Divider orientation="left">圓心坐標</Divider>
       <Row gutter={[16, 0]}>
         <Col xs={24} sm={12} md={8}>
-          <Form.Item name="centerE" label="E坐标" rules={[{ required: true, message: '请输入圆心E坐标' }]}>
-            <Input placeholder="E坐标" />
+          <Form.Item name="centerE" label="E坐標" rules={[{ required: true, message: '請輸入圓心E坐標' }]}>
+            <Input placeholder="E坐標" />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={8}>
-          <Form.Item name="centerN" label="N坐标" rules={[{ required: true, message: '请输入圆心N坐标' }]}>
-            <Input placeholder="N坐标" />
+          <Form.Item name="centerN" label="N坐標" rules={[{ required: true, message: '請輸入圓心N坐標' }]}>
+            <Input placeholder="N坐標" />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={8}>
           <Form.Item name="centerH" label="高程" rules={[{ required: false }]}>
-            <Input placeholder="高程（选填）" />
+            <Input placeholder="高程（選填）" />
           </Form.Item>
         </Col>
       </Row>
       
-      <Divider orientation="left">测站数据</Divider>
+      <Divider orientation="left">測站數據</Divider>
       <Row gutter={[16, 0]}>
         <Col xs={24} sm={12} md={8}>
-          <Form.Item name="stationE" label="E坐标" rules={[{ required: true, message: '请输入测站E坐标' }]}>
-            <Input placeholder="E坐标" />
+          <Form.Item name="stationE" label="E坐標" rules={[{ required: true, message: '請輸入測站E坐標' }]}>
+            <Input placeholder="E坐標" />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={8}>
-          <Form.Item name="stationN" label="N坐标" rules={[{ required: true, message: '请输入测站N坐标' }]}>
-            <Input placeholder="N坐标" />
+          <Form.Item name="stationN" label="N坐標" rules={[{ required: true, message: '請輸入測站N坐標' }]}>
+            <Input placeholder="N坐標" />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={8}>
           <Form.Item name="stationH" label="高程" rules={[{ required: false }]}>
-            <Input placeholder="高程（选填）" />
+            <Input placeholder="高程（選填）" />
           </Form.Item>
         </Col>
       </Row>
       
       <Row gutter={[16, 0]}>
         <Col xs={24} sm={12} md={8}>
-          <Form.Item name="interval" label="间隔角度" rules={[{ required: true, message: '请输入间隔角度' }]}>
-            <Input placeholder="间隔角度（度）" />
+          <Form.Item name="interval" label="間隔角度" rules={[{ required: true, message: '請輸入間隔角度' }]}>
+            <Input placeholder="間隔角度（度）" />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={8}>
-          <Form.Item name="ih" label="仪器高度(IH)" rules={[{ required: false }]}>
-            <Input placeholder="仪器高度（选填）" />
+          <Form.Item name="ih" label="儀器高度(IH)" rules={[{ required: false }]}>
+            <Input placeholder="儀器高度（選填）" />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={8}>
-          <Form.Item name="th" label="棱镜高度(TH)" rules={[{ required: false }]}>
-            <Input placeholder="棱镜高度（选填）" />
+          <Form.Item name="th" label="棱鏡高度(TH)" rules={[{ required: false }]}>
+            <Input placeholder="棱鏡高度（選填）" />
           </Form.Item>
         </Col>
       </Row>
       
       <Form.Item>
-        <Button type="primary" size="large" className={styles.submitButton} htmlType="submit">计算</Button>
+        <Button type="primary" size="large" className={styles.submitButton} htmlType="submit">計算</Button>
       </Form.Item>
     </Form>
   );
@@ -727,22 +831,22 @@ const ConstructionLayout = () => {
       </Header>
       
       <div className={styles.mobileHeader}>
-        <Button 
-          type="text" 
-          icon={<MenuOutlined />} 
+        <Button
+          type="text"
+          icon={<MenuOutlined />}
           onClick={() => setDrawerVisible(true)}
           className={styles.menuButton}
         />
-        <div className={styles.headerTitle}>施工放样</div>
+        <div className={styles.headerTitle}>施工放樣</div>
         <div style={{ width: 32 }}></div>
       </div>
       
       <Drawer
-        title="菜单"
+        title="菜單"
         placement="left"
         onClose={() => setDrawerVisible(false)}
         open={drawerVisible}
-        bodyStyle={{ padding: 0 }}
+        width={280}
       >
         <Menu
           mode="vertical"
@@ -756,39 +860,30 @@ const ConstructionLayout = () => {
         <div className={styles.pageContainer}>
           <Card className={styles.mainCard}>
             <div className={styles.calculationTypeContainer}>
-              <Radio.Group 
-                value={activeTab} 
-                onChange={(e) => handleTabChange(e.target.value)}
-                buttonStyle="solid"
-                className={styles.calculationTypeSelector}
-              >
-                <Radio.Button value="1">点放样</Radio.Button>
-                <Radio.Button value="2">线放样</Radio.Button>
-                <Radio.Button value="3">弧放样</Radio.Button>
-              </Radio.Group>
+              <Tabs defaultActiveKey="point" onChange={handleTabChange} className={styles.tabs}>
+                <TabPane tab="點放樣" key="point">
+                  {renderPointLayoutForm()}
+                </TabPane>
+                
+                <TabPane tab="線放樣" key="line">
+                  {renderLineLayoutForm()}
+                </TabPane>
+                
+                <TabPane tab="弧放樣" key="arc">
+                  {renderArcLayoutForm()}
+                </TabPane>
+
+                <TabPane tab="曲線放樣" key="curve">
+                  {renderCurveLayoutForm()}
+                </TabPane>
+              </Tabs>
             </div>
-            
-            {activeTab === '1' && (
-              <Card title="计算参数" className={styles.card}>
-                {renderPointLayoutForm()}
-              </Card>
-            )}
-            {activeTab === '2' && (
-              <Card title="计算参数" className={styles.card}>
-                {renderLineLayoutForm()}
-              </Card>
-            )}
-            {activeTab === '3' && (
-              <Card title="计算参数" className={styles.card}>
-                {renderArcLayoutForm()}
-              </Card>
-            )}
             
             {calculationResults.length > 0 && (
               <Card 
                 title={
                   <div className={styles.resultTitle}>
-                    <span>计算结果</span>
+                    <span>計算結果</span>
                     <span className={styles.resultTime}>{new Date().toLocaleString()}</span>
                   </div>
                 } 
@@ -797,7 +892,7 @@ const ConstructionLayout = () => {
                 <div className={styles.tableWrapper}>
                   <Table
                     dataSource={calculationResults}
-                    columns={activeTab === '1' ? [
+                    columns={activeTab === 'point' ? [
                       {
                         title: '方位角(BRE)',
                         dataIndex: 'bearing',
@@ -811,7 +906,7 @@ const ConstructionLayout = () => {
                         align: 'center'
                       }] : []),
                       {
-                        title: '水平距离(HD)',
+                        title: '水平距離(HD)',
                         dataIndex: 'horizontalDistance',
                         key: 'horizontalDistance',
                         align: 'center',
@@ -826,7 +921,7 @@ const ConstructionLayout = () => {
                       }] : [])
                     ] : [
                       {
-                        title: '链距(C/H)',
+                        title: '鏈距(C/H)',
                         dataIndex: 'chainage',
                         key: 'chainage',
                         align: 'center',
@@ -841,7 +936,7 @@ const ConstructionLayout = () => {
                       },
                       ...(calculationResults[0]?.designHeight ? [
                         {
-                          title: '设计高程',
+                          title: '設計高程',
                           dataIndex: 'designHeight',
                           key: 'designHeight',
                           align: 'center',
@@ -859,21 +954,21 @@ const ConstructionLayout = () => {
                           )
                         }
                       ] : []),
-                      ...(calculationResults[0]?.centerE && activeTab === '3' ? [
+                      ...(calculationResults[0]?.centerE && activeTab === 'arc' ? [
                         {
-                          title: '圆心E',
+                          title: '圓心E',
                           dataIndex: 'centerE',
                           key: 'centerE',
                           align: 'center'
                         },
                         {
-                          title: '圆心N',
+                          title: '圓心N',
                           dataIndex: 'centerN',
                           key: 'centerN',
                           align: 'center'
                         },
                         {
-                          title: '半径',
+                          title: '半徑',
                           dataIndex: 'radius',
                           key: 'radius',
                           align: 'center',

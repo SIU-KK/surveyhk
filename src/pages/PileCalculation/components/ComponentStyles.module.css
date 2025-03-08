@@ -79,6 +79,26 @@
   vertical-align: top;
 }
 
+/* 新增样式 */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.formCard {
+  margin-bottom: 20px;
+  border-radius: 8px;
+}
+
+.resultContent {
+  padding: 10px;
+}
+
+.resultItem {
+  margin-bottom: 10px;
+}
+
 @media (max-width: 768px) {
   .mainCard {
     padding: 12px;

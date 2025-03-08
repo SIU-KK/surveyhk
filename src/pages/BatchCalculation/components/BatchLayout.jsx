@@ -47,48 +47,54 @@ const BatchLayout = () => {
     {
       key: 'home',
       icon: <HomeOutlined />,
-      label: '返回主页',
+      label: '返回主頁',
       onClick: () => navigate('/')
     },
     {
       key: 'survey-station',
       icon: <CompassOutlined />,
-      label: '香港测量控制站查询',
+      label: '香港測量控制站查詢',
       onClick: () => navigate('/survey-station')
     },
     {
       key: 'free-station',
       icon: <CalculatorOutlined />,
-      label: '自由设站解算',
+      label: '自由設站解算',
       onClick: () => navigate('/free-station')
     },
     {
       key: 'traverse-calculation',
       icon: <AimOutlined />,
-      label: '导线计算',
+      label: '導線計算',
       onClick: () => navigate('/traverse-calculation')
     },
     {
       key: 'construction-layout',
       icon: <RadiusSettingOutlined />,
-      label: '施工放样',
+      label: '施工放樣',
       onClick: () => navigate('/construction-layout')
+    },
+    {
+      key: 'pile-calculation',
+      icon: <CalculatorOutlined />,
+      label: '樁計算',
+      onClick: () => navigate('/pile-calculation')
     },
     {
       key: 'batch-calculation',
       icon: <RadiusSettingOutlined />,
-      label: '批量计算及转换'
+      label: '批量計算及轉換'
     },
     {
       key: 'tools',
       icon: <ToolOutlined />,
-      label: '实用工具',
+      label: '實用工具',
       onClick: () => navigate('/tools')
     },
     {
       key: 'settlement-monitoring',
       icon: <MonitorOutlined />,
-      label: '沉降监测系统',
+      label: '沉降監測系統',
       onClick: () => navigate('/settlement-monitoring')
     }
   ];
@@ -145,16 +151,16 @@ const BatchLayout = () => {
           onClick={() => setDrawerVisible(true)}
           className={styles.menuButton}
         />
-        <div className={styles.headerTitle}>批量计算及转换</div>
+        <div className={styles.headerTitle}>批量計算及轉換</div>
         <div style={{ width: 32 }}></div>
       </div>
 
       <Drawer
-        title="菜单"
+        title="菜單"
         placement="left"
         onClose={() => setDrawerVisible(false)}
         open={drawerVisible}
-        bodyStyle={{ padding: 0 }}
+        width={280}
       >
         <Menu
           mode="vertical"
@@ -174,15 +180,22 @@ const BatchLayout = () => {
         <Card className={styles.mainCard}>
           <div className={styles.calculationTypeContainer}>
             <Radio.Group
-              value={calculationType}
+              className={styles.calculationTypeGroup}
               onChange={handleCalculationTypeChange}
-              buttonStyle="solid"
-              className={styles.calculationTypeSelector}
+              value={calculationType}
             >
-              <Radio.Button value="direction-inverse">ENH TO BRE VA SD</Radio.Button>
-              <Radio.Button value="direction-calc">BRE VA SD TO ENH</Radio.Button>
-              <Radio.Button value="level-calc">Level Calculation</Radio.Button>
-              <Radio.Button value="level-inverse">Level Inversion</Radio.Button>
+              <Radio.Button value="direction-inverse" className={styles.calculationTypeButton}>
+                ENH TO BRE VA SD
+              </Radio.Button>
+              <Radio.Button value="direction-calc" className={styles.calculationTypeButton}>
+                BRE VA SD TO ENH
+              </Radio.Button>
+              <Radio.Button value="level-calc" className={styles.calculationTypeButton}>
+                平水計算
+              </Radio.Button>
+              <Radio.Button value="level-inverse" className={styles.calculationTypeButton}>
+                平水反算
+              </Radio.Button>
             </Radio.Group>
           </div>
           
