@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
-import { Card, Form, Input, Button, Radio, Row, Col, Table, message } from 'antd';
+import React, { useState, useRef } from 'react';
+import { Card, Form, Input, Button, Radio, Row, Col, Table, message, Typography, Divider } from 'antd';
+import { DownloadOutlined } from '@ant-design/icons';
 import styles from './ComponentStyles.module.css';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import NumericInput from './NumericInput';
 
 const LastPileCheck = () => {
   const [form] = Form.useForm();
@@ -160,7 +164,10 @@ const LastPileCheck = () => {
             name="designX"
             rules={[{ required: true, message: '请输入设计X坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入设计X坐标" />
+            <NumericInput 
+              placeholder="输入设计X坐标" 
+              allowNegative={true}
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
@@ -169,7 +176,10 @@ const LastPileCheck = () => {
             name="designY"
             rules={[{ required: true, message: '请输入设计Y坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入设计Y坐标" />
+            <NumericInput 
+              placeholder="输入设计Y坐标" 
+              allowNegative={true}
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
@@ -178,7 +188,10 @@ const LastPileCheck = () => {
             name="actualX"
             rules={[{ required: true, message: '请输入实测X坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入实测X坐标" />
+            <NumericInput 
+              placeholder="输入实测X坐标" 
+              allowNegative={true}
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
@@ -187,7 +200,10 @@ const LastPileCheck = () => {
             name="actualY"
             rules={[{ required: true, message: '请输入实测Y坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入实测Y坐标" />
+            <NumericInput 
+              placeholder="输入实测Y坐标" 
+              allowNegative={true}
+            />
           </Form.Item>
         </Col>
       </Row>
@@ -222,7 +238,10 @@ const LastPileCheck = () => {
             name="pileNumber"
             rules={[{ required: true, message: '请输入桩号' }]}
           >
-            <Input placeholder="输入桩号" />
+            <Input 
+              placeholder="输入桩号" 
+              inputMode="text"
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
@@ -231,7 +250,10 @@ const LastPileCheck = () => {
             name="designBearing"
             rules={[{ required: true, message: '请输入设计方位角' }]}
           >
-            <Input type="number" step="0.01" placeholder="输入设计方位角" />
+            <NumericInput 
+              placeholder="输入设计方位角" 
+              allowNegative={false}
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
@@ -240,7 +262,10 @@ const LastPileCheck = () => {
             name="actualBearing"
             rules={[{ required: true, message: '请输入实测方位角' }]}
           >
-            <Input type="number" step="0.01" placeholder="输入实测方位角" />
+            <NumericInput 
+              placeholder="输入实测方位角" 
+              allowNegative={false}
+            />
           </Form.Item>
         </Col>
       </Row>
@@ -252,7 +277,10 @@ const LastPileCheck = () => {
             name="designX"
             rules={[{ required: true, message: '请输入设计X坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入设计X坐标" />
+            <NumericInput 
+              placeholder="输入设计X坐标" 
+              allowNegative={true}
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
@@ -261,7 +289,10 @@ const LastPileCheck = () => {
             name="designY"
             rules={[{ required: true, message: '请输入设计Y坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入设计Y坐标" />
+            <NumericInput 
+              placeholder="输入设计Y坐标" 
+              allowNegative={true}
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
@@ -270,7 +301,10 @@ const LastPileCheck = () => {
             name="designZ"
             rules={[{ required: true, message: '请输入设计Z坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入设计Z坐标" />
+            <NumericInput 
+              placeholder="输入设计Z坐标" 
+              allowNegative={true}
+            />
           </Form.Item>
         </Col>
       </Row>
@@ -282,7 +316,10 @@ const LastPileCheck = () => {
             name="actualX"
             rules={[{ required: true, message: '请输入实测X坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入实测X坐标" />
+            <NumericInput 
+              placeholder="输入实测X坐标" 
+              allowNegative={true}
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
@@ -291,7 +328,10 @@ const LastPileCheck = () => {
             name="actualY"
             rules={[{ required: true, message: '请输入实测Y坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入实测Y坐标" />
+            <NumericInput 
+              placeholder="输入实测Y坐标" 
+              allowNegative={true}
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
@@ -300,7 +340,10 @@ const LastPileCheck = () => {
             name="actualZ"
             rules={[{ required: true, message: '请输入实测Z坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入实测Z坐标" />
+            <NumericInput 
+              placeholder="输入实测Z坐标" 
+              allowNegative={true}
+            />
           </Form.Item>
         </Col>
       </Row>
@@ -343,19 +386,19 @@ const LastPileCheck = () => {
   return (
     <div>
       <Card className={styles.mainCard}>
-        <div className={styles.modeContainer}>
+        <div className={styles.calculationTypeContainer}>
           <Radio.Group 
             value={mode} 
             onChange={handleModeChange}
             buttonStyle="solid"
-            className={styles.modeSelector}
+            className={styles.calculationTypeSelector}
           >
             <Radio.Button value="simple">简易模式</Radio.Button>
             <Radio.Button value="professional">专业模式</Radio.Button>
           </Radio.Group>
         </div>
         
-        <Card title="尾桩检查计算参数" className={styles.card}>
+        <Card title="桩检查计算参数" className={styles.card}>
           {mode === 'simple' ? renderSimpleForm() : renderProfessionalForm()}
         </Card>
         

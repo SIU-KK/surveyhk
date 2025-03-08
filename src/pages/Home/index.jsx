@@ -1,6 +1,6 @@
 import React from 'react';
 import { Row, Col, Card } from 'antd';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   CompassOutlined,
   CalculatorOutlined,
@@ -126,10 +126,10 @@ const Home = () => {
       <footer className={styles.footer}>
         <div className={styles.footerContent}>
           <div className={styles.footerLinks}>
-            <a href="/about">關於我們</a>
-            <a href="/contact">聯繫我們</a>
-            <a href="/privacy">隱私政策</a>
-            <a href="/terms">使用條款</a>
+            <Link to="/about">關於我們</Link>
+            <Link to="/contact">聯繫我們</Link>
+            <Link to="/privacy">隱私政策</Link>
+            <Link to="/terms">使用條款</Link>
           </div>
           <div className={styles.copyright}>
             © {new Date().getFullYear()} 測量工程計算系統. All rights reserved.

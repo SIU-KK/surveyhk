@@ -1,9 +1,10 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card, Form, Input, Button, Row, Col, message, Typography, Divider, Table } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
 import styles from './ComponentStyles.module.css';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import NumericInput from './NumericInput';
 
 const { Link } = Typography;
 
@@ -52,6 +53,8 @@ const FirstPileCheck = () => {
   const [svgPath, setSvgPath] = useState('');
   const resultCardRef = useRef(null);
   const planCardRef = useRef(null);
+  const [pdfDataUrl, setPdfDataUrl] = useState(null);
+  const [calculationType, setCalculationType] = useState('simple');
 
   const generatePileSvg = (topE, topN, bottomE, bottomN, cutOffE, cutOffN, pileE, pileN, refBearingDecimal, topOS, topCH, bottomOS, bottomCH, cutOffOS, cutOffCH) => {
     // 画布大小和中心点
@@ -410,95 +413,103 @@ const FirstPileCheck = () => {
     `;
   };
   
-  const handleDownloadPDF = async () => {
+  const generatePDF = async () => {
     if (!calculationResults || Object.keys(calculationResults).length === 0) {
-      message.error('无计算结果可下载');
-      return;
+      return null;
     }
     
-    message.loading({ content: '正在生成PDF...', key: 'pdfLoading' });
-    
     try {
+      // 创建一个临时容器来渲染结果
+      const tempContainer = document.createElement('div');
+      tempContainer.style.position = 'absolute';
+      tempContainer.style.left = '-9999px';
+      tempContainer.style.top = '-9999px';
+      
+      // 复制结果卡片的内容到临时容器
+      if (resultCardRef.current) {
+        const resultClone = resultCardRef.current.cloneNode(true);
+        tempContainer.appendChild(resultClone);
+      }
+      
+      // 如果有SVG图，也添加到临时容器
+      if (planCardRef.current && svgPath) {
+        const planClone = planCardRef.current.cloneNode(true);
+        tempContainer.appendChild(planClone);
+      }
+      
+      // 将临时容器添加到文档中
+      document.body.appendChild(tempContainer);
+      
+      // 使用html2canvas捕获临时容器的内容
+      const canvas = await html2canvas(tempContainer, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      });
+      
+      // 从文档中移除临时容器
+      document.body.removeChild(tempContainer);
+      
+      // 创建PDF
+      const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4'
       });
       
+      // 获取PDF页面尺寸
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       
-      // 设置字体和标题
-      pdf.setFont('helvetica', 'bold');
-      pdf.setFontSize(16);
+      // 计算图像尺寸以适应PDF页面
+      const imgWidth = pdfWidth - 20; // 左右各留10mm边距
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
       
-      // 计算标题和内容位置
-      const titleMargin = 15; // 标题左边距
-      const titleY1 = 15; // 第一部分标题位置
-      
-      // 添加第一部分标题和分隔线
-      pdf.text('Cal. Result', titleMargin, titleY1);
-      pdf.setLineWidth(0.5);
-      pdf.line(titleMargin, titleY1 + 2, pdfWidth - titleMargin, titleY1 + 2);
-      
-      // 添加日期和桩号
-      pdf.setFontSize(12);
-      const currentDate = new Date().toISOString().split('T')[0];
-      const pileNo = calculationResults.pileNo || 'Unknown';
-      pdf.text(`Date: ${currentDate}`, pdfWidth - titleMargin, titleY1, { align: 'right' });
-      pdf.text(`Pile No.: ${pileNo}`, pdfWidth - titleMargin, titleY1 + 8, { align: 'right' });
-      
-      // 捕获计算结果卡片
-      let currentY = titleY1 + 10; // 从标题下方开始
-      
-      if (resultCardRef.current) {
-        const resultCanvas = await html2canvas(resultCardRef.current, {
-          scale: 2,
-          useCORS: true,
-          logging: false
-        });
-        
-        const resultImgData = resultCanvas.toDataURL('image/png');
-        const resultImgWidth = pdfWidth - 30;
-        const resultImgHeight = (resultCanvas.height * resultImgWidth) / resultCanvas.width;
-        
-        pdf.addImage(resultImgData, 'PNG', 15, currentY, resultImgWidth, resultImgHeight);
-        currentY += resultImgHeight + 20; // 更新Y坐标位置，留出20mm间距
+      // 如果图像高度超过页面高度，调整比例
+      let currentHeight = imgHeight;
+      if (imgHeight > pdfHeight - 20) { // 上下各留10mm边距
+        currentHeight = pdfHeight - 20;
+        const currentWidth = (canvas.width * currentHeight) / canvas.height;
+        pdf.addImage(imgData, 'PNG', (pdfWidth - currentWidth) / 2, 10, currentWidth, currentHeight);
+      } else {
+        pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
       }
       
-      // 添加第二部分标题(Ref. Plan)，确保它显示在正确位置
-      pdf.setFont('helvetica', 'bold');
-      pdf.setFontSize(16);
-      pdf.text('Ref. Plan', titleMargin, currentY);
-      pdf.setLineWidth(0.5);
-      pdf.line(titleMargin, currentY + 2, pdfWidth - titleMargin, currentY + 2);
-      
-      // 捕获图表卡片，但不添加"桩检查示意图"标题
-      if (planCardRef.current && svgPath) {
-        const planCanvas = await html2canvas(planCardRef.current.querySelector('.' + styles.svgContainer), {
-          scale: 2,
-          useCORS: true,
-          logging: false
-        });
-        
-        const planImgData = planCanvas.toDataURL('image/png');
-        const planImgWidth = pdfWidth - 30;
-        const planImgHeight = (planCanvas.height * planImgWidth) / planCanvas.width;
-        
-        // 图表显示在Ref. Plan标题下方
-        pdf.addImage(planImgData, 'PNG', 15, currentY + 10, planImgWidth, planImgHeight);
-      }
-      
-      // 保存PDF
-      pdf.save(`Pile_Check_${calculationResults.pileNo || 'Result'}.pdf`);
-      message.success({ content: 'PDF生成成功!', key: 'pdfLoading' });
+      // 生成PDF Blob
+      const pdfBlob = pdf.output('blob');
+      return URL.createObjectURL(pdfBlob);
     } catch (error) {
       console.error('PDF生成错误:', error);
-      message.error({ content: 'PDF生成失败，请重试!', key: 'pdfLoading' });
+      return null;
     }
   };
 
-  const onFinish = (values) => {
+  const handleDownloadPDF = () => {
+    if (pdfDataUrl) {
+      // 在新标签页打开PDF
+      window.open(pdfDataUrl, '_blank');
+    } else {
+      message.loading({ content: '正在生成PDF...', key: 'pdfLoading' });
+      
+      // 尝试重新生成PDF
+      generatePDF().then(url => {
+        if (url) {
+          setPdfDataUrl(url);
+          window.open(url, '_blank');
+          message.success({ content: 'PDF已在新标签页打开', key: 'pdfLoading' });
+        } else {
+          message.error({ content: 'PDF生成失败，请重试', key: 'pdfLoading' });
+        }
+      }).catch(error => {
+        console.error('PDF生成错误:', error);
+        message.error({ content: 'PDF生成失败，请重试', key: 'pdfLoading' });
+      });
+    }
+  };
+
+  const onFinish = async (values) => {
     try {
       // 获取基本数据
       const { 
@@ -780,9 +791,23 @@ const FirstPileCheck = () => {
         cutOffOS,
         cutOffCH
       );
-      setSvgPath(svgPathData);
       
+      setSvgPath(svgPathData);
       setCalculationResults(results);
+      
+      // 生成PDF数据URL
+      setTimeout(async () => {
+        try {
+          const pdfUrl = await generatePDF();
+          if (pdfUrl) {
+            setPdfDataUrl(pdfUrl);
+            console.log('PDF Blob URL已生成:', pdfUrl);
+          }
+        } catch (pdfError) {
+          console.error('生成PDF时出错:', pdfError);
+        }
+      }, 500);
+      
       message.success('计算完成');
     } catch (error) {
       console.error('计算错误:', error);
@@ -807,7 +832,7 @@ const FirstPileCheck = () => {
             name="stationE"
             rules={[{ required: true, message: '请输入测站E坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入测站E坐标" />
+            <NumericInput placeholder="输入测站E坐标" allowNegative={true} />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
@@ -816,7 +841,7 @@ const FirstPileCheck = () => {
             name="stationN"
             rules={[{ required: true, message: '请输入测站N坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入测站N坐标" />
+            <NumericInput placeholder="输入测站N坐标" allowNegative={true} />
           </Form.Item>
         </Col>
       </Row>
@@ -829,7 +854,10 @@ const FirstPileCheck = () => {
             name="pileNo"
             rules={[{ required: true, message: '请输入桩号' }]}
           >
-            <Input placeholder="输入桩号" />
+            <Input 
+              placeholder="输入桩号"
+              inputMode="text"
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
@@ -838,7 +866,7 @@ const FirstPileCheck = () => {
             name="pileE"
             rules={[{ required: true, message: '请输入桩E坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入桩E坐标" />
+            <NumericInput placeholder="输入桩E坐标" allowNegative={true} />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
@@ -847,7 +875,7 @@ const FirstPileCheck = () => {
             name="pileN"
             rules={[{ required: true, message: '请输入桩N坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入桩N坐标" />
+            <NumericInput placeholder="输入桩N坐标" allowNegative={true} />
           </Form.Item>
         </Col>
       </Row>
@@ -858,7 +886,7 @@ const FirstPileCheck = () => {
             name="pileCutOffLevel"
             rules={[{ required: true, message: '请输入桩切断面高程' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入桩切断面高程" />
+            <NumericInput placeholder="输入桩切断面高程" allowNegative={true} />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
@@ -867,7 +895,7 @@ const FirstPileCheck = () => {
             name="pileDiameter"
             rules={[{ required: true, message: '请输入桩直径' }]}
           >
-            <Input type="number" step="1" placeholder="输入桩直径(mm)" />
+            <NumericInput placeholder="输入桩直径" allowNegative={false} />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
@@ -876,7 +904,7 @@ const FirstPileCheck = () => {
             name="refBearing"
             rules={[{ required: true, message: '请输入参考方位角' }]}
           >
-            <Input placeholder="输入参考方位角(DD.MMSS)" />
+            <NumericInput placeholder="输入参考方位角(DD.MMSS)" allowNegative={false} />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
@@ -884,7 +912,7 @@ const FirstPileCheck = () => {
             label="Ratio Tolerance"
             name="ratioTolerance"
           >
-            <Input type="number" step="0.001" placeholder="输入容差比例(例如: 0.01)" />
+            <NumericInput placeholder="输入容差比例(例如: 0.01)" allowNegative={false} />
           </Form.Item>
         </Col>
       </Row>
@@ -898,7 +926,12 @@ const FirstPileCheck = () => {
             name="topLeftBearing"
             rules={[{ required: true, message: '请输入左方位角' }]}
           >
-            <Input placeholder="输入左方位角" />
+            <Input 
+              placeholder="输入左方位角" 
+              inputMode="decimal"
+              type="text"
+              pattern="[0-9]*[.,]?[0-9]*"
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
@@ -907,7 +940,12 @@ const FirstPileCheck = () => {
             name="topRightBearing"
             rules={[{ required: true, message: '请输入右方位角' }]}
           >
-            <Input placeholder="输入右方位角" />
+            <Input 
+              placeholder="输入右方位角" 
+              inputMode="decimal"
+              type="text"
+              pattern="[0-9]*[.,]?[0-9]*"
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
@@ -946,7 +984,11 @@ const FirstPileCheck = () => {
             name="topHzDist"
             rules={[{ required: true, message: '请输入水平距离' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入水平距离" />
+            <Input 
+              placeholder="输入水平距离" 
+              inputMode="decimal"
+              pattern="-?[0-9]*[.,]?[0-9]*"
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
@@ -955,7 +997,11 @@ const FirstPileCheck = () => {
             name="topRL"
             rules={[{ required: true, message: '请输入高程' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入高程" />
+            <Input 
+              placeholder="输入高程" 
+              inputMode="decimal"
+              pattern="-?[0-9]*[.,]?[0-9]*"
+            />
           </Form.Item>
         </Col>
       </Row>
@@ -968,7 +1014,12 @@ const FirstPileCheck = () => {
             name="bottomLeftBearing"
             rules={[{ required: true, message: '请输入左方位角' }]}
           >
-            <Input placeholder="输入左方位角" />
+            <Input 
+              placeholder="输入左方位角" 
+              inputMode="decimal"
+              type="text"
+              pattern="[0-9]*[.,]?[0-9]*"
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
@@ -977,7 +1028,12 @@ const FirstPileCheck = () => {
             name="bottomRightBearing"
             rules={[{ required: true, message: '请输入右方位角' }]}
           >
-            <Input placeholder="输入右方位角" />
+            <Input 
+              placeholder="输入右方位角" 
+              inputMode="decimal"
+              type="text"
+              pattern="[0-9]*[.,]?[0-9]*"
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
@@ -1016,7 +1072,11 @@ const FirstPileCheck = () => {
             name="bottomHzDist"
             rules={[{ required: true, message: '请输入水平距离' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入水平距离" />
+            <Input 
+              placeholder="输入水平距离" 
+              inputMode="decimal"
+              pattern="-?[0-9]*[.,]?[0-9]*"
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
@@ -1025,7 +1085,11 @@ const FirstPileCheck = () => {
             name="bottomRL"
             rules={[{ required: true, message: '请输入高程' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入高程" />
+            <Input 
+              placeholder="输入高程" 
+              inputMode="decimal"
+              pattern="-?[0-9]*[.,]?[0-9]*"
+            />
           </Form.Item>
         </Col>
       </Row>
@@ -1315,55 +1379,41 @@ const FirstPileCheck = () => {
     );
   };
 
+  // 组件卸载时清理资源
+  useEffect(() => {
+    return () => {
+      // 清理PDF Blob URL
+      if (pdfDataUrl) {
+        URL.revokeObjectURL(pdfDataUrl);
+      }
+    };
+  }, [pdfDataUrl]);
+
   return (
     <div className={styles.container}>
-      <Card 
-        title={
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>头桩检查（简单版）</span>
-            <Link 
-              onClick={() => {
-                const tabsElement = document.querySelector('.ant-tabs-nav-list');
-                if (tabsElement) {
-                  const tabNodes = tabsElement.childNodes;
-                  // 查找头桩检查(专业版)的选项卡并点击
-                  for (let i = 0; i < tabNodes.length; i++) {
-                    if (tabNodes[i].textContent.includes('头桩检查(专业版)')) {
-                      tabNodes[i].click();
-                      break;
-                    }
-                  }
-                }
-              }}
-              style={{ fontSize: '14px' }}
-            >
-              切换到专业版 &gt;
-            </Link>
-          </div>
-        } 
-        className={styles.formCard}
-      >
+      <div className={styles.mainContent}>
         {renderForm()}
-      </Card>
+      </div>
       
       {calculationResults && Object.keys(calculationResults).length > 0 && (
         <>
-          <Card
-            className={styles.resultCard}
+          <div
+            className={styles.resultSection}
             ref={resultCardRef}
+            style={{ marginTop: '16px', borderTop: '1px solid #f0f0f0', paddingTop: '16px' }}
           >
             {renderCalculationResults()}
-          </Card>
+          </div>
           
           {svgPath && (
-            <Card
-              className={styles.resultCard}
-              title="桩检查示意图"
+            <div 
+              className={styles.svgSection} 
               ref={planCardRef}
-              style={{ marginTop: '16px' }}
+              style={{ marginTop: '16px', borderTop: '1px solid #f0f0f0', paddingTop: '16px' }}
             >
+              <div className={styles.sectionTitle}>Check Plan</div>
               <div className={styles.svgContainer} dangerouslySetInnerHTML={{ __html: svgPath }}></div>
-            </Card>
+            </div>
           )}
         </>
       )}

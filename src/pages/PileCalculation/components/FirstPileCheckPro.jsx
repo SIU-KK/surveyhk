@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, Form, Input, Button, Select, Row, Col, Table, message, Divider, Tooltip, Typography } from 'antd';
 import { InfoCircleOutlined, DownloadOutlined } from '@ant-design/icons';
 import styles from './ComponentStyles.module.css';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
+import NumericInput from './NumericInput';
 
 const { Option } = Select;
 const { Link } = Typography;
@@ -151,7 +152,10 @@ const FirstPileCheckPro = () => {
             name="pileNo"
             rules={[{ required: true, message: '请输入桩号' }]}
           >
-            <Input placeholder="输入桩号" />
+            <Input 
+              placeholder="输入桩号" 
+              inputMode="text"
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={8}>
@@ -164,11 +168,11 @@ const FirstPileCheckPro = () => {
         </Col>
         <Col xs={24} sm={12} md={8}>
           <Form.Item
-            label="桩直径(mm)"
+            label="桩直径"
             name="pileDiameter"
             rules={[{ required: true, message: '请输入桩直径' }]}
           >
-            <Input type="number" step="1" placeholder="输入桩直径" />
+            <NumericInput placeholder="输入桩直径" allowNegative={false} />
           </Form.Item>
         </Col>
       </Row>
@@ -177,29 +181,29 @@ const FirstPileCheckPro = () => {
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} md={8}>
           <Form.Item
-            label="X坐标"
+            label="设计X坐标"
             name="designX"
             rules={[{ required: true, message: '请输入设计X坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入设计X坐标" />
+            <NumericInput placeholder="输入设计X坐标" allowNegative={true} />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={8}>
           <Form.Item
-            label="Y坐标"
+            label="设计Y坐标"
             name="designY"
             rules={[{ required: true, message: '请输入设计Y坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入设计Y坐标" />
+            <NumericInput placeholder="输入设计Y坐标" allowNegative={true} />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={8}>
           <Form.Item
-            label="Z坐标"
+            label="设计Z坐标"
             name="designZ"
             rules={[{ required: true, message: '请输入设计Z坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入设计Z坐标" />
+            <NumericInput placeholder="输入设计Z坐标" allowNegative={true} />
           </Form.Item>
         </Col>
       </Row>
@@ -208,29 +212,29 @@ const FirstPileCheckPro = () => {
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} md={8}>
           <Form.Item
-            label="X坐标"
+            label="实际X坐标"
             name="actualX"
             rules={[{ required: true, message: '请输入实际X坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入实际X坐标" />
+            <NumericInput placeholder="输入实际X坐标" allowNegative={true} />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={8}>
           <Form.Item
-            label="Y坐标"
+            label="实际Y坐标"
             name="actualY"
             rules={[{ required: true, message: '请输入实际Y坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入实际Y坐标" />
+            <NumericInput placeholder="输入实际Y坐标" allowNegative={true} />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={8}>
           <Form.Item
-            label="Z坐标"
+            label="实际Z坐标"
             name="actualZ"
             rules={[{ required: true, message: '请输入实际Z坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入实际Z坐标" />
+            <NumericInput placeholder="输入实际Z坐标" allowNegative={true} />
           </Form.Item>
         </Col>
       </Row>
@@ -239,12 +243,11 @@ const FirstPileCheckPro = () => {
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} md={8}>
           <Form.Item
-            label="允许偏差(mm)"
-            name="tolerance"
-            initialValue={50}
+            label="允许偏差"
+            name="allowableDeviation"
             rules={[{ required: true, message: '请输入允许偏差' }]}
           >
-            <Input type="number" step="1" placeholder="输入允许偏差" />
+            <NumericInput placeholder="输入允许偏差" allowNegative={true} />
           </Form.Item>
         </Col>
       </Row>
@@ -379,7 +382,7 @@ const FirstPileCheckPro = () => {
             <Col xs={24}>
               <div className={styles.resultItem}>
                 <span className={styles.resultLabel}>允许偏差:</span>
-                <span className={styles.resultValue}>{calculationResults.tolerance} mm</span>
+                <span className={styles.resultValue}>{calculationResults.allowableDeviation} mm</span>
               </div>
             </Col>
             <Col xs={24}>
@@ -398,33 +401,10 @@ const FirstPileCheckPro = () => {
 
   return (
     <div className={styles.container}>
-      <Card 
-        title={
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>头桩检查（专业版）</span>
-            <Link 
-              onClick={() => {
-                const tabsElement = document.querySelector('.ant-tabs-nav-list');
-                if (tabsElement) {
-                  const tabNodes = tabsElement.childNodes;
-                  // 查找头桩检查(简单版)的选项卡并点击
-                  for (let i = 0; i < tabNodes.length; i++) {
-                    if (tabNodes[i].textContent.includes('头桩检查(简单版)')) {
-                      tabNodes[i].click();
-                      break;
-                    }
-                  }
-                }
-              }}
-              style={{ fontSize: '14px' }}
-            >
-              返回简单版 &gt;
-            </Link>
-          </div>
-        }
-        className={styles.formCard}
-      >
-        {renderForm()}
+      <Card className={styles.mainCard}>
+        <Card title="桩检查计算参数" className={styles.card}>
+          {renderForm()}
+        </Card>
       </Card>
       
       {Object.keys(calculationResults).length > 0 && (

@@ -1,34 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Card, Form, Input, Button, Radio, Row, Col, Table, message, Tabs, Select, Divider } from 'antd';
-import { DownloadOutlined } from '@ant-design/icons';
+import { Card, Form, Input, Button, Radio, Row, Col, Table, message, Tabs, Select, Divider, Tooltip, Typography } from 'antd';
+import { DownloadOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import styles from './ComponentStyles.module.css';
+import NumericInput from './NumericInput';
 
 const { TabPane } = Tabs;
 const { Option } = Select;
 
-const PileLayout = () => {
+const PileLayout = ({ mode = 'simple' }) => {
   const [form] = Form.useForm();
-  const [mode, setMode] = useState('simple'); // 'simple' 或 'professional'
-  const [calculationResults, setCalculationResults] = useState([]);
-  const [directionType, setDirectionType] = useState('endPoint'); // 'endPoint', 'azimuth', 'north'
+  const [calculationResults, setCalculationResults] = useState({});
   const [svgPath, setSvgPath] = useState('');
   const resultCardRef = useRef(null);
   const planCardRef = useRef(null);
-
-  const handleModeChange = (e) => {
-    setMode(e.target.value);
-    form.resetFields();
-    setCalculationResults([]);
-    setSvgPath('');
-  };
+  const [direction, setDirection] = useState('forward');
 
   const handleDirectionChange = (value) => {
-    setDirectionType(value);
-    form.resetFields(['endX', 'endY', 'azimuth']);
-    setCalculationResults([]);
-    setSvgPath('');
+    setDirection(value);
   };
 
   const generateSvgPath = (pileX, pileY, settingX, settingY, offset, chord, azimuth) => {
@@ -102,13 +92,13 @@ const PileLayout = () => {
     // 根据方向设置类型确定北方指向
     let northArrowAngle;
     if (mode === 'professional') {
-      if (directionType === 'north') {
+      if (direction === 'north') {
         // 正北方向，箭头指向正上方
         northArrowAngle = -Math.PI/2;
-      } else if (directionType === 'azimuth') {
+      } else if (direction === 'azimuth') {
         // 方位角方式，箭头根据输入的方位角确定
         northArrowAngle = azimuthRad - Math.PI/2;
-      } else if (directionType === 'endPoint') {
+      } else if (direction === 'endPoint') {
         // 终点坐标方式，箭头根据计算的方位角确定
         northArrowAngle = azimuthRad - Math.PI/2;
       }
@@ -306,214 +296,114 @@ const PileLayout = () => {
 
   const onFinish = (values) => {
     try {
-      let calculationResult = {};
+      // 提取表单数据
+      const {
+        pileNo, pileE, pileN, directionType, endE, endN, azimuth,
+        settingE, settingN, settingH
+      } = values;
       
-      if (mode === 'simple') {
-        // 简单模式的计算
-        const pileE = parseFloat(values.pileE);
-        const pileN = parseFloat(values.pileN);
-        const settingE = parseFloat(values.settingE);
-        const settingN = parseFloat(values.settingN);
-        const settingGL = parseFloat(values.settingGL);
-        
-        // 保存基本信息
-        calculationResult.pileNo = values.pileNo;
-        calculationResult.pileType = values.pileType;
-        calculationResult.pileDiameter = values.pileDiameter;
-        calculationResult.pileE = pileE;
-        calculationResult.pileN = pileN;
-        calculationResult.settingE = settingE;
-        calculationResult.settingN = settingN;
-        calculationResult.settingGL = settingGL;
-        
-        // 计算差值（毫米）
-        calculationResult.diffE = (settingE - pileE) * 1000;
-        calculationResult.diffN = (settingN - pileN) * 1000;
-        calculationResult.resultantMm = Math.sqrt(
-          Math.pow(calculationResult.diffE, 2) + 
-          Math.pow(calculationResult.diffN, 2)
-        );
-        
-        // 处理方位角
-        let azimuthValue;
-        if (directionType === 'azimuth') {
-          calculationResult.azimuth = values.azimuth;
-          azimuthValue = DMSToDecimal(parseFloat(values.azimuth));
-        } else if (directionType === 'north') {
-          azimuthValue = 0;
-          calculationResult.azimuth = '000.0000';
-        } else if (directionType === 'endPoint') {
-          // 计算方位角
-          const endX = parseFloat(values.endX);
-          const endY = parseFloat(values.endY);
-          const dx = endX - pileE;
-          const dy = endY - pileN;
-          azimuthValue = (Math.atan2(dx, dy) * 180 / Math.PI) % 360;
-          if (azimuthValue < 0) azimuthValue += 360;
-          calculationResult.refBearing = decimalToDMS(azimuthValue);
-        }
-        
-        // 计算O/S和C/H
-        const dx = settingE - pileE;
-        const dy = settingN - pileN;
-        const radBearing = azimuthValue * Math.PI / 180;
-        const offsetDistance = dx * Math.cos(radBearing) - dy * Math.sin(radBearing);
-        const chordDistance = dx * Math.sin(radBearing) + dy * Math.cos(radBearing);
-        
-        // 保存计算结果
-        calculationResult.offsetDistance = offsetDistance;
-        calculationResult.chordDistance = chordDistance;
-        
-        // 生成示意图
-        const svgPath = generateSvgPath(
-          pileE, 
-          pileN, 
-          settingE, 
-          settingN, 
-          offsetDistance, 
-          chordDistance, 
-          azimuthValue
-        );
-        
-        setSvgPath(svgPath);
-      } else {
-        // 专业模式的计算保持不变
-        const { pileNo } = values;
-        
-        // 获取测站点数据
-        const stationE = parseFloat(values.stationE);
-        const stationN = parseFloat(values.stationN);
-        const stationH = parseFloat(values.stationH);
-        const instrumentHeight = parseFloat(values.instrumentHeight);
-        
-        // 获取放样数据
-        const settingBRE = parseFloat(values.settingBRE);
-        const settingVA = parseFloat(values.settingVA);
-        const settingSD = parseFloat(values.settingSD);
-        const settingPH = parseFloat(values.settingPH);
-        
-        // 获取设计坐标
-        const pileE = parseFloat(values.pileE);
-        const pileN = parseFloat(values.pileN);
-        const pileZ = parseFloat(values.pileZ);
-        
-        // 将BRE和VA转换为十进制度
-        const breDecimal = DMSToDecimal(settingBRE);
-        const vaDecimal = DMSToDecimal(settingVA);
-        
-        // 转换为弧度
-        const breRad = (breDecimal * Math.PI) / 180;
-        const vaRad = (vaDecimal * Math.PI) / 180;
-        
-        // 计算水平距离
-        const horizontalDistance = Math.abs(Math.sin(vaRad) * settingSD);
-        
-        // 计算E和N的增量
-        const deltaE = Math.sin(breRad) * horizontalDistance;
-        const deltaN = Math.cos(breRad) * horizontalDistance;
-        
-        // 计算高程增量
-        const deltaH = Math.cos(vaRad) * settingSD;
-        
-        // 计算实测坐标
-        const checkedE = stationE + deltaE;
-        const checkedN = stationN + deltaN;
-        const checkedH = stationH + instrumentHeight + deltaH - settingPH;
-        
-        // 计算差值（转换为毫米）
-        const diffE = (pileE - checkedE) * 1000;
-        const diffN = (pileN - checkedN) * 1000;
-        const resultantMm = Math.sqrt(diffE * diffE + diffN * diffN);
-        
-        // 计算真实方位角
-        const trueBearing1 = calculateTrueBearing(
-          parseFloat(values.stationE),
-          parseFloat(values.stationN),
-          parseFloat(values.backsightE1),
-          parseFloat(values.backsightN1)
-        );
-        
-        let trueBearing2 = null;
-        let angleDifference = null;
-        
-        if (values.backsightE2 && values.backsightN2) {
-          trueBearing2 = calculateTrueBearing(
-            parseFloat(values.stationE),
-            parseFloat(values.stationN),
-            parseFloat(values.backsightE2),
-            parseFloat(values.backsightN2)
-          );
-        }
-        
-        // 计算角度差
-        angleDifference = calculateAngleDifference(
-          trueBearing1,
-          trueBearing2,
-          values.obsBRE1,
-          values.obsBRE2
-        );
-        
-        // 存储计算结果
-        calculationResult = {
-          ...values,
-          // 设计坐标
-          pileE: parseFloat(pileE),
-          pileN: parseFloat(pileN),
-          pileZ: parseFloat(pileZ),
-          // 实测坐标
-          settingE: parseFloat(checkedE),
-          settingN: parseFloat(checkedN),
-          settingH: parseFloat(checkedH),
-          // 测站点数据
-          stationE: parseFloat(values.stationE),
-          stationN: parseFloat(values.stationN),
-          stationH: parseFloat(values.stationH),
-          instrumentHeight: parseFloat(values.instrumentHeight),
-          // 后视点1数据
-          backsightE1: parseFloat(values.backsightE1),
-          backsightN1: parseFloat(values.backsightN1),
-          backsightH1: parseFloat(values.backsightH1),
-          obsBRE1: parseFloat(values.obsBRE1),
-          obsVA1: parseFloat(values.obsVA1),
-          obsSD1: parseFloat(values.obsSD1),
-          obsPH1: parseFloat(values.obsPH1),
-          // 后视点2数据（如果存在）
-          backsightE2: values.backsightE2 ? parseFloat(values.backsightE2) : null,
-          backsightN2: values.backsightN2 ? parseFloat(values.backsightN2) : null,
-          backsightH2: values.backsightH2 ? parseFloat(values.backsightH2) : null,
-          obsBRE2: values.obsBRE2 ? parseFloat(values.obsBRE2) : null,
-          obsVA2: values.obsVA2 ? parseFloat(values.obsVA2) : null,
-          obsSD2: values.obsSD2 ? parseFloat(values.obsSD2) : null,
-          obsPH2: values.obsPH2 ? parseFloat(values.obsPH2) : null,
-          // 差值（毫米）
-          diffE,
-          diffN,
-          resultantMm,
-          // 观测数据
-          settingBRE: parseFloat(settingBRE),
-          settingVA: parseFloat(settingVA),
-          settingSD: parseFloat(settingSD),
-          settingPH: parseFloat(settingPH),
-          // 其他信息
-          jobNo: values.jobNo,
-          formNo: values.formNo,
-          surveyedBy: values.surveyedBy,
-          instrument: values.instrument,
-          surveyDate: values.surveyDate,
-          serialNumber: values.serialNumber,
-          surveyJob: values.surveyJob,
-          pileDiameter: parseFloat(values.pileDiameter) || null,
-          pileType: values.pileType,
-          refBearing: decimalToDMS(breDecimal),
-          trueBearing1,
-          trueBearing2,
-          angleDifference
-        };
-        
-        // 生成示意图
-        const svgData = generateSvgPath(pileE, pileN, checkedE, checkedN, diffE/1000, diffN/1000, breDecimal);
-        setSvgPath(svgData);
+      // 确保必要的数据存在
+      if (!pileE || !pileN || !settingE || !settingN) {
+        message.error('请填写必要的坐标信息');
+        return;
       }
+      
+      // 转换为数值
+      const pileEVal = parseFloat(pileE);
+      const pileNVal = parseFloat(pileN);
+      const settingEVal = parseFloat(settingE);
+      const settingNVal = parseFloat(settingN);
+      
+      // 计算桩点到放样点的向量
+      const diffE = settingEVal - pileEVal;
+      const diffN = settingNVal - pileNVal;
+      
+      // 计算水平距离
+      const horizontalDistance = Math.sqrt(diffE * diffE + diffN * diffN);
+      
+      // 计算方位角
+      let breDecimal;
+      
+      if (directionType === 'north') {
+        // 正北方向
+        breDecimal = 0;
+      } else if (directionType === 'azimuth') {
+        // 使用输入的方位角
+        breDecimal = DMSToDecimal(parseFloat(azimuth));
+      } else if (directionType === 'endPoint') {
+        // 使用终点坐标计算方位角
+        const endEVal = parseFloat(endE);
+        const endNVal = parseFloat(endN);
+        
+        // 计算桩点到终点的向量
+        const lineVectorE = endEVal - pileEVal;
+        const lineVectorN = endNVal - pileNVal;
+        
+        // 计算方位角
+        breDecimal = Math.atan2(lineVectorE, lineVectorN) * 180 / Math.PI;
+        if (breDecimal < 0) {
+          breDecimal += 360;
+        }
+      }
+      
+      // 计算放样点相对于桩点的方位角
+      let settingBRE = Math.atan2(diffE, diffN) * 180 / Math.PI;
+      if (settingBRE < 0) {
+        settingBRE += 360;
+      }
+      
+      // 计算角度差
+      let angleDifference = settingBRE - breDecimal;
+      if (angleDifference > 180) {
+        angleDifference -= 360;
+      } else if (angleDifference < -180) {
+        angleDifference += 360;
+      }
+      
+      // 计算偏移距离
+      const offsetDistance = horizontalDistance * Math.sin(angleDifference * Math.PI / 180);
+      const chordDistance = horizontalDistance * Math.cos(angleDifference * Math.PI / 180);
+      
+      // 计算高程差（如果有高程数据）
+      let heightDifference = null;
+      if (settingH) {
+        const settingHVal = parseFloat(settingH);
+        heightDifference = settingHVal - (values.pileH ? parseFloat(values.pileH) : 0);
+      }
+      
+      // 格式化结果
+      const calculationResult = {
+        pileNo,
+        pileE: pileEVal,
+        pileN: pileNVal,
+        settingE: settingEVal,
+        settingN: settingNVal,
+        horizontalDistance: horizontalDistance,
+        refBearing: decimalToDMS(breDecimal),
+        settingBearing: decimalToDMS(settingBRE),
+        angleDifference: angleDifference,
+        offsetDistance: offsetDistance,
+        chordDistance: chordDistance,
+        // 添加用于显示的差值（毫米）
+        diffE: (settingEVal - pileEVal) * 1000,
+        diffN: (settingNVal - pileNVal) * 1000,
+        resultantMm: Math.sqrt(Math.pow((settingEVal - pileEVal) * 1000, 2) + Math.pow((settingNVal - pileNVal) * 1000, 2))
+      };
+      
+      // 添加高程差（如果有）
+      if (heightDifference !== null) {
+        calculationResult.heightDifference = heightDifference;
+        calculationResult.settingGL = parseFloat(settingH);
+      }
+      
+      // 添加方位角（如果使用方位角模式）
+      if (directionType === 'azimuth') {
+        calculationResult.azimuth = azimuth;
+      }
+      
+      // 生成示意图
+      const svgData = generateSvgPath(pileEVal, pileNVal, settingEVal, settingNVal, diffE/1000, diffN/1000, breDecimal);
+      setSvgPath(svgData);
       
       setCalculationResults(calculationResult);
       message.success('计算完成');
@@ -526,85 +416,77 @@ const PileLayout = () => {
 
   // 生成PDF的函数
   const handleDownloadPDF = async () => {
-    // 确保结果已经计算
-    if (!calculationResults || !svgPath) {
-      message.warning('请先进行计算后再下载PDF');
-      return;
-    }
-    
-    message.loading({ content: '正在生成PDF...', key: 'pdfLoading' });
-    
     try {
-      // 创建PDF实例
+      message.loading({ content: '正在生成PDF...', key: 'pdfLoading' });
+      
+      // 创建一个临时容器来渲染结果，以便于捕获完整的内容
+      const tempContainer = document.createElement('div');
+      tempContainer.style.position = 'absolute';
+      tempContainer.style.left = '-9999px';
+      tempContainer.style.width = '1000px'; // 固定宽度，模拟桌面视图
+      document.body.appendChild(tempContainer);
+      
+      // 克隆结果卡片内容
+      const resultClone = resultCardRef.current.cloneNode(true);
+      resultClone.style.padding = '20px';
+      resultClone.style.background = 'white';
+      resultClone.style.boxShadow = 'none';
+      resultClone.style.width = '100%';
+      tempContainer.appendChild(resultClone);
+      
+      // 如果有SVG图，也克隆它
+      if (planCardRef.current) {
+        const planClone = planCardRef.current.cloneNode(true);
+        planClone.style.padding = '20px';
+        planClone.style.background = 'white';
+        planClone.style.boxShadow = 'none';
+        planClone.style.width = '100%';
+        tempContainer.appendChild(planClone);
+      }
+      
+      // 使用html2canvas捕获临时容器内容
+      const canvas = await html2canvas(tempContainer, {
+        scale: 2, // 提高清晰度
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      });
+      
+      // 移除临时容器
+      document.body.removeChild(tempContainer);
+      
+      // 创建PDF
+      const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4'
       });
       
-      // 获取PDF页面尺寸
+      // 计算PDF页面尺寸和图像尺寸
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+      const imgX = (pdfWidth - imgWidth * ratio) / 2;
+      const imgY = 10;
       
-      // 设置标题字体和大小
-      pdf.setFont('helvetica', 'bold');
-      pdf.setFontSize(16);
+      // 添加图像到PDF
+      pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
       
-      // 添加标题和分隔线
-      const titleMargin = 15; // 标题左边距
-      const titleY1 = 15;
-      const titleY2 = pdfHeight/2 + 10;
-      
-      // 添加标题
-      pdf.text('Cal. Result', titleMargin, titleY1);
-      pdf.text('Ref. plan', titleMargin, titleY2);
-      
-      // 添加分隔线
-      pdf.setLineWidth(0.5);
-      pdf.line(titleMargin, titleY1 + 2, pdfWidth - titleMargin, titleY1 + 2);
-      pdf.line(titleMargin, titleY2 + 2, pdfWidth - titleMargin, titleY2 + 2);
-      
-      // 捕获计算结果卡片
-      if (resultCardRef.current) {
-        const resultCanvas = await html2canvas(resultCardRef.current, {
-          scale: 2,
-          useCORS: true,
-          logging: false
-        });
-        
-        const resultImgData = resultCanvas.toDataURL('image/png');
-        const imgWidth = resultCanvas.width;
-        const imgHeight = resultCanvas.height;
-        const ratio = Math.min(pdfWidth / imgWidth, (pdfHeight / 2 - 25) / imgHeight);
-        
-        // 放在上半部分，水平居中，标题下方
-        pdf.addImage(resultImgData, 'PNG', (pdfWidth - imgWidth * ratio) / 2, titleY1 + 5, imgWidth * ratio, imgHeight * ratio);
-      }
-      
-      // 捕获示意图卡片
-      if (planCardRef.current) {
-        const planCanvas = await html2canvas(planCardRef.current, {
-          scale: 2,
-          useCORS: true,
-          logging: false
-        });
-        
-        const planImgData = planCanvas.toDataURL('image/png');
-        const imgWidth = planCanvas.width;
-        const imgHeight = planCanvas.height;
-        const ratio = Math.min(pdfWidth / imgWidth, (pdfHeight / 2 - 25) / imgHeight);
-        
-        // 放在下半部分，水平居中对齐，标题下方
-        pdf.addImage(planImgData, 'PNG', (pdfWidth - imgWidth * ratio) / 2, titleY2 + 5, imgWidth * ratio, imgHeight * ratio);
-      }
-      
-      // 获取桩号和当前日期
-      const pileNo = calculationResults.pileNo || 'Unknown';
-      const currentDate = new Date().toISOString().split('T')[0];
+      // 添加页脚
+      const today = new Date();
+      const dateStr = today.toLocaleDateString();
+      pdf.setFontSize(10);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text(`生成日期: ${dateStr}`, 10, pdfHeight - 10);
       
       // 保存PDF
-      pdf.save(`${pileNo}_${currentDate}.pdf`);
-      message.success({ content: 'PDF已生成并下载', key: 'pdfLoading' });
+      const pileNo = form.getFieldValue('pileNo') || '未命名';
+      pdf.save(`桩计算结果_${pileNo}_${dateStr.replace(/\//g, '-')}.pdf`);
+      
+      message.success({ content: 'PDF生成成功', key: 'pdfLoading' });
     } catch (error) {
       console.error('PDF生成错误:', error);
       message.error({ content: 'PDF生成失败', key: 'pdfLoading' });
@@ -624,7 +506,10 @@ const PileLayout = () => {
             name="pileNo"
             rules={[{ required: true, message: '请输入桩号' }]}
           >
-            <Input placeholder="输入桩号" />
+            <Input 
+              placeholder="输入桩号" 
+              inputMode="text"
+            />
           </Form.Item>
         </Col>
       </Row>
@@ -633,20 +518,30 @@ const PileLayout = () => {
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} md={8}>
           <Form.Item
-            label="E"
+            label="桩E坐标"
             name="pileE"
             rules={[{ required: true, message: '请输入桩E坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入桩E坐标" />
+            <Input 
+              placeholder="输入桩E坐标" 
+              inputMode="decimal"
+              type="text"
+              pattern="[0-9]*[.,]?[0-9]*"
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={8}>
           <Form.Item
-            label="N"
+            label="桩N坐标"
             name="pileN"
             rules={[{ required: true, message: '请输入桩N坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入桩N坐标" />
+            <Input 
+              placeholder="输入桩N坐标" 
+              inputMode="decimal"
+              type="text"
+              pattern="[0-9]*[.,]?[0-9]*"
+            />
           </Form.Item>
         </Col>
       </Row>
@@ -657,7 +552,7 @@ const PileLayout = () => {
           <Form.Item
             label="方向类型"
             name="directionType"
-            initialValue={directionType}
+            initialValue={direction}
           >
             <Select onChange={handleDirectionChange}>
               <Option value="endPoint">结束点坐标</Option>
@@ -667,37 +562,52 @@ const PileLayout = () => {
           </Form.Item>
         </Col>
         
-        {directionType === 'endPoint' && (
+        {direction === 'endPoint' && (
           <>
             <Col xs={24} sm={12} md={8}>
               <Form.Item
                 label="终点E坐标"
-                name="endX"
+                name="endE"
                 rules={[{ required: true, message: '请输入终点E坐标' }]}
               >
-                <Input type="number" step="0.001" placeholder="输入终点E坐标" />
+                <Input 
+                  placeholder="输入终点E坐标" 
+                  inputMode="decimal"
+                  type="text"
+                  pattern="[0-9]*[.,]?[0-9]*"
+                />
               </Form.Item>
             </Col>
             <Col xs={24} sm={12} md={8}>
               <Form.Item
                 label="终点N坐标"
-                name="endY"
+                name="endN"
                 rules={[{ required: true, message: '请输入终点N坐标' }]}
               >
-                <Input type="number" step="0.001" placeholder="输入终点N坐标" />
+                <Input 
+                  placeholder="输入终点N坐标" 
+                  inputMode="decimal"
+                  type="text"
+                  pattern="[0-9]*[.,]?[0-9]*"
+                />
               </Form.Item>
             </Col>
           </>
         )}
         
-        {directionType === 'azimuth' && (
+        {direction === 'azimuth' && (
           <Col xs={24} sm={12} md={8}>
             <Form.Item
-              label="方位角(DD.MMSS)"
+              label="方位角(°)"
               name="azimuth"
               rules={[{ required: true, message: '请输入方位角' }]}
             >
-              <Input placeholder="输入方位角(例如: 045.3030)" />
+              <Input 
+                placeholder="输入方位角 (ddd.mmss)" 
+                inputMode="decimal"
+                type="text"
+                pattern="[0-9]*[.,]?[0-9]*"
+              />
             </Form.Item>
           </Col>
         )}
@@ -707,56 +617,75 @@ const PileLayout = () => {
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} md={8}>
           <Form.Item
-            label="E"
+            label="放样点E坐标"
             name="settingE"
             rules={[{ required: true, message: '请输入放样点E坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入放样点E坐标" />
+            <Input 
+              placeholder="输入放样点E坐标" 
+              inputMode="decimal"
+              type="text"
+              pattern="[0-9]*[.,]?[0-9]*"
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={8}>
           <Form.Item
-            label="N"
+            label="放样点N坐标"
             name="settingN"
             rules={[{ required: true, message: '请输入放样点N坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入放样点N坐标" />
+            <Input 
+              placeholder="输入放样点N坐标" 
+              inputMode="decimal"
+              type="text"
+              pattern="[0-9]*[.,]?[0-9]*"
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={8}>
           <Form.Item
-            label="G.L"
-            name="settingGL"
-            rules={[{ required: true, message: '请输入放样点地面高程' }]}
+            label="放样点地面高程"
+            name="settingH"
           >
-            <Input type="number" step="0.001" placeholder="输入放样点地面高程" />
+            <Input 
+              placeholder="输入放样点地面高程" 
+              inputMode="text"
+            />
           </Form.Item>
         </Col>
       </Row>
       
-      <Form.Item>
-        <Button type="primary" htmlType="submit">
-          计算
-        </Button>
-        <Button 
-          style={{ marginLeft: 8 }} 
-          onClick={() => {
-            form.resetFields();
-            setCalculationResults([]);
-            setSvgPath('');
-          }}
-        >
-          重置
-        </Button>
-        <Button 
-          type="primary" 
-          icon={<DownloadOutlined />} 
-          style={{ marginLeft: 8 }}
-          onClick={handleDownloadPDF}
-        >
-          下载PDF
-        </Button>
-      </Form.Item>
+      <Row gutter={[16, 16]}>
+        <Col xs={24} sm={12} md={8}>
+          <Form.Item>
+            <Button type="primary" htmlType="submit" block>
+              计算
+            </Button>
+          </Form.Item>
+        </Col>
+        <Col xs={24} sm={12} md={8}>
+          <Form.Item>
+            <Button onClick={() => form.resetFields()} block>
+              重置
+            </Button>
+          </Form.Item>
+        </Col>
+        {Object.keys(calculationResults).length > 0 && (
+          <Col xs={24} sm={12} md={8}>
+            <Form.Item>
+              <Button 
+                type="default" 
+                onClick={handleDownloadPDF} 
+                icon={<DownloadOutlined />}
+                block
+              >
+                下载PDF
+              </Button>
+            </Form.Item>
+          </Col>
+        )}
+      </Row>
     </Form>
   );
 
@@ -768,28 +697,49 @@ const PileLayout = () => {
     >
       <Divider orientation="left">项目信息</Divider>
       <Row gutter={[16, 16]}>
-        <Col xs={24} sm={12} md={8}>
+        <Col xs={24} sm={12} md={6}>
           <Form.Item
             label="Job title"
             name="jobTitle"
           >
-            <Input placeholder="输入Job title" />
+            <Input 
+              placeholder="输入Job title" 
+              inputMode="text"
+            />
           </Form.Item>
         </Col>
-        <Col xs={24} sm={12} md={8}>
+        <Col xs={24} sm={12} md={6}>
           <Form.Item
             label="Job No."
             name="jobNo"
           >
-            <Input placeholder="输入Job No." />
+            <Input 
+              placeholder="输入Job No." 
+              inputMode="text"
+            />
           </Form.Item>
         </Col>
-        <Col xs={24} sm={12} md={8}>
+        <Col xs={24} sm={12} md={6}>
           <Form.Item
             label="Form No."
             name="formNo"
           >
-            <Input placeholder="输入Form No." />
+            <Input 
+              placeholder="输入Form No." 
+              inputMode="text"
+            />
+          </Form.Item>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Form.Item
+            label="Pile No."
+            name="pileNo"
+            rules={[{ required: true, message: '请输入桩号' }]}
+          >
+            <Input 
+              placeholder="输入桩号" 
+              inputMode="text"
+            />
           </Form.Item>
         </Col>
       </Row>
@@ -800,7 +750,10 @@ const PileLayout = () => {
             label="Surveyed by"
             name="surveyedBy"
           >
-            <Input placeholder="输入Surveyed by" />
+            <Input 
+              placeholder="输入Surveyed by" 
+              inputMode="text"
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
@@ -808,7 +761,10 @@ const PileLayout = () => {
             label="Instrument"
             name="instrument"
           >
-            <Input placeholder="输入Instrument" />
+            <Input 
+              placeholder="输入Instrument" 
+              inputMode="text"
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
@@ -824,7 +780,10 @@ const PileLayout = () => {
             label="S/N:"
             name="serialNumber"
           >
-            <Input placeholder="输入序列号" />
+            <Input 
+              placeholder="输入序列号" 
+              inputMode="text"
+            />
           </Form.Item>
         </Col>
       </Row>
@@ -835,7 +794,10 @@ const PileLayout = () => {
             label="Survey Job:"
             name="surveyJob"
           >
-            <Input placeholder="输入Survey Job" />
+            <Input 
+              placeholder="输入Survey Job" 
+              inputMode="text"
+            />
           </Form.Item>
         </Col>
       </Row>
@@ -844,19 +806,15 @@ const PileLayout = () => {
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} md={6}>
           <Form.Item
-            label="Pile No."
-            name="pileNo"
-            rules={[{ required: true, message: '请输入桩号' }]}
-          >
-            <Input placeholder="输入桩号" />
-          </Form.Item>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Form.Item
             label="Pile Diameter (mm)"
             name="pileDiameter"
           >
-            <Input type="number" placeholder="输入桩直径" />
+            <Input 
+              placeholder="输入桩直径" 
+              inputMode="decimal"
+              type="text"
+              pattern="[0-9]*[.,]?[0-9]*"
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
@@ -864,7 +822,10 @@ const PileLayout = () => {
             label="Pile Type"
             name="pileType"
           >
-            <Input placeholder="输入桩类型" />
+            <Input 
+              placeholder="输入桩类型" 
+              inputMode="text"
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
@@ -873,7 +834,12 @@ const PileLayout = () => {
             name="pileE"
             rules={[{ required: true, message: '请输入桩E坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入桩E坐标" />
+            <Input 
+              placeholder="输入桩E坐标" 
+              inputMode="decimal"
+              type="text"
+              pattern="[0-9]*[.,]?[0-9]*"
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
@@ -882,18 +848,35 @@ const PileLayout = () => {
             name="pileN"
             rules={[{ required: true, message: '请输入桩N坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入桩N坐标" />
+            <Input 
+              placeholder="输入桩N坐标" 
+              inputMode="decimal"
+              type="text"
+              pattern="[0-9]*[.,]?[0-9]*"
+            />
+          </Form.Item>
+        </Col>
+        <Col xs={24} sm={12} md={8}>
+          <Form.Item
+            label="桩切断面高程"
+            name="pileZ"
+            rules={[{ required: true, message: '请输入桩切断面高程' }]}
+          >
+            <Input 
+              placeholder="输入桩切断面高程" 
+              inputMode="text"
+            />
           </Form.Item>
         </Col>
       </Row>
       
-      <Divider orientation="left">方向设置</Divider>
+      <Divider orientation="left">Ref. Bearing 设置</Divider>
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} md={8}>
           <Form.Item
             label="Ref. Bearing 方式"
             name="directionType"
-            initialValue={directionType}
+            initialValue={direction}
           >
             <Select onChange={handleDirectionChange}>
               <Option value="north">正北方向</Option>
@@ -903,43 +886,58 @@ const PileLayout = () => {
           </Form.Item>
         </Col>
         
-        {directionType === 'endPoint' && (
+        {direction === 'endPoint' && (
           <>
             <Col xs={24} sm={12} md={8}>
               <Form.Item
                 label="终点E坐标"
-                name="endX"
+                name="endE"
                 rules={[{ required: true, message: '请输入终点E坐标' }]}
               >
-                <Input type="number" step="0.001" placeholder="输入终点E坐标" />
+                <Input 
+                  placeholder="输入终点E坐标" 
+                  inputMode="decimal"
+                  type="text"
+                  pattern="[0-9]*[.,]?[0-9]*"
+                />
               </Form.Item>
             </Col>
             <Col xs={24} sm={12} md={8}>
               <Form.Item
                 label="终点N坐标"
-                name="endY"
+                name="endN"
                 rules={[{ required: true, message: '请输入终点N坐标' }]}
               >
-                <Input type="number" step="0.001" placeholder="输入终点N坐标" />
+                <Input 
+                  placeholder="输入终点N坐标" 
+                  inputMode="decimal"
+                  type="text"
+                  pattern="[0-9]*[.,]?[0-9]*"
+                />
               </Form.Item>
             </Col>
           </>
         )}
         
-        {directionType === 'azimuth' && (
+        {direction === 'azimuth' && (
           <Col xs={24} sm={12} md={8}>
             <Form.Item
               label="方位角(DD.MMSS)"
               name="azimuth"
               rules={[{ required: true, message: '请输入方位角' }]}
             >
-              <Input placeholder="输入方位角(例如: 045.3030)" />
+              <Input 
+                placeholder="输入方位角(例如: 045.3030)" 
+                inputMode="decimal"
+                type="text"
+                pattern="[0-9]*[.,]?[0-9]*"
+              />
             </Form.Item>
           </Col>
         )}
       </Row>
       
-      <Divider orientation="left">测站点信息</Divider>
+      <Divider orientation="left">Setting out point</Divider>
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={24}>
           <Card title="Station Point" size="small">
@@ -950,43 +948,64 @@ const PileLayout = () => {
                   name="stationId"
                   rules={[{ required: true, message: '请输入站点ID' }]}
                 >
-                  <Input placeholder="输入站点ID" />
+                  <Input 
+                    placeholder="输入站点ID" 
+                    inputMode="text"
+                  />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={5}>
                 <Form.Item
-                  label="E"
+                  label="E坐标"
                   name="stationE"
                   rules={[{ required: true, message: '请输入E坐标' }]}
                 >
-                  <Input type="number" step="0.001" placeholder="输入E坐标" />
+                  <Input 
+                    placeholder="输入E坐标" 
+                    inputMode="decimal"
+                    type="text"
+                    pattern="[0-9]*[.,]?[0-9]*"
+                  />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={5}>
                 <Form.Item
-                  label="N"
+                  label="N坐标"
                   name="stationN"
                   rules={[{ required: true, message: '请输入N坐标' }]}
                 >
-                  <Input type="number" step="0.001" placeholder="输入N坐标" />
+                  <Input 
+                    placeholder="输入N坐标" 
+                    inputMode="decimal"
+                    type="text"
+                    pattern="[0-9]*[.,]?[0-9]*"
+                  />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={5}>
                 <Form.Item
-                  label="H"
+                  label="高程"
                   name="stationH"
-                  rules={[{ required: true, message: '请输入H高程' }]}
+                  rules={[{ required: true, message: '请输入高程' }]}
                 >
-                  <Input type="number" step="0.001" placeholder="输入H高程" />
+                  <Input 
+                    placeholder="输入高程" 
+                    inputMode="text"
+                  />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={5}>
                 <Form.Item
-                  label="Instrument Height"
+                  label="仪器高"
                   name="instrumentHeight"
-                  rules={[{ required: true, message: '请输入仪器高度' }]}
+                  rules={[{ required: true, message: '请输入仪器高' }]}
                 >
-                  <Input type="number" step="0.001" placeholder="输入仪器高度" />
+                  <Input 
+                    placeholder="输入仪器高" 
+                    inputMode="decimal"
+                    type="text"
+                    pattern="[0-9]*[.,]?[0-9]*"
+                  />
                 </Form.Item>
               </Col>
             </Row>
@@ -1007,34 +1026,50 @@ const PileLayout = () => {
                   name="backsightId1"
                   rules={[{ required: true, message: '请输入后视点1 ID' }]}
                 >
-                  <Input placeholder="输入后视点ID" />
+                  <Input 
+                    placeholder="输入后视点ID" 
+                    inputMode="text"
+                  />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={5}>
                 <Form.Item
-                  label="E"
+                  label="后视点E坐标"
                   name="backsightE1"
-                  rules={[{ required: true, message: '请输入后视点1 E坐标' }]}
+                  rules={[{ required: true, message: '请输入后视点E坐标' }]}
                 >
-                  <Input type="number" step="0.001" placeholder="输入E坐标" />
+                  <Input 
+                    placeholder="输入E坐标" 
+                    inputMode="decimal"
+                    type="text"
+                    pattern="[0-9]*[.,]?[0-9]*"
+                  />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={5}>
                 <Form.Item
-                  label="N"
+                  label="后视点N坐标"
                   name="backsightN1"
-                  rules={[{ required: true, message: '请输入后视点1 N坐标' }]}
+                  rules={[{ required: true, message: '请输入后视点N坐标' }]}
                 >
-                  <Input type="number" step="0.001" placeholder="输入N坐标" />
+                  <Input 
+                    placeholder="输入N坐标" 
+                    inputMode="decimal"
+                    type="text"
+                    pattern="[0-9]*[.,]?[0-9]*"
+                  />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={5}>
                 <Form.Item
-                  label="H"
+                  label="后视点高程"
                   name="backsightH1"
-                  rules={[{ required: true, message: '请输入后视点1 H高程' }]}
+                  rules={[{ required: true, message: '请输入后视点高程' }]}
                 >
-                  <Input type="number" step="0.001" placeholder="输入H高程" />
+                  <Input 
+                    placeholder="输入H高程" 
+                    inputMode="text"
+                  />
                 </Form.Item>
               </Col>
             </Row>
@@ -1047,7 +1082,10 @@ const PileLayout = () => {
                   name="obsId1"
                   rules={[{ required: true, message: '请输入观测ID' }]}
                 >
-                  <Input placeholder="输入观测ID" />
+                  <Input 
+                    placeholder="输入观测ID" 
+                    inputMode="text"
+                  />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={5}>
@@ -1056,7 +1094,12 @@ const PileLayout = () => {
                   name="obsBRE1"
                   rules={[{ required: true, message: '请输入BRE' }]}
                 >
-                  <Input type="number" step="0.001" placeholder="输入BRE" />
+                  <Input 
+                    placeholder="输入BRE" 
+                    inputMode="decimal"
+                    type="text"
+                    pattern="[0-9]*[.,]?[0-9]*"
+                  />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={5}>
@@ -1065,7 +1108,12 @@ const PileLayout = () => {
                   name="obsVA1"
                   rules={[{ required: true, message: '请输入VA' }]}
                 >
-                  <Input type="number" step="0.001" placeholder="输入VA" />
+                  <Input 
+                    placeholder="输入VA" 
+                    inputMode="decimal"
+                    type="text"
+                    pattern="[0-9]*[.,]?[0-9]*"
+                  />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={5}>
@@ -1074,7 +1122,12 @@ const PileLayout = () => {
                   name="obsSD1"
                   rules={[{ required: true, message: '请输入SD' }]}
                 >
-                  <Input type="number" step="0.001" placeholder="输入SD" />
+                  <Input 
+                    placeholder="输入SD" 
+                    inputMode="decimal"
+                    type="text"
+                    pattern="[0-9]*[.,]?[0-9]*"
+                  />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={4}>
@@ -1083,7 +1136,12 @@ const PileLayout = () => {
                   name="obsPH1"
                   rules={[{ required: true, message: '请输入P.H' }]}
                 >
-                  <Input type="number" step="0.001" placeholder="输入P.H" />
+                  <Input 
+                    placeholder="输入P.H" 
+                    inputMode="decimal"
+                    type="text"
+                    pattern="[0-9]*[.,]?[0-9]*"
+                  />
                 </Form.Item>
               </Col>
             </Row>
@@ -1097,31 +1155,47 @@ const PileLayout = () => {
                   label="ID"
                   name="backsightId2"
                 >
-                  <Input placeholder="输入后视点ID" />
+                  <Input 
+                    placeholder="输入后视点ID" 
+                    inputMode="text"
+                  />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={5}>
                 <Form.Item
-                  label="E"
+                  label="后视点E坐标"
                   name="backsightE2"
                 >
-                  <Input type="number" step="0.001" placeholder="输入E坐标" />
+                  <Input 
+                    placeholder="输入E坐标" 
+                    inputMode="decimal"
+                    type="text"
+                    pattern="[0-9]*[.,]?[0-9]*"
+                  />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={5}>
                 <Form.Item
-                  label="N"
+                  label="后视点N坐标"
                   name="backsightN2"
                 >
-                  <Input type="number" step="0.001" placeholder="输入N坐标" />
+                  <Input 
+                    placeholder="输入N坐标" 
+                    inputMode="decimal"
+                    type="text"
+                    pattern="[0-9]*[.,]?[0-9]*"
+                  />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={5}>
                 <Form.Item
-                  label="H"
+                  label="后视点高程"
                   name="backsightH2"
                 >
-                  <Input type="number" step="0.001" placeholder="输入H高程" />
+                  <Input 
+                    placeholder="输入H高程" 
+                    inputMode="text"
+                  />
                 </Form.Item>
               </Col>
             </Row>
@@ -1133,7 +1207,10 @@ const PileLayout = () => {
                   label="ID"
                   name="obsId2"
                 >
-                  <Input placeholder="输入观测ID" />
+                  <Input 
+                    placeholder="输入观测ID" 
+                    inputMode="text"
+                  />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={5}>
@@ -1141,7 +1218,12 @@ const PileLayout = () => {
                   label="BRE"
                   name="obsBRE2"
                 >
-                  <Input type="number" step="0.001" placeholder="输入BRE" />
+                  <Input 
+                    placeholder="输入BRE" 
+                    inputMode="decimal"
+                    type="text"
+                    pattern="[0-9]*[.,]?[0-9]*"
+                  />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={5}>
@@ -1149,7 +1231,12 @@ const PileLayout = () => {
                   label="VA"
                   name="obsVA2"
                 >
-                  <Input type="number" step="0.001" placeholder="输入VA" />
+                  <Input 
+                    placeholder="输入VA" 
+                    inputMode="decimal"
+                    type="text"
+                    pattern="[0-9]*[.,]?[0-9]*"
+                  />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={5}>
@@ -1157,7 +1244,12 @@ const PileLayout = () => {
                   label="SD"
                   name="obsSD2"
                 >
-                  <Input type="number" step="0.001" placeholder="输入SD" />
+                  <Input 
+                    placeholder="输入SD" 
+                    inputMode="decimal"
+                    type="text"
+                    pattern="[0-9]*[.,]?[0-9]*"
+                  />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={4}>
@@ -1165,7 +1257,12 @@ const PileLayout = () => {
                   label="P.H"
                   name="obsPH2"
                 >
-                  <Input type="number" step="0.001" placeholder="输入P.H" />
+                  <Input 
+                    placeholder="输入P.H" 
+                    inputMode="decimal"
+                    type="text"
+                    pattern="[0-9]*[.,]?[0-9]*"
+                  />
                 </Form.Item>
               </Col>
             </Row>
@@ -1173,8 +1270,7 @@ const PileLayout = () => {
         </Col>
       </Row>
       
-      <Divider orientation="left">放样数据</Divider>
-      <Row gutter={[16, 16]}>
+      <Row gutter={[16, 16]} style={{ marginTop: '16px' }}>
         <Col xs={24} sm={24}>
           <Card title="Setting out data" size="small">
             <Row gutter={[16, 16]}>
@@ -1184,7 +1280,12 @@ const PileLayout = () => {
                   name="settingBRE"
                   rules={[{ required: true, message: '请输入BRE' }]}
                 >
-                  <Input type="number" step="0.001" placeholder="输入BRE" />
+                  <Input 
+                    placeholder="输入BRE" 
+                    inputMode="decimal"
+                    type="text"
+                    pattern="[0-9]*[.,]?[0-9]*"
+                  />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={6}>
@@ -1193,7 +1294,12 @@ const PileLayout = () => {
                   name="settingVA"
                   rules={[{ required: true, message: '请输入VA' }]}
                 >
-                  <Input type="number" step="0.001" placeholder="输入VA" />
+                  <Input 
+                    placeholder="输入VA" 
+                    inputMode="decimal"
+                    type="text"
+                    pattern="[0-9]*[.,]?[0-9]*"
+                  />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={6}>
@@ -1202,7 +1308,12 @@ const PileLayout = () => {
                   name="settingSD"
                   rules={[{ required: true, message: '请输入SD' }]}
                 >
-                  <Input type="number" step="0.001" placeholder="输入SD" />
+                  <Input 
+                    placeholder="输入SD" 
+                    inputMode="decimal"
+                    type="text"
+                    pattern="[0-9]*[.,]?[0-9]*"
+                  />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={6}>
@@ -1211,7 +1322,12 @@ const PileLayout = () => {
                   name="settingPH"
                   rules={[{ required: true, message: '请输入P.H' }]}
                 >
-                  <Input type="number" step="0.001" placeholder="输入P.H" />
+                  <Input 
+                    placeholder="输入P.H" 
+                    inputMode="decimal"
+                    type="text"
+                    pattern="[0-9]*[.,]?[0-9]*"
+                  />
                 </Form.Item>
               </Col>
             </Row>
@@ -1219,29 +1335,43 @@ const PileLayout = () => {
         </Col>
       </Row>
       
-      <Form.Item>
-        <Button type="primary" htmlType="submit">
-          计算
-        </Button>
-        <Button 
-          style={{ marginLeft: 8 }} 
-          onClick={() => {
-            form.resetFields();
-            setCalculationResults([]);
-            setSvgPath('');
-          }}
-        >
-          重置
-        </Button>
-        <Button 
-          type="primary" 
-          icon={<DownloadOutlined />} 
-          style={{ marginLeft: 8 }}
-          onClick={handleDownloadPDF}
-        >
-          下载PDF
-        </Button>
-      </Form.Item>
+      <Row gutter={[16, 16]} style={{ marginTop: '16px' }}>
+        <Col xs={24} sm={8} md={8}>
+          <Form.Item>
+            <Button type="primary" htmlType="submit" block>
+              计算
+            </Button>
+          </Form.Item>
+        </Col>
+        <Col xs={24} sm={8} md={8}>
+          <Form.Item>
+            <Button 
+              onClick={() => {
+                form.resetFields();
+                setCalculationResults({});
+                setSvgPath('');
+              }} 
+              block
+            >
+              重置
+            </Button>
+          </Form.Item>
+        </Col>
+        {Object.keys(calculationResults).length > 0 && (
+          <Col xs={24} sm={8} md={8}>
+            <Form.Item>
+              <Button 
+                type="default" 
+                onClick={handleDownloadPDF} 
+                icon={<DownloadOutlined />}
+                block
+              >
+                下载PDF
+              </Button>
+            </Form.Item>
+          </Col>
+        )}
+      </Row>
     </Form>
   );
 
@@ -1277,8 +1407,8 @@ const PileLayout = () => {
           </div>
           <div style={{ marginBottom: '10px' }}>
             <span style={{ fontWeight: 'bold' }}>Ref. Bearing: </span>
-            <span>{directionType === 'azimuth' ? calculationResults.azimuth : 
-                  directionType === 'north' ? '000.0000' : 
+            <span>{direction === 'azimuth' ? calculationResults.azimuth : 
+                  direction === 'north' ? '000.0000' : 
                   calculationResults.refBearing || '-'}</span>
           </div>
           <div style={{ marginBottom: '10px' }}>
@@ -1388,11 +1518,11 @@ const PileLayout = () => {
                   <div>
                     <span style={{ fontWeight: 'bold' }}>Ref. Bearing: </span>
                     <span>{mode === 'simple' ? 
-                      (directionType === 'azimuth' ? decimalToDMS(parseFloat(calculationResults.azimuth)) : 
-                      directionType === 'north' ? '000.0000' : 
+                      (direction === 'azimuth' ? decimalToDMS(parseFloat(calculationResults.azimuth)) : 
+                      direction === 'north' ? '000.0000' : 
                       calculationResults.refBearing) || '-' : 
-                      (directionType === 'azimuth' ? calculationResults.azimuth : 
-                      directionType === 'north' ? '000.0000' : 
+                      (direction === 'azimuth' ? calculationResults.azimuth : 
+                      direction === 'north' ? '000.0000' : 
                       calculationResults.refBearing) || '-'}</span>
                   </div>
                 </div>
@@ -1432,17 +1562,17 @@ const PileLayout = () => {
                       // 获取参考方位角（转换为十进制度）
                       let refBearing;
                       if (mode === 'simple') {
-                        if (directionType === 'azimuth') {
+                        if (direction === 'azimuth') {
                           refBearing = DMSToDecimal(parseFloat(calculationResults.azimuth));
-                        } else if (directionType === 'north') {
+                        } else if (direction === 'north') {
                           refBearing = 0;
                         } else {
                           refBearing = DMSToDecimal(parseFloat(calculationResults.refBearing));
                         }
                       } else {
-                        if (directionType === 'azimuth') {
+                        if (direction === 'azimuth') {
                           refBearing = DMSToDecimal(parseFloat(calculationResults.azimuth));
-                        } else if (directionType === 'north') {
+                        } else if (direction === 'north') {
                           refBearing = 0;
                         } else {
                           refBearing = DMSToDecimal(parseFloat(calculationResults.refBearing));
@@ -1471,17 +1601,17 @@ const PileLayout = () => {
                       // 获取参考方位角（转换为十进制度）
                       let refBearing;
                       if (mode === 'simple') {
-                        if (directionType === 'azimuth') {
+                        if (direction === 'azimuth') {
                           refBearing = DMSToDecimal(parseFloat(calculationResults.azimuth));
-                        } else if (directionType === 'north') {
+                        } else if (direction === 'north') {
                           refBearing = 0;
                         } else {
                           refBearing = DMSToDecimal(parseFloat(calculationResults.refBearing));
                         }
                       } else {
-                        if (directionType === 'azimuth') {
+                        if (direction === 'azimuth') {
                           refBearing = DMSToDecimal(parseFloat(calculationResults.azimuth));
-                        } else if (directionType === 'north') {
+                        } else if (direction === 'north') {
                           refBearing = 0;
                         } else {
                           refBearing = DMSToDecimal(parseFloat(calculationResults.refBearing));
@@ -1644,48 +1774,39 @@ const PileLayout = () => {
   };
 
   return (
-    <div>
-      <Card className={styles.mainCard}>
-        <div className={styles.modeContainer}>
-          <Radio.Group 
-            value={mode} 
-            onChange={handleModeChange}
-            buttonStyle="solid"
-            className={styles.modeSelector}
-          >
-            <Radio.Button value="simple">简易模式</Radio.Button>
-            <Radio.Button value="professional">专业模式</Radio.Button>
-          </Radio.Group>
-        </div>
+    <div className={styles.container}>
+      <div className={styles.mainContent}>
+        <Tabs defaultActiveKey={mode} className={styles.tabs}>
+          <TabPane tab="简单模式" key="simple">
+            {renderSimpleForm()}
+          </TabPane>
+          <TabPane tab="专业模式" key="professional">
+            {renderProfessionalForm()}
+          </TabPane>
+        </Tabs>
         
-        <Card title="桩放样计算参数" className={styles.card}>
-          {mode === 'simple' ? renderSimpleForm() : renderProfessionalForm()}
-        </Card>
-        
-        {calculationResults && Object.keys(calculationResults).length > 0 && (
+        {Object.keys(calculationResults).length > 0 && (
           <>
-            <Card 
-              className={styles.resultCard}
+            <div 
+              className={styles.resultSection}
               style={{ marginTop: 16 }}
               ref={resultCardRef}
-              headStyle={{ display: 'none' }}
             >
               {renderCalculationResults()}
-            </Card>
+            </div>
             
             {svgPath && (
-              <Card 
-                className={styles.resultCard}
+              <div 
+                className={styles.svgSection}
                 style={{ marginTop: 16 }}
                 ref={planCardRef}
-                headStyle={{ display: 'none' }}
               >
                 <div className={styles.svgContainer} dangerouslySetInnerHTML={{ __html: svgPath }}></div>
-              </Card>
+              </div>
             )}
           </>
         )}
-      </Card>
+      </div>
     </div>
   );
 };

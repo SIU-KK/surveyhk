@@ -1,0 +1,25 @@
+.inputContainer {
+  position: relative;
+  width: 100%;
+}
+
+.inputField {
+  width: 100%;
+  transition: all 0.3s;
+}
+
+.inputField:hover {
+  border-color: #40a9ff;
+}
+
+.inputField:focus {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+/* 响应式样式 */
+@media (max-width: 768px) {
+  .inputContainer {
+    margin-bottom: 8px;
+  }
+} 

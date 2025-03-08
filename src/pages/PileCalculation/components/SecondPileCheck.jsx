@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
-import { Card, Form, Input, Button, Radio, Row, Col, Table, message } from 'antd';
+import React, { useState, useRef } from 'react';
+import { Card, Form, Input, Button, Radio, Row, Col, Table, message, Typography, Divider } from 'antd';
+import { DownloadOutlined } from '@ant-design/icons';
 import styles from './ComponentStyles.module.css';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import NumericInput from './NumericInput';
 
 const SecondPileCheck = () => {
   const [form] = Form.useForm();
@@ -240,38 +244,50 @@ const SecondPileCheck = () => {
         </Col>
         <Col xs={24} sm={12} md={6}>
           <Form.Item
-            label="起点X坐标"
+            label="设计起点X坐标"
             name="designStartX"
             rules={[{ required: true, message: '请输入设计起点X坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入设计起点X坐标" />
+            <NumericInput 
+              placeholder="输入设计起点X坐标" 
+              allowNegative={true}
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
           <Form.Item
-            label="起点Y坐标"
+            label="设计起点Y坐标"
             name="designStartY"
             rules={[{ required: true, message: '请输入设计起点Y坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入设计起点Y坐标" />
+            <NumericInput 
+              placeholder="输入设计起点Y坐标" 
+              allowNegative={true}
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
           <Form.Item
-            label="终点X坐标"
+            label="设计终点X坐标"
             name="designEndX"
             rules={[{ required: true, message: '请输入设计终点X坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入设计终点X坐标" />
+            <NumericInput 
+              placeholder="输入设计终点X坐标" 
+              allowNegative={true}
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
           <Form.Item
-            label="终点Y坐标"
+            label="设计终点Y坐标"
             name="designEndY"
             rules={[{ required: true, message: '请输入设计终点Y坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入设计终点Y坐标" />
+            <NumericInput 
+              placeholder="输入设计终点Y坐标" 
+              allowNegative={true}
+            />
           </Form.Item>
         </Col>
       </Row>
@@ -282,38 +298,50 @@ const SecondPileCheck = () => {
         </Col>
         <Col xs={24} sm={12} md={6}>
           <Form.Item
-            label="起点X坐标"
+            label="实测起点X坐标"
             name="actualStartX"
             rules={[{ required: true, message: '请输入实测起点X坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入实测起点X坐标" />
+            <NumericInput 
+              placeholder="输入实测起点X坐标" 
+              allowNegative={true}
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
           <Form.Item
-            label="起点Y坐标"
+            label="实测起点Y坐标"
             name="actualStartY"
             rules={[{ required: true, message: '请输入实测起点Y坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入实测起点Y坐标" />
+            <NumericInput 
+              placeholder="输入实测起点Y坐标" 
+              allowNegative={true}
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
           <Form.Item
-            label="终点X坐标"
+            label="实测终点X坐标"
             name="actualEndX"
             rules={[{ required: true, message: '请输入实测终点X坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入实测终点X坐标" />
+            <NumericInput 
+              placeholder="输入实测终点X坐标" 
+              allowNegative={true}
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
           <Form.Item
-            label="终点Y坐标"
+            label="实测终点Y坐标"
             name="actualEndY"
             rules={[{ required: true, message: '请输入实测终点Y坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入实测终点Y坐标" />
+            <NumericInput 
+              placeholder="输入实测终点Y坐标" 
+              allowNegative={true}
+            />
           </Form.Item>
         </Col>
       </Row>
@@ -348,7 +376,10 @@ const SecondPileCheck = () => {
             name="pileStartNumber"
             rules={[{ required: true, message: '请输入起始桩号' }]}
           >
-            <Input placeholder="输入起始桩号" />
+            <Input 
+              placeholder="输入起始桩号" 
+              inputMode="text"
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
@@ -357,7 +388,10 @@ const SecondPileCheck = () => {
             name="pileEndNumber"
             rules={[{ required: true, message: '请输入终止桩号' }]}
           >
-            <Input placeholder="输入终止桩号" />
+            <Input 
+              placeholder="输入终止桩号" 
+              inputMode="text"
+            />
           </Form.Item>
         </Col>
       </Row>
@@ -368,29 +402,38 @@ const SecondPileCheck = () => {
         </Col>
         <Col xs={24} sm={12} md={6}>
           <Form.Item
-            label="起点X坐标"
+            label="设计起点X坐标"
             name="designStartX"
             rules={[{ required: true, message: '请输入设计起点X坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入设计起点X坐标" />
+            <NumericInput 
+              placeholder="输入设计起点X坐标" 
+              allowNegative={true}
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
           <Form.Item
-            label="起点Y坐标"
+            label="设计起点Y坐标"
             name="designStartY"
             rules={[{ required: true, message: '请输入设计起点Y坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入设计起点Y坐标" />
+            <NumericInput 
+              placeholder="输入设计起点Y坐标" 
+              allowNegative={true}
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
           <Form.Item
-            label="起点Z坐标"
+            label="设计起点Z坐标"
             name="designStartZ"
             rules={[{ required: true, message: '请输入设计起点Z坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入设计起点Z坐标" />
+            <NumericInput 
+              placeholder="输入设计起点Z坐标" 
+              allowNegative={true}
+            />
           </Form.Item>
         </Col>
       </Row>
@@ -398,29 +441,38 @@ const SecondPileCheck = () => {
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} md={6}>
           <Form.Item
-            label="终点X坐标"
+            label="设计终点X坐标"
             name="designEndX"
             rules={[{ required: true, message: '请输入设计终点X坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入设计终点X坐标" />
+            <NumericInput 
+              placeholder="输入设计终点X坐标" 
+              allowNegative={true}
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
           <Form.Item
-            label="终点Y坐标"
+            label="设计终点Y坐标"
             name="designEndY"
             rules={[{ required: true, message: '请输入设计终点Y坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入设计终点Y坐标" />
+            <NumericInput 
+              placeholder="输入设计终点Y坐标" 
+              allowNegative={true}
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
           <Form.Item
-            label="终点Z坐标"
+            label="设计终点Z坐标"
             name="designEndZ"
             rules={[{ required: true, message: '请输入设计终点Z坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入设计终点Z坐标" />
+            <NumericInput 
+              placeholder="输入设计终点Z坐标" 
+              allowNegative={true}
+            />
           </Form.Item>
         </Col>
       </Row>
@@ -431,29 +483,38 @@ const SecondPileCheck = () => {
         </Col>
         <Col xs={24} sm={12} md={6}>
           <Form.Item
-            label="起点X坐标"
+            label="实测起点X坐标"
             name="actualStartX"
             rules={[{ required: true, message: '请输入实测起点X坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入实测起点X坐标" />
+            <NumericInput 
+              placeholder="输入实测起点X坐标" 
+              allowNegative={true}
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
           <Form.Item
-            label="起点Y坐标"
+            label="实测起点Y坐标"
             name="actualStartY"
             rules={[{ required: true, message: '请输入实测起点Y坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入实测起点Y坐标" />
+            <NumericInput 
+              placeholder="输入实测起点Y坐标" 
+              allowNegative={true}
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
           <Form.Item
-            label="起点Z坐标"
+            label="实测起点Z坐标"
             name="actualStartZ"
             rules={[{ required: true, message: '请输入实测起点Z坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入实测起点Z坐标" />
+            <NumericInput 
+              placeholder="输入实测起点Z坐标" 
+              allowNegative={true}
+            />
           </Form.Item>
         </Col>
       </Row>
@@ -461,29 +522,38 @@ const SecondPileCheck = () => {
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} md={6}>
           <Form.Item
-            label="终点X坐标"
+            label="实测终点X坐标"
             name="actualEndX"
             rules={[{ required: true, message: '请输入实测终点X坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入实测终点X坐标" />
+            <NumericInput 
+              placeholder="输入实测终点X坐标" 
+              allowNegative={true}
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
           <Form.Item
-            label="终点Y坐标"
+            label="实测终点Y坐标"
             name="actualEndY"
             rules={[{ required: true, message: '请输入实测终点Y坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入实测终点Y坐标" />
+            <NumericInput 
+              placeholder="输入实测终点Y坐标" 
+              allowNegative={true}
+            />
           </Form.Item>
         </Col>
         <Col xs={24} sm={12} md={6}>
           <Form.Item
-            label="终点Z坐标"
+            label="实测终点Z坐标"
             name="actualEndZ"
             rules={[{ required: true, message: '请输入实测终点Z坐标' }]}
           >
-            <Input type="number" step="0.001" placeholder="输入实测终点Z坐标" />
+            <NumericInput 
+              placeholder="输入实测终点Z坐标" 
+              allowNegative={true}
+            />
           </Form.Item>
         </Col>
       </Row>
@@ -526,19 +596,19 @@ const SecondPileCheck = () => {
   return (
     <div>
       <Card className={styles.mainCard}>
-        <div className={styles.modeContainer}>
+        <div className={styles.calculationTypeContainer}>
           <Radio.Group 
             value={mode} 
             onChange={handleModeChange}
             buttonStyle="solid"
-            className={styles.modeSelector}
+            className={styles.calculationTypeSelector}
           >
             <Radio.Button value="simple">简易模式</Radio.Button>
             <Radio.Button value="professional">专业模式</Radio.Button>
           </Radio.Group>
         </div>
         
-        <Card title="二桩检查计算参数" className={styles.card}>
+        <Card title="桩检查计算参数" className={styles.card}>
           {mode === 'simple' ? renderSimpleForm() : renderProfessionalForm()}
         </Card>
         

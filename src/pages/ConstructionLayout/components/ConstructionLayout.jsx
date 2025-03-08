@@ -490,6 +490,41 @@ const ConstructionLayout = () => {
     }
   };
 
+  // 渲染计算类型选择器
+  const renderCalculationTypeSelector = () => {
+    return (
+      <div className={styles.calculationTypeContainer}>
+        <Radio.Group
+          onChange={(e) => handleTabChange(e.target.value)}
+          value={activeTab}
+          className={styles.calculationTypeSelector}
+          buttonStyle="solid"
+        >
+          <Radio.Button value="point">點放樣</Radio.Button>
+          <Radio.Button value="line">線放樣</Radio.Button>
+          <Radio.Button value="arc">弧放樣</Radio.Button>
+          <Radio.Button value="curve">曲線放樣</Radio.Button>
+        </Radio.Group>
+      </div>
+    );
+  };
+
+  // 渲染当前选中的计算组件
+  const renderCalculationComponent = () => {
+    switch (activeTab) {
+      case 'point':
+        return renderPointLayoutForm();
+      case 'line':
+        return renderLineLayoutForm();
+      case 'arc':
+        return renderArcLayoutForm();
+      case 'curve':
+        return renderCurveLayoutForm();
+      default:
+        return renderPointLayoutForm();
+    }
+  };
+
   const renderPointLayoutForm = () => (
     <Form form={pointForm} layout="vertical" onFinish={calculatePointLayout}>
       <Divider orientation="left">測站數據</Divider>
@@ -859,24 +894,10 @@ const ConstructionLayout = () => {
       <Content className={styles.content}>
         <div className={styles.pageContainer}>
           <Card className={styles.mainCard}>
-            <div className={styles.calculationTypeContainer}>
-              <Tabs defaultActiveKey="point" onChange={handleTabChange} className={styles.tabs}>
-                <TabPane tab="點放樣" key="point">
-                  {renderPointLayoutForm()}
-                </TabPane>
-                
-                <TabPane tab="線放樣" key="line">
-                  {renderLineLayoutForm()}
-                </TabPane>
-                
-                <TabPane tab="弧放樣" key="arc">
-                  {renderArcLayoutForm()}
-                </TabPane>
-
-                <TabPane tab="曲線放樣" key="curve">
-                  {renderCurveLayoutForm()}
-                </TabPane>
-              </Tabs>
+            {renderCalculationTypeSelector()}
+            
+            <div className={styles.calculationContent}>
+              {renderCalculationComponent()}
             </div>
             
             {calculationResults.length > 0 && (

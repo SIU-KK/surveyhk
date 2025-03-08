@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layout, Menu, Drawer, Button, Tabs } from 'antd';
+import { Layout, Menu, Drawer, Button, Tabs, Radio } from 'antd';
 import { HomeOutlined, CompassOutlined, CalculatorOutlined, AimOutlined, RadiusSettingOutlined, ToolOutlined, MonitorOutlined, MenuOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import PileLayout from './components/PileLayout';
@@ -15,6 +15,7 @@ const { TabPane } = Tabs;
 const PileCalculation = () => {
   const navigate = useNavigate();
   const [drawerVisible, setDrawerVisible] = useState(false);
+  const [calculationType, setCalculationType] = useState('pileLayout');
 
   const menuItems = [
     {
@@ -77,6 +78,47 @@ const PileCalculation = () => {
     setDrawerVisible(false);
   };
 
+  // 渲染计算类型选择器
+  const renderCalculationTypeSelector = () => {
+    return (
+      <div className={styles.calculationTypeContainer}>
+        <Radio.Group
+          onChange={(e) => setCalculationType(e.target.value)}
+          value={calculationType}
+          className={styles.calculationTypeSelector}
+          buttonStyle="solid"
+        >
+          <Radio.Button value="pileLayout">樁放樣</Radio.Button>
+          <Radio.Button value="pileLayoutPro">樁放樣(專業)</Radio.Button>
+          <Radio.Button value="firstPileCheck">首樁檢測</Radio.Button>
+          <Radio.Button value="firstPileCheckPro">首樁檢測(專業)</Radio.Button>
+          <Radio.Button value="secondPileCheck">中間樁檢測</Radio.Button>
+          <Radio.Button value="lastPileCheck">尾樁檢測</Radio.Button>
+        </Radio.Group>
+      </div>
+    );
+  };
+
+  // 根据选择的计算类型渲染对应的组件
+  const renderCalculationComponent = () => {
+    switch (calculationType) {
+      case 'pileLayout':
+        return <PileLayout mode="simple" />;
+      case 'pileLayoutPro':
+        return <PileLayout mode="professional" />;
+      case 'firstPileCheck':
+        return <FirstPileCheck />;
+      case 'firstPileCheckPro':
+        return <FirstPileCheckPro />;
+      case 'secondPileCheck':
+        return <SecondPileCheck />;
+      case 'lastPileCheck':
+        return <LastPileCheck />;
+      default:
+        return <PileLayout mode="simple" />;
+    }
+  };
+
   return (
     <Layout className={styles.container}>
       <Layout.Header className={styles.header}>
@@ -131,23 +173,10 @@ const PileCalculation = () => {
       
       <Content className={styles.content}>
         <div className={styles.pageContainer}>
-          <Tabs defaultActiveKey="pileLayout" className={styles.tabs}>
-            <TabPane tab="樁放樣" key="pileLayout">
-              <PileLayout />
-            </TabPane>
-            <TabPane tab="首樁檢測(簡易版)" key="firstPileCheck">
-              <FirstPileCheck />
-            </TabPane>
-            <TabPane tab="首樁檢測(專業版)" key="firstPileCheckPro">
-              <FirstPileCheckPro />
-            </TabPane>
-            <TabPane tab="中間樁檢測" key="secondPileCheck">
-              <SecondPileCheck />
-            </TabPane>
-            <TabPane tab="尾樁檢測" key="lastPileCheck">
-              <LastPileCheck />
-            </TabPane>
-          </Tabs>
+          {renderCalculationTypeSelector()}
+          <div className={styles.calculationContent}>
+            {renderCalculationComponent()}
+          </div>
         </div>
       </Content>
     </Layout>
