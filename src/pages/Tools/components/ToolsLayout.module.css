@@ -270,6 +270,69 @@
   border-radius: 4px;
 }
 
+/* 移动设备上的弹窗样式 */
+.mobileModal {
+  top: 20%;
+}
+
+.mobileModal :global(.ant-modal-content) {
+  border-radius: 12px;
+  width: 80%; /* 宽度缩小20% */
+  margin: 0 auto;
+  transform: scale(0.9);
+}
+
+.mobileModal :global(.ant-modal-body) {
+  padding: 12px;
+  max-height: 60vh; /* 高度缩小40% */
+  overflow-y: auto;
+}
+
+.mobileModal :global(.ant-modal-header) {
+  border-radius: 12px 12px 0 0;
+  padding: 10px 12px;
+}
+
+.mobileModal :global(.ant-modal-footer) {
+  padding: 10px 12px;
+  border-radius: 0 0 12px 12px;
+}
+
+.mobileModal :global(.ant-form-item) {
+  margin-bottom: 8px;
+}
+
+.mobileModal :global(.ant-input) {
+  height: 36px;
+  font-size: 14px;
+}
+
+.mobileModal :global(.ant-btn) {
+  height: 36px;
+  font-size: 14px;
+  padding: 0 12px;
+}
+
+/* 在小屏幕设备上进一步优化 */
+@media (max-width: 480px) {
+  .mobileModal :global(.ant-modal-content) {
+    width: 90%;
+    transform: scale(0.8);
+  }
+  
+  .mobileModal :global(.ant-modal-body) {
+    max-height: 50vh;
+  }
+  
+  .mobileModal :global(.ant-form-item-label) {
+    padding-bottom: 4px;
+  }
+  
+  .mobileModal :global(.ant-form-item-label > label) {
+    font-size: 14px;
+  }
+}
+
 @media (max-width: 768px) {
   .header {
     display: none;
@@ -364,5 +427,35 @@
   .submitButton {
     width: 100%;
     margin-bottom: 16px;
+  }
+}
+
+.observationTable {
+  margin-bottom: 16px;
+  overflow-x: auto;
+}
+
+.observationTable table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.observationTable th,
+.observationTable td {
+  padding: 8px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+.observationTable th {
+  background-color: #f5f5f5;
+  font-weight: 500;
+}
+
+@media (max-width: 480px) {
+  .observationTable th,
+  .observationTable td {
+    padding: 6px 4px;
+    font-size: 12px;
   }
 }

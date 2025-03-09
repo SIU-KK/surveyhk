@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, Menu, Card, Form, Input, Button, Table, Tabs, Drawer, Radio, message, Space, Row, Col, Divider, Switch, Modal } from 'antd';
-import { HomeOutlined, CompassOutlined, CalculatorOutlined, AimOutlined, RadiusSettingOutlined, ToolOutlined, MonitorOutlined, MenuOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { HomeOutlined, CompassOutlined, CalculatorOutlined, AimOutlined, RadiusSettingOutlined, ToolOutlined, MonitorOutlined, MenuOutlined, DeleteOutlined, PlusOutlined, DownloadOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import styles from './ToolsLayout.module.css';
+import * as XLSX from 'xlsx';
 
 const { Content, Header } = Layout;
 
 const ToolsLayout = () => {
-  const [calculationType, setCalculationType] = useState('arc');
+  const [calculationType, setCalculationType] = useState('simpleLevel');
   const [arcForm] = Form.useForm();
   const [hypotenuseForm] = Form.useForm();
   const [levelForm] = Form.useForm();
+  const [simpleLevelForm] = Form.useForm();
   const [angleForm] = Form.useForm();
   const [areaForm] = Form.useForm();
   const [newSideSightForm] = Form.useForm();
@@ -27,6 +29,16 @@ const ToolsLayout = () => {
   const [levelResult, setLevelResult] = useState(null);
   const [additionalSideSights, setAdditionalSideSights] = useState([]);
   const [areaResult, setAreaResult] = useState(null);
+  const [simpleLevelResult, setSimpleLevelResult] = useState(null);
+  const [levelPoints, setLevelPoints] = useState([]);
+  const [isAddPointModalVisible, setIsAddPointModalVisible] = useState(false);
+  const [currentPointId, setCurrentPointId] = useState('');
+  const [newPointForm] = Form.useForm();
+  const [isInputModalVisible, setIsInputModalVisible] = useState(false);
+  const [inputFormType, setInputFormType] = useState('bs'); // 'bs' 或 'fs'
+  const [isStarted, setIsStarted] = useState(false); // 判断是否已经开始
+  const [lastPointType, setLastPointType] = useState(null); // 上一个点的类型 'bs' 或 'fs'
+  const [inputForm] = Form.useForm(); // 为输入弹窗创建表单实例
 
   const labelStyle = {
     textAlign: 'left',
@@ -52,8 +64,8 @@ const ToolsLayout = () => {
   useEffect(() => {
     // 检查是否为移动设备
     if (isMobile) {
-      // 如果是移动设备，默认选中第一个计算类型
-      setCalculationType('arc');
+      // 如果是移动设备，默认选中简易平水计算
+      setCalculationType('simpleLevel');
     }
   }, [isMobile]);
 
@@ -140,6 +152,558 @@ const ToolsLayout = () => {
       onClick: () => navigate('/settlement-monitoring')
     }
   ];
+
+  // 简易平水计算
+  const calculateSimpleLevel = () => {
+    simpleLevelForm.validateFields().then(values => {
+      const backSight = parseFloat(values.backSight);
+      const foreSight = parseFloat(values.foreSight);
+      const startHeight = parseFloat(values.startHeight);
+      
+      if (isNaN(backSight) || isNaN(foreSight) || isNaN(startHeight)) {
+        message.error('请输入有效的数值');
+        return;
+      }
+      
+      // 计算高程
+      const heightDifference = backSight - foreSight;
+      const endHeight = startHeight + heightDifference;
+      
+      setSimpleLevelResult({
+        backSight: backSight.toFixed(4),
+        foreSight: foreSight.toFixed(4),
+        startHeight: startHeight.toFixed(4),
+        heightDifference: heightDifference.toFixed(4),
+        endHeight: endHeight.toFixed(4)
+      });
+      
+      message.success('计算完成');
+    }).catch(err => {
+      message.error('请填写所有必填字段');
+    });
+  };
+
+  // 渲染简易平水表单
+  const renderSimpleLevelForm = () => {
+    // 添加表单值变化监听
+    const handleBenchMarkChange = (value) => {
+      simpleLevelForm.setFieldsValue({
+        currentId: value
+      });
+    };
+
+    return (
+    <Card title="简易平水计算" className={styles.calculatorCard}>
+      <Form
+        form={simpleLevelForm}
+        {...formLayout}
+      >
+        <div className={styles.formSection}>
+          <h4 className={styles.sectionTitle}>起始点数据</h4>
+          <Form.Item
+            label="Bench Mark"
+            name="benchMark"
+            rules={[{ required: true, message: '请输入起始点编号' }]}
+          >
+            <Input 
+              placeholder="输入起始点编号" 
+              onChange={(e) => handleBenchMarkChange(e.target.value)}
+            />
+          </Form.Item>
+          
+          <Form.Item
+            label="Reduced Level"
+            name="reducedLevel"
+            rules={[{ required: true, message: '请输入起始点高程' }]}
+          >
+            <Input
+              type="number"
+              step="any"
+              inputMode="decimal"
+              placeholder="输入起始点高程"
+              suffix="m"
+            />
+        </Form.Item>
+      </div>
+
+        <div className={styles.formSection}>
+          <h4 className={styles.sectionTitle}>观测点数据</h4>
+          {/* 移除ID和Back-Sight输入框 */}
+          
+          {/* 保留观测点数据表格 */}
+          {(levelPoints.length > 0 || simpleLevelForm.getFieldValue('benchMark')) && (
+            <div className={styles.observationTable}>
+              <h4 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                已输入的观测点数据
+                <Button 
+                  type="default" 
+                  danger
+                  size="small"
+                  icon={<DeleteOutlined />}
+                  onClick={() => {
+                    setLevelPoints([]);
+                    simpleLevelForm.setFieldsValue({ backSight: '' });
+                    setIsStarted(false);
+                    setLastPointType(null);
+                  }}
+                >
+                  清除
+                </Button>
+              </h4>
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>B.S</th>
+                    <th>F.S</th>
+                    <th>R.L</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* 显示第一个点(Bench Mark) */}
+                  {simpleLevelForm.getFieldValue('benchMark') && (
+                    <tr>
+                      <td>{simpleLevelForm.getFieldValue('benchMark')}</td>
+                      <td>{simpleLevelForm.getFieldValue('backSight')}</td>
+                      <td>-</td>
+                      <td>{simpleLevelForm.getFieldValue('reducedLevel')}</td>
+                    </tr>
+                  )}
+                  
+                  {/* 显示后续的点 */}
+                  {(() => {
+                    // 预先计算所有点的高程
+                    const rls = [];
+                    let startRL = parseFloat(simpleLevelForm.getFieldValue('reducedLevel'));
+                    let startBS = simpleLevelForm.getFieldValue('backSight') ? parseFloat(simpleLevelForm.getFieldValue('backSight')) : 0;
+                    
+                    // 计算每个点的高程
+                    levelPoints.forEach((point, idx) => {
+                      if (idx === 0) {
+                        // 第一个点：RL = 起始点RL + 起始点BS - 第一点FS
+                        if (point.foreSight) {
+                          rls.push(startRL + startBS - parseFloat(point.foreSight));
+                        } else {
+                          rls.push(startRL);
+                        }
+                      } else {
+                        // 后续点：RL = 上一点RL + 上一点BS - 当前点FS
+                        const prevPoint = levelPoints[idx - 1];
+                        const prevRL = rls[idx - 1];
+                        
+                        if (prevPoint.backSight && point.foreSight) {
+                          rls.push(prevRL + parseFloat(prevPoint.backSight) - parseFloat(point.foreSight));
+                        } else if (prevPoint.backSight) {
+                          rls.push(prevRL + parseFloat(prevPoint.backSight));
+                        } else if (point.foreSight) {
+                          rls.push(prevRL - parseFloat(point.foreSight));
+                        } else {
+                          rls.push(prevRL);
+                        }
+                      }
+                    });
+                    
+                    // 渲染表格行
+                    return levelPoints.map((point, index) => (
+                      <tr key={index}>
+                        <td>{point.id}</td>
+                        <td>{point.backSight || '-'}</td>
+                        <td>{point.foreSight || '-'}</td>
+                        <td>{rls[index].toFixed(4)}</td>
+                      </tr>
+                    ));
+                  })()}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        <div className={styles.buttonGroup}>
+          {!isStarted ? (
+            <Button type="primary" onClick={() => showInputModal()} style={{ marginRight: 8 }}>
+              开始
+            </Button>
+          ) : (
+            <Button type="primary" onClick={() => showInputModal()} style={{ marginRight: 8 }}>
+              下一点
+            </Button>
+          )}
+          <Button 
+            type="primary" 
+            icon={<DownloadOutlined />}
+            onClick={() => {
+              // 检查是否有数据可以导出
+              if (!isStarted || !simpleLevelForm.getFieldValue('backSight')) {
+                message.error('请先开始输入观测点数据');
+                return;
+              }
+
+              // 预先计算所有点的高程
+              const rls = [];
+              let startRL = parseFloat(simpleLevelForm.getFieldValue('reducedLevel'));
+              let startBS = simpleLevelForm.getFieldValue('backSight') ? parseFloat(simpleLevelForm.getFieldValue('backSight')) : 0;
+              
+              // 计算每个点的高程
+              levelPoints.forEach((point, idx) => {
+                if (idx === 0) {
+                  // 第一个点：RL = 起始点RL + 起始点BS - 第一点FS
+                  if (point.foreSight) {
+                    rls.push(startRL + startBS - parseFloat(point.foreSight));
+                  } else {
+                    rls.push(startRL);
+                  }
+                } else {
+                  // 后续点：RL = 上一点RL + 上一点BS - 当前点FS
+                  const prevPoint = levelPoints[idx - 1];
+                  const prevRL = rls[idx - 1];
+                  
+                  if (prevPoint.backSight && point.foreSight) {
+                    rls.push(prevRL + parseFloat(prevPoint.backSight) - parseFloat(point.foreSight));
+                  } else if (prevPoint.backSight) {
+                    rls.push(prevRL + parseFloat(prevPoint.backSight));
+                  } else if (point.foreSight) {
+                    rls.push(prevRL - parseFloat(point.foreSight));
+                  } else {
+                    rls.push(prevRL);
+                  }
+                }
+              });
+              
+              // 构建要导出的数据
+              const allPoints = [];
+              
+              // 添加第一个点（起始点）
+              allPoints.push({
+                id: simpleLevelForm.getFieldValue('benchMark'),
+                backSight: simpleLevelForm.getFieldValue('backSight'),
+                foreSight: '-',
+                reducedLevel: parseFloat(simpleLevelForm.getFieldValue('reducedLevel')).toFixed(4)
+              });
+              
+              // 添加观测点
+              levelPoints.forEach((point, idx) => {
+                allPoints.push({
+                  id: point.id,
+                  backSight: point.backSight || '-',
+                  foreSight: point.foreSight || '-',
+                  reducedLevel: rls[idx].toFixed(4)
+                });
+              });
+              
+              // 创建CSV内容
+              // 添加表头
+              const header = "ID,B.S,F.S,R.L\n";
+              
+              // 生成数据行
+              const dataRows = allPoints
+                .map((p, i) => `${p.id},${p.backSight || '-'},${i === 0 ? '-' : p.foreSight || '-'},${p.reducedLevel}`)
+                .join('\n');
+              
+              // 合并表头和数据
+              const csvContent = header + dataRows;
+              
+              // 完全按照GSI文件下载的方式实现
+              let element = document.createElement('a');
+              element.setAttribute('href', 'data:application/octet-stream;charset=utf-8,' + encodeURIComponent(csvContent));
+              
+              // 设置文件名
+              const fileName = `平水计算_${new Date().toLocaleDateString().replace(/\//g, '-')}.csv`;
+              element.setAttribute('download', fileName);
+              element.style.display = 'none';
+              document.body.appendChild(element);
+              element.click();
+              document.body.removeChild(element);
+              
+              message.success(`${fileName} 文件下载成功`);
+            }}
+            style={{ marginLeft: 8 }}
+          >
+            下载CSV
+          </Button>
+        </div>
+    </Form>
+
+      <Modal
+        title="输入下一观测点"
+        visible={isAddPointModalVisible}
+        onOk={handleAddPoint}
+        onCancel={() => setIsAddPointModalVisible(false)}
+        destroyOnClose
+      >
+        <Form form={newPointForm} layout="vertical">
+          <Form.Item
+            label="ID"
+            name="pointId"
+            rules={[{ required: true, message: '请输入观测点编号' }]}
+          >
+            <Input placeholder="输入观测点编号" />
+          </Form.Item>
+          
+          <Form.Item
+            label="Fore-Sight"
+            name="foreSight"
+            rules={[{ required: true, message: '请输入前视读数' }]}
+          >
+            <Input
+              type="number"
+              step="any"
+              inputMode="decimal"
+              placeholder="输入前视读数"
+              suffix="m"
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* 添加输入弹窗 */}
+      <Modal
+        title={inputFormType === 'bs' ? "输入后视读数" : "输入前视读数"}
+        visible={isInputModalVisible}
+        onOk={handleInputSubmit}
+        onCancel={() => setIsInputModalVisible(false)}
+        destroyOnClose
+        className={isMobile ? styles.mobileModal : ''}
+        footer={[
+          <Button key="next" onClick={() => {
+            // 先提交当前输入
+            inputForm.validateFields().then(values => {
+              // 保存当前输入类型
+              const currentType = inputFormType;
+              
+              // 处理当前输入
+              if (currentType === 'bs') {
+                // 处理后视读数输入
+                if (!isStarted) {
+                  // 第一次输入后视读数（第一点）
+                  simpleLevelForm.setFieldsValue({
+                    backSight: values.backSight
+                  });
+                  setIsStarted(true);
+                  setLastPointType('bs');
+                } else {
+                  // 添加后视读数到当前点
+                  const updatedPoints = [...levelPoints];
+                  const lastIndex = updatedPoints.length - 1;
+                  
+                  if (lastIndex >= 0) {
+                    // 更新当前点的后视读数
+                    updatedPoints[lastIndex].backSight = values.backSight;
+                    setLevelPoints(updatedPoints);
+                  }
+                  setLastPointType('bs');
+                }
+                
+                // 关闭当前弹窗
+                setIsInputModalVisible(false);
+                
+                // 显示下一个输入弹窗（前视）
+                setTimeout(() => {
+                  setInputFormType('fs');
+                  
+                  // 获取上一个点的ID或Bench Mark
+                  const lastId = levelPoints.length > 0 
+                    ? levelPoints[levelPoints.length - 1].id 
+                    : simpleLevelForm.getFieldValue('benchMark');
+                  
+                  // 生成下一个ID
+                  const nextId = generateNextId(lastId);
+                  
+                  // 重置表单并设置默认ID
+                  inputForm.resetFields();
+                  inputForm.setFieldsValue({ pointId: nextId });
+                  
+                  // 显示弹窗
+                  setIsInputModalVisible(true);
+                }, 100);
+              } else {
+                // 处理前视读数输入
+                if (levelPoints.length === 0 || (levelPoints[levelPoints.length - 1].backSight && levelPoints[levelPoints.length - 1].foreSight)) {
+                  // 如果是第一个点或上一个点已有BS和FS，则创建新点
+                  const newId = values.pointId || generateNextId(
+                    levelPoints.length > 0 
+                      ? levelPoints[levelPoints.length - 1].id 
+                      : simpleLevelForm.getFieldValue('benchMark')
+                  );
+                  
+                  // 创建新点，只有FS值
+                  const newPoint = {
+                    id: newId,
+                    backSight: null,
+                    foreSight: values.foreSight
+                  };
+                  
+                  setLevelPoints(prev => [...prev, newPoint]);
+                } else {
+                  // 更新当前点的前视读数
+                  const updatedPoints = [...levelPoints];
+                  const lastIndex = updatedPoints.length - 1;
+                  
+                  if (lastIndex >= 0) {
+                    updatedPoints[lastIndex].foreSight = values.foreSight;
+                    setLevelPoints(updatedPoints);
+                  }
+                }
+                setLastPointType('fs');
+                
+                // 关闭当前弹窗
+                setIsInputModalVisible(false);
+                
+                // 显示下一个输入弹窗（后视）
+                setTimeout(() => {
+                  setInputFormType('bs');
+                  
+                  // 重置表单
+                  inputForm.resetFields();
+                  
+                  // 显示弹窗
+                  setIsInputModalVisible(true);
+                }, 100);
+              }
+            }).catch(error => {
+              console.error('表单验证失败:', error);
+              message.error('请填写所有必填字段');
+            });
+          }}>
+            下一点
+          </Button>,
+          <Button key="submit" type="primary" onClick={handleInputSubmit}>
+            确定
+          </Button>
+        ]}
+      >
+        <Form form={inputForm} layout="vertical">
+          {inputFormType === 'fs' && (
+            <Form.Item
+              label="ID"
+              name="pointId"
+              rules={[{ required: true, message: '请输入观测点编号' }]}
+            >
+              <Input placeholder="输入观测点编号" />
+            </Form.Item>
+          )}
+          
+          <Form.Item
+            label={inputFormType === 'bs' ? "Back-Sight" : "Fore-Sight"}
+            name={inputFormType === 'bs' ? "backSight" : "foreSight"}
+            rules={[{ required: true, message: `请输入${inputFormType === 'bs' ? '后' : '前'}视读数` }]}
+          >
+            <Input
+              type="number"
+              step="any"
+              inputMode="decimal"
+              placeholder={`输入${inputFormType === 'bs' ? '后' : '前'}视读数`}
+              suffix="m"
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* 移除计算结果部分 */}
+    </Card>
+  );
+  };
+
+  // 显示添加点的弹窗
+  const showAddPointModal = () => {
+    const values = simpleLevelForm.getFieldsValue();
+    if (!values.currentId || !values.backSight) {
+      message.error('请先填写当前观测点的ID和后视读数');
+      return;
+    }
+    setIsAddPointModalVisible(true);
+  };
+
+  // 处理添加新的观测点
+  const handleAddPoint = () => {
+    newPointForm.validateFields().then(values => {
+      const currentValues = simpleLevelForm.getFieldsValue();
+      
+      // 添加当前点到观测点列表，包含前视和后视读数
+      setLevelPoints(prev => [...prev, {
+        id: currentValues.currentId,
+        backSight: currentValues.backSight,
+        foreSight: values.foreSight
+      }]);
+
+      // 更新表单数据
+      simpleLevelForm.setFieldsValue({
+        currentId: values.pointId,
+        backSight: ''
+      });
+
+      // 关闭弹窗并重置表单
+      setIsAddPointModalVisible(false);
+      newPointForm.resetFields();
+    });
+  };
+
+  // 处理完成按钮点击
+  const handleComplete = () => {
+    // 检查是否有数据可以计算
+    if (!isStarted || !simpleLevelForm.getFieldValue('backSight')) {
+      message.error('请先开始输入观测点数据');
+      return;
+    }
+
+    const values = simpleLevelForm.getFieldsValue();
+    const allPoints = [];
+    
+    // 添加第一个点（起始点）
+    allPoints.push({
+      id: values.benchMark,
+      backSight: values.backSight,
+      foreSight: '-',
+      reducedLevel: parseFloat(values.reducedLevel).toFixed(4)
+    });
+    
+    // 预先计算所有点的高程
+    const rls = [];
+    let startRL = parseFloat(values.reducedLevel);
+    let startBS = values.backSight ? parseFloat(values.backSight) : 0;
+    
+    // 计算每个点的高程
+    levelPoints.forEach((point, idx) => {
+      if (idx === 0) {
+        // 第一个点：RL = 起始点RL + 起始点BS - 第一点FS
+        if (point.foreSight) {
+          rls.push(startRL + startBS - parseFloat(point.foreSight));
+        } else {
+          rls.push(startRL);
+        }
+      } else {
+        // 后续点：RL = 上一点RL + 上一点BS - 当前点FS
+        const prevPoint = levelPoints[idx - 1];
+        const prevRL = rls[idx - 1];
+        
+        if (prevPoint.backSight && point.foreSight) {
+          rls.push(prevRL + parseFloat(prevPoint.backSight) - parseFloat(point.foreSight));
+        } else if (prevPoint.backSight) {
+          rls.push(prevRL + parseFloat(prevPoint.backSight));
+        } else if (point.foreSight) {
+          rls.push(prevRL - parseFloat(point.foreSight));
+        } else {
+          rls.push(prevRL);
+        }
+      }
+    });
+    
+    // 添加观测点到结果
+    levelPoints.forEach((point, idx) => {
+      allPoints.push({
+        id: point.id,
+        backSight: point.backSight || '-',
+        foreSight: point.foreSight || '-',
+        reducedLevel: rls[idx].toFixed(4)
+      });
+    });
+
+    setSimpleLevelResult({
+      points: allPoints
+    });
+
+    message.success('计算完成');
+  };
 
   const calculateArc = () => {
     arcForm.validateFields().then(values => {
@@ -1005,7 +1569,7 @@ const ToolsLayout = () => {
                                 style={{ width: '100%' }}
                                 placeholder="E坐標"
                               />
-          </Form.Item>
+        </Form.Item>
                           </td>
                           <td>
                             <Form.Item
@@ -1263,6 +1827,159 @@ const ToolsLayout = () => {
     });
   };
 
+  // 处理输入提交
+  const handleInputSubmit = () => {
+    inputForm.validateFields().then(values => {
+      if (inputFormType === 'bs') {
+        // 处理后视读数输入
+        if (!isStarted) {
+          // 第一次输入后视读数（第一点）
+          simpleLevelForm.setFieldsValue({
+            backSight: values.backSight
+          });
+          setIsStarted(true);
+          setLastPointType('bs');
+        } else {
+          // 添加后视读数到当前点
+          const updatedPoints = [...levelPoints];
+          const lastIndex = updatedPoints.length - 1;
+          
+          if (lastIndex >= 0) {
+            // 更新当前点的后视读数
+            updatedPoints[lastIndex].backSight = values.backSight;
+            setLevelPoints(updatedPoints);
+          }
+          setLastPointType('bs');
+        }
+      } else {
+        // 处理前视读数输入
+        if (levelPoints.length === 0 || (levelPoints[levelPoints.length - 1].backSight && levelPoints[levelPoints.length - 1].foreSight)) {
+          // 如果是第一个点或上一个点已有BS和FS，则创建新点
+          const newId = values.pointId || generateNextId(
+            levelPoints.length > 0 
+              ? levelPoints[levelPoints.length - 1].id 
+              : simpleLevelForm.getFieldValue('benchMark')
+          );
+          
+          // 创建新点，只有FS值
+          const newPoint = {
+            id: newId,
+            backSight: null,
+            foreSight: values.foreSight
+          };
+          
+          setLevelPoints(prev => [...prev, newPoint]);
+        } else {
+          // 更新当前点的前视读数
+          const updatedPoints = [...levelPoints];
+          const lastIndex = updatedPoints.length - 1;
+          
+          if (lastIndex >= 0) {
+            updatedPoints[lastIndex].foreSight = values.foreSight;
+            setLevelPoints(updatedPoints);
+          }
+        }
+        setLastPointType('fs');
+      }
+      
+      // 关闭弹窗并重置表单
+      setIsInputModalVisible(false);
+      inputForm.resetFields();
+    }).catch(error => {
+      console.error('表单验证失败:', error);
+      message.error('请填写所有必填字段');
+    });
+  };
+
+  // 生成下一个ID
+  const generateNextId = (lastId) => {
+    if (!lastId) return 'P1';
+    
+    // 尝试从ID中提取数字部分
+    const match = lastId.match(/([A-Za-z]+)(\d+)/);
+    if (match) {
+      const prefix = match[1];
+      const number = parseInt(match[2]) + 1;
+      return `${prefix}${number}`;
+    }
+    
+    // 如果无法提取，则添加序号
+    return `${lastId}1`;
+  };
+
+  // 显示输入弹窗
+  const showInputModal = () => {
+    // 检查起始点数据是否已填写
+    const values = simpleLevelForm.getFieldsValue();
+    if (!values.benchMark || !values.reducedLevel) {
+      message.error('请先填写起始点数据');
+      return;
+    }
+
+    let nextInputType = 'bs'; // 默认为后视
+
+    // 根据上一个点的状态决定下一步输入什么
+    if (!isStarted) {
+      // 第一次点击"开始"，输入第一个点的BS
+      nextInputType = 'bs';
+    } else {
+      // 已经开始，根据上一个点的状态决定
+      const lastPoint = levelPoints.length > 0 ? levelPoints[levelPoints.length - 1] : null;
+      
+      if (!lastPoint) {
+        // 只有第一个点（Bench Mark），下一步输入FS
+        nextInputType = 'fs';
+      } else if (lastPoint.foreSight && lastPoint.backSight) {
+        // 上一个点已经有BS和FS，创建新点，输入FS
+        nextInputType = 'fs';
+      } else if (lastPoint.foreSight) {
+        // 上一个点只有FS，下一步输入BS
+        nextInputType = 'bs';
+      } else if (lastPoint.backSight) {
+        // 上一个点只有BS，下一步输入FS
+        nextInputType = 'fs';
+      } else {
+        // 默认输入BS
+        nextInputType = 'bs';
+      }
+    }
+
+    // 设置输入类型
+    setInputFormType(nextInputType);
+    
+    // 重置表单
+    inputForm.resetFields();
+    
+    // 如果是前视，提供默认ID
+    if (nextInputType === 'fs') {
+      // 获取上一个点的ID或Bench Mark
+      const lastId = levelPoints.length > 0 
+        ? levelPoints[levelPoints.length - 1].id 
+        : values.benchMark;
+      
+      // 生成下一个ID
+      const nextId = generateNextId(lastId);
+      
+      // 设置默认ID
+      setTimeout(() => {
+        inputForm.setFieldsValue({ pointId: nextId });
+      }, 100);
+    }
+    
+    // 在移动设备上优化弹窗体验
+    if (isMobile) {
+      // 设置弹窗样式，使其在移动设备上更友好
+      const modalElement = document.querySelector('.ant-modal');
+      if (modalElement) {
+        modalElement.style.top = '20%';
+        modalElement.style.maxWidth = '95%';
+        modalElement.style.margin = '0 auto';
+      }
+    }
+    
+    setIsInputModalVisible(true);
+  };
+
   return (
     <Layout className={styles.layout}>
       {!isMobile && (
@@ -1311,6 +2028,7 @@ const ToolsLayout = () => {
               buttonStyle="solid"
               className={styles.calculationTypeSelector}
             >
+              <Radio.Button value="simpleLevel">简易平水</Radio.Button>
               <Radio.Button value="arc">中拱計算</Radio.Button>
               <Radio.Button value="hypotenuse">斜邊計算</Radio.Button>
               <Radio.Button value="level">平水快速計算</Radio.Button>
@@ -1319,6 +2037,7 @@ const ToolsLayout = () => {
             </Radio.Group>
         </div>
           
+          {calculationType === 'simpleLevel' && renderSimpleLevelForm()}
           {calculationType === 'arc' && (
             <Form 
               form={arcForm} 
