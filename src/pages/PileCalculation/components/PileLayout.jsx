@@ -401,7 +401,7 @@ const PileLayout = () => {
       }
       
       // 生成示意图
-      const svgData = generateSvgPath(pileEVal, pileNVal, settingEVal, settingNVal, diffE/1000, diffN/1000, breDecimal);
+      const svgData = generateSvgPath(pileEVal, pileNVal, settingEVal, settingNVal, offsetDistance, chordDistance, breDecimal);
       setSvgPath(svgData);
       
       setCalculationResults(calculationResult);
