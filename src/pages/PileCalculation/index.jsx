@@ -4,9 +4,6 @@ import { HomeOutlined, CompassOutlined, CalculatorOutlined, AimOutlined, RadiusS
 import { useNavigate } from 'react-router-dom';
 import PileLayout from './components/PileLayout';
 import FirstPileCheck from './components/FirstPileCheck';
-import SecondPileCheck from './components/SecondPileCheck';
-import LastPileCheck from './components/LastPileCheck';
-import FirstPileCheckPro from './components/FirstPileCheckPro';
 import styles from './index.module.css';
 
 const { Content } = Layout;
@@ -89,11 +86,7 @@ const PileCalculation = () => {
           buttonStyle="solid"
         >
           <Radio.Button value="pileLayout">樁放樣</Radio.Button>
-          <Radio.Button value="pileLayoutPro">樁放樣(專業)</Radio.Button>
           <Radio.Button value="firstPileCheck">首樁檢測</Radio.Button>
-          <Radio.Button value="firstPileCheckPro">首樁檢測(專業)</Radio.Button>
-          <Radio.Button value="secondPileCheck">中間樁檢測</Radio.Button>
-          <Radio.Button value="lastPileCheck">尾樁檢測</Radio.Button>
         </Radio.Group>
       </div>
     );
@@ -104,16 +97,8 @@ const PileCalculation = () => {
     switch (calculationType) {
       case 'pileLayout':
         return <PileLayout mode="simple" />;
-      case 'pileLayoutPro':
-        return <PileLayout mode="professional" />;
       case 'firstPileCheck':
         return <FirstPileCheck />;
-      case 'firstPileCheckPro':
-        return <FirstPileCheckPro />;
-      case 'secondPileCheck':
-        return <SecondPileCheck />;
-      case 'lastPileCheck':
-        return <LastPileCheck />;
       default:
         return <PileLayout mode="simple" />;
     }

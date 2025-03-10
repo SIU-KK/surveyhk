@@ -424,6 +424,7 @@ const FirstPileCheck = () => {
       tempContainer.style.position = 'absolute';
       tempContainer.style.left = '-9999px';
       tempContainer.style.top = '-9999px';
+      tempContainer.style.width = '800px'; // 设置固定宽度以优化布局
       
       // 复制结果卡片的内容到临时容器
       if (resultCardRef.current) {
@@ -464,49 +465,74 @@ const FirstPileCheck = () => {
       const pdfHeight = pdf.internal.pageSize.getHeight();
       
       // 计算图像尺寸以适应PDF页面
-      const imgWidth = pdfWidth - 20; // 左右各留10mm边距
+      const imgWidth = pdfWidth - 10; // 左右各留5mm边距
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       
       // 如果图像高度超过页面高度，调整比例
       let currentHeight = imgHeight;
-      if (imgHeight > pdfHeight - 20) { // 上下各留10mm边距
-        currentHeight = pdfHeight - 20;
+      if (imgHeight > pdfHeight - 15) { // 上下各留7.5mm边距
+        currentHeight = pdfHeight - 15;
         const currentWidth = (canvas.width * currentHeight) / canvas.height;
-        pdf.addImage(imgData, 'PNG', (pdfWidth - currentWidth) / 2, 10, currentWidth, currentHeight);
+        pdf.addImage(imgData, 'PNG', (pdfWidth - currentWidth) / 2, 7.5, currentWidth, currentHeight);
       } else {
-        pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+        pdf.addImage(imgData, 'PNG', 5, 7.5, imgWidth, imgHeight);
       }
       
-      // 生成PDF Blob
-      const pdfBlob = pdf.output('blob');
-      return URL.createObjectURL(pdfBlob);
+      return pdf;
     } catch (error) {
       console.error('PDF生成错误:', error);
       return null;
     }
   };
 
-  const handleDownloadPDF = () => {
-    if (pdfDataUrl) {
-      // 在新标签页打开PDF
-      window.open(pdfDataUrl, '_blank');
-    } else {
-      message.loading({ content: '正在生成PDF...', key: 'pdfLoading' });
+  const handleDownloadPDF = async () => {
+    message.loading({ content: '正在生成PDF...', key: 'pdfLoading' });
+    
+    try {
+      // 生成PDF
+      const pdf = await generatePDF();
       
-      // 尝试重新生成PDF
-      generatePDF().then(url => {
-        if (url) {
-          setPdfDataUrl(url);
-          window.open(url, '_blank');
-          message.success({ content: 'PDF已在新标签页打开', key: 'pdfLoading' });
-        } else {
-          message.error({ content: 'PDF生成失败，请重试', key: 'pdfLoading' });
-        }
-      }).catch(error => {
-        console.error('PDF生成错误:', error);
+      if (!pdf) {
         message.error({ content: 'PDF生成失败，请重试', key: 'pdfLoading' });
-      });
+        return;
+      }
+      
+      // 获取桩号和当前日期
+      const pileNo = calculationResults.pileNo || 'Unknown';
+      const currentDate = new Date().toISOString().split('T')[0];
+      const fileName = `头桩检查_${pileNo}_${currentDate}.pdf`;
+      
+      // 获取PDF的二进制数据
+      const pdfData = pdf.output('arraybuffer');
+      
+      // 将二进制数据转换为Base64字符串
+      const pdfBase64 = arrayBufferToBase64(pdfData);
+      
+      // 使用与.gsi文件相同的下载方式
+      let element = document.createElement('a');
+      element.setAttribute('href', 'data:application/octet-stream;base64,' + pdfBase64);
+      element.setAttribute('download', fileName);
+      element.style.display = 'none';
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+      
+      message.success({ content: `${fileName} 下载成功`, key: 'pdfLoading' });
+    } catch (error) {
+      console.error('PDF生成错误:', error);
+      message.error({ content: 'PDF生成失败，请重试', key: 'pdfLoading' });
     }
+  };
+  
+  // 辅助函数：将ArrayBuffer转换为Base64字符串
+  const arrayBufferToBase64 = (buffer) => {
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return window.btoa(binary);
   };
 
   const onFinish = async (values) => {
